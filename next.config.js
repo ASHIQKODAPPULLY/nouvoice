@@ -6,7 +6,6 @@ const nextConfig = {
     unoptimized: process.env.NODE_ENV === "production",
   },
   pageExtensions: ["tsx", "ts", "jsx", "js"],
-  productionBrowserSourceMaps: false,
   swcMinify: true,
   poweredByHeader: false,
   reactStrictMode: true,
@@ -16,19 +15,10 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
-  distDir: ".next",
   experimental: {
     outputFileTracingExcludes: {
       "*": ["**/tempobook/**"],
     },
-  },
-  async rewrites() {
-    return [
-      {
-        source: "/api/:path*",
-        destination: "/api/:path*",
-      },
-    ];
   },
 };
 

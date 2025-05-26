@@ -851,11 +851,7 @@ export default function InvoicePromptInput({
                               variant="outline"
                               size="sm"
                               className={`flex items-center gap-1 ${openDropdown === "payment" ? "bg-accent text-accent-foreground" : ""}`}
-                              onClick={(e) => {
-                                e.preventDefault();
-                                e.stopPropagation();
-                                toggleDropdown("payment");
-                              }}
+                              onClick={() => toggleDropdown("payment")}
                             >
                               <Clock className="h-3 w-3" /> Payment Terms
                             </Button>

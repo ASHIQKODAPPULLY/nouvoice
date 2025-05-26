@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "framework": "nextjs",
   "buildCommand": "npm run build",
-  "installCommand": "npm install",
+  "devCommand": "npm run dev",
+  "installCommand": "npm install --legacy-peer-deps",
   "outputDirectory": ".next",
   "env": {
     "NEXT_PUBLIC_SITE_URL": "https://nouvoice.com.au"
