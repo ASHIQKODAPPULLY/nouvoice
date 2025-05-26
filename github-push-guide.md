@@ -60,13 +60,32 @@ When prompted, enter your GitHub credentials. If you have two-factor authenticat
 1. Go to your GitHub repository page
 2. Refresh the page to see your files
 
-## 9. Set Up GitHub Actions for Deployment (Optional)
+## 9. Deploying to Vercel
 
-To set up automatic deployment to Hostinger:
+### Option 1: Deploy from GitHub
+
+1. Go to [Vercel](https://vercel.com) and sign in
+2. Click 'Add New...' → 'Project'
+3. Select your GitHub repository
+4. Vercel will automatically detect your Next.js project
+5. Configure your project settings if needed
+6. Click 'Deploy'
+
+### Option 2: Deploy using Vercel CLI
+
+1. Run the deployment script:
+
+```bash
+./deploy-to-vercel.sh
+```
+
+2. Follow the prompts to authenticate and deploy
+
+### Option 3: Set Up GitHub Actions for Automatic Deployment
 
 1. Create the `.github/workflows` directory in your project
-2. Add the deployment workflow file as shown in the hostinger-deploy-guide.md
-3. Add your secrets in the GitHub repository settings
+2. Add a deployment workflow file
+3. Configure the workflow to deploy to Vercel on push to main
 
 ## 10. Future Pushes
 

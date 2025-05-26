@@ -3,6 +3,7 @@
 const nextConfig = {
   images: {
     domains: ["images.unsplash.com"],
+    unoptimized: process.env.NODE_ENV === "production",
   },
   pageExtensions: ["tsx", "ts", "jsx", "js"],
   productionBrowserSourceMaps: false,
