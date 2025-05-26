@@ -1,0 +1,177 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 0 0% 3.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 3.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 3.9%;
+    --primary: 0 0% 9%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 0 0% 96.1%;
+    --secondary-foreground: 0 0% 9%;
+    --muted: 0 0% 96.1%;
+    --muted-foreground: 0 0% 45.1%;
+    --accent: 0 0% 96.1%;
+    --accent-foreground: 0 0% 9%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 89.8%;
+    --input: 0 0% 89.8%;
+    --ring: 0 0% 3.9%;
+    --radius: 0.5rem;
+    --chart-1: 12 76% 61%;
+    --chart-2: 173 58% 39%;
+    --chart-3: 197 37% 24%;
+    --chart-4: 43 74% 66%;
+    --chart-5: 27 87% 67%;
+
+    /* Trending Design Color Schemes */
+    --gradient-blue: 210 100% 50%;
+    --gradient-purple: 270 100% 60%;
+    --gradient-teal: 180 100% 40%;
+    --gradient-pink: 330 100% 70%;
+    --gradient-orange: 30 100% 60%;
+    --gradient-green: 150 100% 40%;
+
+    --bold-accent: 350 80% 60%;
+    --soft-accent: 200 70% 80%;
+    --dark-accent: 220 60% 20%;
+    --vibrant-accent: 280 80% 65%;
+
+    /* Industry-specific colors */
+    --tech-primary: 220 70% 50%;
+    --tech-secondary: 260 60% 60%;
+    --tech-accent: 190 100% 40%;
+
+    --creative-primary: 340 80% 55%;
+    --creative-secondary: 280 75% 65%;
+    --creative-accent: 50 100% 60%;
+
+    --medical-primary: 195 100% 40%;
+    --medical-secondary: 220 40% 40%;
+    --medical-accent: 0 70% 60%;
+
+    --finance-primary: 215 50% 23%;
+    --finance-secondary: 200 30% 60%;
+    --finance-accent: 45 100% 50%;
+
+    --legal-primary: 0 0% 20%;
+    --legal-secondary: 0 0% 45%;
+    --legal-accent: 30 70% 50%;
+
+    --education-primary: 215 70% 35%;
+    --education-secondary: 10 80% 55%;
+    --education-accent: 45 100% 50%;
+
+    --retail-primary: 340 60% 55%;
+    --retail-secondary: 190 90% 40%;
+    --retail-accent: 45 100% 60%;
+
+    --food-primary: 10 80% 50%;
+    --food-secondary: 100 60% 50%;
+    --food-accent: 50 100% 50%;
+
+    --construction-primary: 35 80% 50%;
+    --construction-secondary: 15 70% 50%;
+    --construction-accent: 200 70% 50%;
+
+    --real-estate-primary: 200 70% 40%;
+    --real-estate-secondary: 150 50% 40%;
+    --real-estate-accent: 25 80% 50%;
+  }
+
+  .dark {
+    --background: 0 0% 3.9%;
+    --foreground: 0 0% 98%;
+    --card: 0 0% 3.9%;
+    --card-foreground: 0 0% 98%;
+    --popover: 0 0% 3.9%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 0 0% 98%;
+    --primary-foreground: 0 0% 9%;
+    --secondary: 0 0% 14.9%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 0 0% 14.9%;
+    --muted-foreground: 0 0% 63.9%;
+    --accent: 0 0% 14.9%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 14.9%;
+    --input: 0 0% 14.9%;
+    --ring: 0 0% 83.1%;
+    --chart-1: 220 70% 50%;
+    --chart-2: 160 60% 45%;
+    --chart-3: 30 80% 55%;
+    --chart-4: 280 65% 60%;
+    --chart-5: 340 75% 55%;
+
+    /* Trending Design Color Schemes - Dark Mode */
+    --gradient-blue: 210 80% 60%;
+    --gradient-purple: 270 80% 70%;
+    --gradient-teal: 180 70% 50%;
+    --gradient-pink: 330 70% 75%;
+    --gradient-orange: 30 80% 65%;
+    --gradient-green: 150 70% 50%;
+
+    --bold-accent: 350 70% 65%;
+    --soft-accent: 200 60% 70%;
+    --dark-accent: 220 30% 40%;
+    --vibrant-accent: 280 70% 70%;
+
+    /* Industry-specific colors - Dark Mode */
+    --tech-primary: 220 60% 60%;
+    --tech-secondary: 260 50% 70%;
+    --tech-accent: 190 90% 50%;
+
+    --creative-primary: 340 70% 65%;
+    --creative-secondary: 280 65% 75%;
+    --creative-accent: 50 90% 70%;
+
+    --medical-primary: 195 90% 50%;
+    --medical-secondary: 220 30% 50%;
+    --medical-accent: 0 60% 70%;
+
+    --finance-primary: 215 40% 33%;
+    --finance-secondary: 200 20% 70%;
+    --finance-accent: 45 90% 60%;
+
+    --legal-primary: 0 0% 30%;
+    --legal-secondary: 0 0% 55%;
+    --legal-accent: 30 60% 60%;
+
+    --education-primary: 215 60% 45%;
+    --education-secondary: 10 70% 65%;
+    --education-accent: 45 90% 60%;
+
+    --retail-primary: 340 50% 65%;
+    --retail-secondary: 190 80% 50%;
+    --retail-accent: 45 90% 70%;
+
+    --food-primary: 10 70% 60%;
+    --food-secondary: 100 50% 60%;
+    --food-accent: 50 90% 60%;
+
+    --construction-primary: 35 70% 60%;
+    --construction-secondary: 15 60% 60%;
+    --construction-accent: 200 60% 60%;
+
+    --real-estate-primary: 200 60% 50%;
+    --real-estate-secondary: 150 40% 50%;
+    --real-estate-accent: 25 70% 60%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}

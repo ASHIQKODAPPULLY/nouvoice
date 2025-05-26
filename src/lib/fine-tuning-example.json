@@ -1,0 +1,6 @@
+[  
+  {"input": "Create an invoice for website development", "output": "Invoice #INV-2024-1234\nService: Website Development\nAmount: $1500\nDue Date: 30 days from issue\nTax Rate: 10%"},
+  {"input": "Bill for logo design and business cards", "output": "Invoice #INV-2024-5678\nService: Logo Design\nAmount: $350\nService: Business Cards\nAmount: $150\nDue Date: 14 days from issue\nTax Rate: 8%"},
+  {"input": "Invoice for monthly consulting services", "output": "Invoice #INV-2024-9012\nService: Monthly Consulting\nAmount: $2000\nDue Date: Net 30\nTax Rate: 0%"}
+  // ... add more examples up to 100
+]

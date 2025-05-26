@@ -1,0 +1,557 @@
+"use client";
+
+import React, { useState } from "react";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Check, ArrowRight, Sparkles, Users } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import Link from "next/link";
+
+export default function PricingPage() {
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+
+  const handleSubscribe = async (priceId: string) => {
+    try {
+      // Validate price ID format client-side
+      if (!priceId.startsWith("price_")) {
+        throw new Error("Invalid price ID format");
+      }
+
+      setIsLoading(true);
+      const response = await fetch("/api/create-checkout-session", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          priceId,
+          returnUrl: window.location.origin,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to create checkout session");
+      }
+
+      if (data.url) {
+        // Redirect to Stripe Checkout
+        window.location.href = data.url;
+      } else {
+        throw new Error("No checkout URL returned");
+      }
+    } catch (error: any) {
+      console.error("Checkout error:", error);
+      // Use a more user-friendly error message
+      alert("Unable to process your request. Please try again later.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  return (
+    <div className="min-h-screen bg-background flex flex-col">
+      {/* Header */}
+      <header className="border-b sticky top-0 z-10 bg-background">
+        <div className="container mx-auto py-4 px-4 flex justify-between items-center">
+          <Link href="/" className="flex items-center gap-2">
+            <div className="h-8 w-8 rounded-md bg-primary flex items-center justify-center">
+              <span className="text-primary-foreground font-bold">I</span>
+            </div>
+            <h1 className="text-xl font-bold">Nouvoice</h1>
+          </Link>
+
+          <div className="flex items-center gap-4">
+            <Link href="/" passHref>
+              <Button variant="ghost">Home</Button>
+            </Link>
+            <Link href="/pricing" passHref>
+              <Button variant="ghost">Pricing</Button>
+            </Link>
+            <Button variant="outline">Sign In</Button>
+            <Button>Get Started</Button>
+          </div>
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <main className="flex-1 container mx-auto py-12 px-4">
+        <div className="max-w-6xl mx-auto space-y-12">
+          {/* Hero Section */}
+          <div className="text-center space-y-4">
+            <Badge className="bg-gradient-to-r from-gradient-blue to-gradient-purple text-white px-4 py-1 rounded-full">
+              Pricing Plans
+            </Badge>
+            <h1 className="text-4xl md:text-5xl font-bold tracking-tight">
+              Choose the perfect plan for your business
+            </h1>
+            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+              Simple, transparent pricing that grows with your business. No
+              hidden fees or surprises.
+            </p>
+          </div>
+
+          {/* Pricing Cards */}
+          <div className="grid md:grid-cols-4 gap-6 pt-8">
+            {/* Free Plan */}
+            <Card className="border shadow-sm hover:shadow-md transition-shadow">
+              <CardHeader>
+                <CardTitle className="flex items-center justify-between">
+                  <span className="text-2xl font-bold">Free</span>
+                  <Badge variant="outline">Limited</Badge>
+                </CardTitle>
+                <div className="mt-4">
+                  <span className="text-4xl font-bold">$0</span>
+                  <span className="text-muted-foreground ml-2">/month</span>
+                </div>
+                <p className="text-muted-foreground mt-2">
+                  Perfect for individuals just getting started
+                </p>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <ul className="space-y-3">
+                  <li className="flex items-start gap-2">
+                    <Check className="h-5 w-5 text-green-500 shrink-0 mt-0.5" />
+                    <span>Up to 50 invoices per month</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <Check className="h-5 w-5 text-green-500 shrink-0 mt-0.5" />
+                    <span>Basic invoice templates</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <Check className="h-5 w-5 text-green-500 shrink-0 mt-0.5" />
+                    <span>PDF & CSV exports</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <Check className="h-5 w-5 text-green-500 shrink-0 mt-0.5" />
+                    <span>AI-powered invoice generation</span>
+                  </li>
+                </ul>
+              </CardContent>
+              <CardFooter>
+                <Button
+                  className="w-full"
+                  variant="outline"
+                  onClick={() =>
+                    handleSubscribe("price_1RPFsuBHa6CDK7TJfVmF8ld6")
+                  }
+                  disabled={isLoading}
+                >
+                  Get Started <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+              </CardFooter>
+            </Card>
+
+            {/* Annual Discount Plan */}
+            <Card className="border-2 border-gradient-purple shadow-lg relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-24 h-24">
+                <div className="absolute transform rotate-45 bg-gradient-to-r from-gradient-pink to-gradient-purple text-white font-medium py-1 right-[-35px] top-[32px] w-[170px] text-center text-xs">
+                  SPECIAL OFFER
+                </div>
+              </div>
+              <CardHeader>
+                <CardTitle className="flex items-center justify-between">
+                  <span className="text-2xl font-bold">Annual Access</span>
+                  <Badge className="bg-gradient-to-r from-gradient-pink to-gradient-purple text-white">
+                    Best Value
+                  </Badge>
+                </CardTitle>
+                <div className="mt-4">
+                  <span className="text-4xl font-bold">$50</span>
+                  <span className="text-muted-foreground ml-2">/year</span>
+                </div>
+                <p className="text-muted-foreground mt-2">
+                  Full access for an entire year at a discounted flat rate
+                </p>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <ul className="space-y-3">
+                  <li className="flex items-start gap-2">
+                    <Check className="h-5 w-5 text-green-500 shrink-0 mt-0.5" />
+                    <span>Unlimited invoices</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <Check className="h-5 w-5 text-green-500 shrink-0 mt-0.5" />
+                    <span>All premium templates</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <Check className="h-5 w-5 text-green-500 shrink-0 mt-0.5" />
+                    <span>Custom branding options</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <Check className="h-5 w-5 text-green-500 shrink-0 mt-0.5" />
+                    <span>Client management</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <Check className="h-5 w-5 text-green-500 shrink-0 mt-0.5" />
+                    <span>Advanced analytics</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <Check className="h-5 w-5 text-green-500 shrink-0 mt-0.5" />
+                    <span>Team access (1 team, up to 3 members)</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <Check className="h-5 w-5 text-green-500 shrink-0 mt-0.5" />
+                    <span>Priority support</span>
+                  </li>
+                </ul>
+              </CardContent>
+              <CardFooter>
+                <Button
+                  className="w-full bg-gradient-to-r from-gradient-pink to-gradient-purple hover:opacity-90"
+                  onClick={() => handleSubscribe("price_annual_discount_50")}
+                  disabled={isLoading}
+                >
+                  {isLoading ? "Processing..." : "Get Annual Access"}{" "}
+                  <Sparkles className="ml-2 h-4 w-4" />
+                </Button>
+              </CardFooter>
+            </Card>
+
+            {/* Pro Plan */}
+            <Card className="border shadow-sm hover:shadow-md transition-shadow">
+              <CardHeader>
+                <CardTitle className="flex items-center justify-between">
+                  <span className="text-2xl font-bold">Pro</span>
+                  <Badge variant="outline">Monthly</Badge>
+                </CardTitle>
+                <div className="mt-4">
+                  <span className="text-4xl font-bold">$19</span>
+                  <span className="text-muted-foreground ml-2">/month</span>
+                </div>
+                <p className="text-muted-foreground mt-2">
+                  For growing businesses and professionals
+                </p>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <ul className="space-y-3">
+                  <li className="flex items-start gap-2">
+                    <Check className="h-5 w-5 text-green-500 shrink-0 mt-0.5" />
+                    <span>Unlimited invoices</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <Check className="h-5 w-5 text-green-500 shrink-0 mt-0.5" />
+                    <span>All premium templates</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <Check className="h-5 w-5 text-green-500 shrink-0 mt-0.5" />
+                    <span>Custom branding options</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <Check className="h-5 w-5 text-green-500 shrink-0 mt-0.5" />
+                    <span>Client management</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <Check className="h-5 w-5 text-green-500 shrink-0 mt-0.5" />
+                    <span>Advanced analytics</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <Check className="h-5 w-5 text-green-500 shrink-0 mt-0.5" />
+                    <span>Team access (1 team, up to 3 members)</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <Check className="h-5 w-5 text-green-500 shrink-0 mt-0.5" />
+                    <span>Priority support</span>
+                  </li>
+                </ul>
+              </CardContent>
+              <CardFooter>
+                <Button
+                  className="w-full"
+                  variant="outline"
+                  onClick={() => handleSubscribe("price_monthly_pro")}
+                  disabled={isLoading}
+                >
+                  {isLoading ? "Processing..." : "Upgrade to Pro"}{" "}
+                  <Sparkles className="ml-2 h-4 w-4" />
+                </Button>
+              </CardFooter>
+            </Card>
+
+            {/* Team Plan */}
+            <Card className="border-2 border-blue-300 shadow-lg hover:shadow-md transition-shadow">
+              <CardHeader>
+                <CardTitle className="flex items-center justify-between">
+                  <span className="text-2xl font-bold">Team</span>
+                  <Badge className="bg-blue-100 text-blue-800">
+                    Collaboration
+                  </Badge>
+                </CardTitle>
+                <div className="mt-4">
+                  <span className="text-4xl font-bold">$49</span>
+                  <span className="text-muted-foreground ml-2">/month</span>
+                </div>
+                <p className="text-muted-foreground mt-2">
+                  For teams that need to collaborate efficiently
+                </p>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <ul className="space-y-3">
+                  <li className="flex items-start gap-2">
+                    <Check className="h-5 w-5 text-green-500 shrink-0 mt-0.5" />
+                    <span>Everything in Pro plan</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <Check className="h-5 w-5 text-green-500 shrink-0 mt-0.5" />
+                    <span>
+                      <strong>Unlimited team members</strong>
+                    </span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <Check className="h-5 w-5 text-green-500 shrink-0 mt-0.5" />
+                    <span>Advanced role management</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <Check className="h-5 w-5 text-green-500 shrink-0 mt-0.5" />
+                    <span>Team activity dashboard</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <Check className="h-5 w-5 text-green-500 shrink-0 mt-0.5" />
+                    <span>Shared invoice templates</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <Check className="h-5 w-5 text-green-500 shrink-0 mt-0.5" />
+                    <span>Priority support</span>
+                  </li>
+                </ul>
+              </CardContent>
+              <CardFooter>
+                <Button
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+                  onClick={() =>
+                    handleSubscribe("price_1RPG53BHa6CDK7TJGyBiQwM2")
+                  }
+                  disabled={isLoading}
+                >
+                  {isLoading ? "Processing..." : "Upgrade to Team"}{" "}
+                  <Users className="ml-2 h-4 w-4" />
+                </Button>
+              </CardFooter>
+            </Card>
+
+            {/* Enterprise Plan */}
+            <Card className="border shadow-sm hover:shadow-md transition-shadow">
+              <CardHeader>
+                <CardTitle className="flex items-center justify-between">
+                  <span className="text-2xl font-bold">Enterprise</span>
+                  <Badge variant="secondary">Custom</Badge>
+                </CardTitle>
+                <div className="mt-4">
+                  <span className="text-4xl font-bold">Custom</span>
+                </div>
+                <p className="text-muted-foreground mt-2">
+                  For large organizations with specific needs
+                </p>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <ul className="space-y-3">
+                  <li className="flex items-start gap-2">
+                    <Check className="h-5 w-5 text-green-500 shrink-0 mt-0.5" />
+                    <span>Everything in Team plan</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <Check className="h-5 w-5 text-green-500 shrink-0 mt-0.5" />
+                    <span>Dedicated account manager</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <Check className="h-5 w-5 text-green-500 shrink-0 mt-0.5" />
+                    <span>Custom integrations</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <Check className="h-5 w-5 text-green-500 shrink-0 mt-0.5" />
+                    <span>Advanced security features</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <Check className="h-5 w-5 text-green-500 shrink-0 mt-0.5" />
+                    <span>SLA guarantees</span>
+                  </li>
+                </ul>
+              </CardContent>
+              <CardFooter>
+                <Button
+                  className="w-full"
+                  variant="outline"
+                  onClick={() =>
+                    (window.location.href =
+                      "mailto:sales@nouvoice.com?subject=Enterprise%20Plan%20Inquiry")
+                  }
+                >
+                  Contact Sales <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+              </CardFooter>
+            </Card>
+          </div>
+
+          {/* Team Features Section */}
+          <div className="py-12 border-t border-b">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl font-bold mb-4">
+                Team Collaboration Features
+              </h2>
+              <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+                Streamline your team's workflow with our powerful collaboration
+                tools
+              </p>
+            </div>
+
+            <div className="grid md:grid-cols-3 gap-8">
+              <div className="space-y-4">
+                <div className="h-12 w-12 rounded-lg bg-blue-100 flex items-center justify-center">
+                  <Users className="h-6 w-6 text-blue-600" />
+                </div>
+                <h3 className="text-xl font-bold">Role-Based Access</h3>
+                <p className="text-muted-foreground">
+                  Assign different roles to team members with specific
+                  permissions for viewing, editing, and managing invoices.
+                </p>
+              </div>
+
+              <div className="space-y-4">
+                <div className="h-12 w-12 rounded-lg bg-blue-100 flex items-center justify-center">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="h-6 w-6 text-blue-600"
+                  >
+                    <path d="M12 5v14"></path>
+                    <path d="M5 12h14"></path>
+                  </svg>
+                </div>
+                <h3 className="text-xl font-bold">Simple Invitations</h3>
+                <p className="text-muted-foreground">
+                  Invite team members via email or shareable link. New members
+                  can join with just a click.
+                </p>
+              </div>
+
+              <div className="space-y-4">
+                <div className="h-12 w-12 rounded-lg bg-blue-100 flex items-center justify-center">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="h-6 w-6 text-blue-600"
+                  >
+                    <rect
+                      width="18"
+                      height="18"
+                      x="3"
+                      y="3"
+                      rx="2"
+                      ry="2"
+                    ></rect>
+                    <line x1="3" x2="21" y1="9" y2="9"></line>
+                    <line x1="9" x2="9" y1="21" y2="9"></line>
+                  </svg>
+                </div>
+                <h3 className="text-xl font-bold">Shared Templates</h3>
+                <p className="text-muted-foreground">
+                  Create and share invoice templates across your team to
+                  maintain consistent branding and formatting.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* FAQ Section */}
+          <div className="mt-24 space-y-8">
+            <h2 className="text-3xl font-bold text-center">
+              Frequently Asked Questions
+            </h2>
+            <div className="grid md:grid-cols-2 gap-8 mt-8">
+              <div className="space-y-2">
+                <h3 className="text-xl font-medium">
+                  Can I switch plans later?
+                </h3>
+                <p className="text-muted-foreground">
+                  Yes, you can upgrade, downgrade, or cancel your plan at any
+                  time. Changes take effect at the start of your next billing
+                  cycle.
+                </p>
+              </div>
+              <div className="space-y-2">
+                <h3 className="text-xl font-medium">Do you offer refunds?</h3>
+                <p className="text-muted-foreground">
+                  We offer a 14-day money-back guarantee for all paid plans. If
+                  you're not satisfied, contact our support team within 14 days
+                  of your purchase.
+                </p>
+              </div>
+              <div className="space-y-2">
+                <h3 className="text-xl font-medium">
+                  What payment methods do you accept?
+                </h3>
+                <p className="text-muted-foreground">
+                  We accept all major credit cards, PayPal, and bank transfers
+                  for annual plans. Cryptocurrency payments are available upon
+                  request.
+                </p>
+              </div>
+              <div className="space-y-2">
+                <h3 className="text-xl font-medium">
+                  How many team members can I add?
+                </h3>
+                <p className="text-muted-foreground">
+                  The Free plan doesn't include team features. The Pro plan
+                  allows up to 3 team members. The Team plan supports unlimited
+                  team members. For larger organizations, our Enterprise plan
+                  offers custom team structures.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+
+      {/* Footer */}
+      <footer className="border-t py-6">
+        <div className="container mx-auto px-4">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+            <p className="text-sm text-muted-foreground">
+              © 2023 Nouvoice. All rights reserved.
+            </p>
+            <div className="flex gap-6">
+              <a
+                href="#"
+                className="text-sm text-muted-foreground hover:text-foreground"
+              >
+                Terms
+              </a>
+              <a
+                href="#"
+                className="text-sm text-muted-foreground hover:text-foreground"
+              >
+                Privacy
+              </a>
+              <a
+                href="#"
+                className="text-sm text-muted-foreground hover:text-foreground"
+              >
+                Help
+              </a>
+            </div>
+          </div>
+        </div>
+      </footer>
+    </div>
+  );
+}
