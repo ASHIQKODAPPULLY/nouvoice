@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import {
   Card,
@@ -16,7 +16,10 @@ import { Loader2, AlertCircle, Check, Users } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import Link from "next/link";
 
-export default function JoinTeamPage() {
+// Explicitly mark as client-side only to prevent prerendering issues
+export const dynamic = 'force-dynamic';
+
+function JoinTeamContent() {
   const searchParams = useSearchParams();
   const teamId = searchParams.get("teamId");
   const token = searchParams.get("token");
@@ -248,3 +251,24 @@ export default function JoinTeamPage() {
     </div>
   );
 }
+
+// Wrap the client component in a parent component with Suspense
+export default function JoinTeamPage() {
+  return (
+    <Suspense fallback={
+      <div className="container mx-auto py-12 px-4">
+        <div className="max-w-md mx-auto">
+          <Card>
+            <CardHeader>
+              <CardTitle>Loading team information...</CardTitle>
+            </CardHeader>
+            <CardContent className="flex justify-center py-8">
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    }>
+      <JoinTeamContent />
+    </Suspense>
+  );

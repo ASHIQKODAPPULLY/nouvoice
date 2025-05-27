@@ -24,7 +24,7 @@ type KeyStatus = {
   error?: string;
 };
 
-export default function StripeKeyRotation() {
+export default function StripeKeyRotationFixed() {
   const [loading, setLoading] = useState(false);
   const [keyStatus, setKeyStatus] = useState<KeyStatus | null>(null);
   const [newSecretKey, setNewSecretKey] = useState("");
@@ -205,6 +205,16 @@ export default function StripeKeyRotation() {
     }
   }, []);
 
+  // Handle refresh button click
+  const handleRefresh = () => {
+    fetchKeyStatus();
+  };
+
+  // Handle update button click
+  const handleUpdate = () => {
+    rotateStripeKey();
+  };
+
   return (
     <div className="space-y-6 w-full max-w-3xl mx-auto bg-white p-6 rounded-lg shadow">
       <Card>
@@ -256,7 +266,7 @@ export default function StripeKeyRotation() {
           )}
         </CardContent>
         <CardFooter>
-          <KeyStatusButton loading={loading} onRefresh={fetchKeyStatus} />
+          <KeyStatusButton loading={loading} onRefresh={handleRefresh} />
         </CardFooter>
       </Card>
 
@@ -291,7 +301,7 @@ export default function StripeKeyRotation() {
           <StripeKeyUpdateButton
             rotatingKey={rotatingKey}
             newSecretKey={newSecretKey}
-            onUpdate={rotateStripeKey}
+            onUpdate={handleUpdate}
           />
         </CardFooter>
       </Card>

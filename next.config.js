@@ -19,7 +19,11 @@ const nextConfig = {
     outputFileTracingExcludes: {
       "*": ["**/tempobook/**"],
     },
+    // Ensure proper handling of client components
+    serverComponentsExternalPackages: [],
   },
+  // Disable static optimization for pages using client hooks
+  unstable_disableStaticImages: false,
 };
 
 module.exports = nextConfig;
