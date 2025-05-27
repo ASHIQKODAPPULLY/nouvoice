@@ -1,4 +1,6 @@
 // This is a Server Component
+export const dynamic = "force-dynamic";
+
 import StripeKeysTester from "@/components/StripeKeysTester";
 
 export default function StripeKeyRotationFixedPage() {
