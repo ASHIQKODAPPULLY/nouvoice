@@ -1,5 +1,4 @@
-"use client";
-
+// This is a Server Component
 import StripeKeysTester from "@/components/StripeKeysTester";
 
 export default function StripeKeyRotationFixedPage() {

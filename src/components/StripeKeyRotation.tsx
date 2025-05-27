@@ -188,9 +188,9 @@ export default function StripeKeyRotation() {
   // In storyboard mode, don't automatically fetch key status
   useEffect(() => {
     // Check if we're in a storyboard environment
-    const isStoryboard = window.location.pathname.includes(
-      "/tempobook/storyboards/",
-    );
+    const isStoryboard =
+      typeof window !== "undefined" &&
+      window.location.pathname.includes("/tempobook/storyboards/");
 
     if (!isStoryboard) {
       fetchKeyStatus();

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -178,10 +178,16 @@ export default function StripeKeysTester() {
 
   // In storyboard mode, don't automatically fetch key status
   useState(() => {
+    // This is a bug - useState should not be used for effects
+    // This will be executed immediately during render
+  });
+
+  // Use useEffect for side effects
+  useEffect(() => {
     // Check if we're in a storyboard environment
-    const isStoryboard = window.location.pathname.includes(
-      "/tempobook/storyboards/",
-    );
+    const isStoryboard =
+      typeof window !== "undefined" &&
+      window.location.pathname.includes("/tempobook/storyboards/");
 
     if (!isStoryboard) {
       fetchKeyStatus();
@@ -194,7 +200,7 @@ export default function StripeKeysTester() {
         isValid: true,
       });
     }
-  });
+  }, []);
 
   return (
     <div className="space-y-6 w-full max-w-3xl mx-auto bg-white p-6 rounded-lg shadow">
