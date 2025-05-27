@@ -1,7 +1,14 @@
-// This is a Server Component
+"use client";
+
 export const dynamic = "force-dynamic";
 
-import StripeKeysTester from "@/components/StripeKeysTester";
+import dynamic from "next/dynamic";
+
+// Use dynamic import with no SSR to prevent server-side rendering issues
+const StripeKeysTester = dynamic(
+  () => import("@/components/StripeKeysTester"),
+  { ssr: false },
+);
 
 export default function StripeKeyRotationFixedPage() {
   return (

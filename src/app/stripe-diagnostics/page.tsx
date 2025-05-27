@@ -1,7 +1,19 @@
 "use client";
 
-import StripeKeyErrorDisplay from "@/components/StripeKeyErrorDisplay";
-import EdgeFunctionDeploymentStatus from "@/components/EdgeFunctionDeploymentStatus";
+export const dynamic = "force-dynamic";
+
+import dynamic from "next/dynamic";
+
+// Use dynamic import with no SSR to prevent server-side rendering issues
+const StripeKeyErrorDisplay = dynamic(
+  () => import("@/components/StripeKeyErrorDisplay"),
+  { ssr: false },
+);
+
+const EdgeFunctionDeploymentStatus = dynamic(
+  () => import("@/components/EdgeFunctionDeploymentStatus"),
+  { ssr: false },
+);
 
 export default function StripeDiagnosticsPage() {
   return (

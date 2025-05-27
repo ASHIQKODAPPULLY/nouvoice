@@ -1,6 +1,14 @@
 "use client";
 
-import StripeSecretsList from "@/components/StripeSecretsList";
+export const dynamic = "force-dynamic";
+
+import dynamic from "next/dynamic";
+
+// Use dynamic import with no SSR to prevent server-side rendering issues
+const StripeSecretsList = dynamic(
+  () => import("@/components/StripeSecretsList"),
+  { ssr: false },
+);
 
 export default function StripeSecretsPage() {
   return (
