@@ -23,7 +23,6 @@ const nextConfig = {
     serverComponentsExternalPackages: [],
   },
   // Disable static optimization for pages using client hooks
-  unstable_disableStaticImages: false,
 };
 
 module.exports = nextConfig;

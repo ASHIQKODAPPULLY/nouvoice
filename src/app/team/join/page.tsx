@@ -17,7 +17,7 @@ import { createClient } from "@/lib/supabase/client";
 import Link from "next/link";
 
 // Explicitly mark as client-side only to prevent prerendering issues
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 function JoinTeamContent() {
   const searchParams = useSearchParams();
@@ -255,20 +255,23 @@ function JoinTeamContent() {
 // Wrap the client component in a parent component with Suspense
 export default function JoinTeamPage() {
   return (
-    <Suspense fallback={
-      <div className="container mx-auto py-12 px-4">
-        <div className="max-w-md mx-auto">
-          <Card>
-            <CardHeader>
-              <CardTitle>Loading team information...</CardTitle>
-            </CardHeader>
-            <CardContent className="flex justify-center py-8">
-              <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            </CardContent>
-          </Card>
+    <Suspense
+      fallback={
+        <div className="container mx-auto py-12 px-4">
+          <div className="max-w-md mx-auto">
+            <Card>
+              <CardHeader>
+                <CardTitle>Loading team information...</CardTitle>
+              </CardHeader>
+              <CardContent className="flex justify-center py-8">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              </CardContent>
+            </Card>
+          </div>
         </div>
-      </div>
-    }>
+      }
+    >
       <JoinTeamContent />
     </Suspense>
   );
+}
