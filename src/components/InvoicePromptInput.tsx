@@ -723,9 +723,7 @@ export default function InvoicePromptInput({
                                     <CommandItem
                                       key={product.name}
                                       value={product.name}
-                                      onSelect={() => {
-                                        insertProduct(product);
-                                      }}
+                                      onSelect={() => insertProduct(product)}
                                       className="flex justify-between cursor-pointer hover:bg-accent"
                                     >
                                       <span>{product.name}</span>
@@ -773,9 +771,7 @@ export default function InvoicePromptInput({
                                     <CommandItem
                                       key={date.label}
                                       value={date.label}
-                                      onSelect={() => {
-                                        insertDate(date);
-                                      }}
+                                      onSelect={() => insertDate(date)}
                                       className="cursor-pointer hover:bg-accent"
                                     >
                                       {date.label} ({date.value})
@@ -820,9 +816,7 @@ export default function InvoicePromptInput({
                                     <CommandItem
                                       key={rate}
                                       value={rate}
-                                      onSelect={() => {
-                                        insertTaxRate(rate);
-                                      }}
+                                      onSelect={() => insertTaxRate(rate)}
                                       className="cursor-pointer hover:bg-accent"
                                     >
                                       {rate}
@@ -867,9 +861,7 @@ export default function InvoicePromptInput({
                                     <CommandItem
                                       key={term}
                                       value={term}
-                                      onSelect={() => {
-                                        insertPaymentTerm(term);
-                                      }}
+                                      onSelect={() => insertPaymentTerm(term)}
                                       className="cursor-pointer hover:bg-accent"
                                     >
                                       {term}

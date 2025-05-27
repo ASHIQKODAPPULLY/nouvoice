@@ -3,9 +3,13 @@ import Stripe from "stripe";
 
 export const dynamic = "force-dynamic";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: "2023-08-16",
-});
+// Initialize Stripe with a fallback for build time
+const stripe = new Stripe(
+  process.env.STRIPE_SECRET_KEY || "sk_test_placeholder",
+  {
+    apiVersion: "2023-08-16",
+  },
+);
 
 export async function POST(request: NextRequest) {
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;

@@ -12,6 +12,8 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
+import { AlertCircle, CheckCircle2 } from "lucide-react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 export default function StripeKeysTester() {
   const [loading, setLoading] = useState(false);
@@ -21,6 +23,8 @@ export default function StripeKeysTester() {
   const [priceId, setPriceId] = useState("");
   const [amount, setAmount] = useState("2000"); // Default to $20.00
   const [currency, setCurrency] = useState("aud"); // Default to AUD
+  const [newSecretKey, setNewSecretKey] = useState("");
+  const [rotatingKey, setRotatingKey] = useState(false);
 
   const testApiKeys = async () => {
     setLoading(true);
@@ -154,6 +158,56 @@ export default function StripeKeysTester() {
     }
   };
 
+  const rotateStripeKey = async () => {
+    if (!newSecretKey) {
+      setError("Please enter a new Stripe Secret Key");
+      return;
+    }
+
+    // Validate key format
+    const secretKeyPattern = /^sk_(test|live)_[a-zA-Z0-9]{24,}$/;
+    if (!secretKeyPattern.test(newSecretKey)) {
+      setError(
+        "Invalid Stripe Secret Key format. Should start with 'sk_test_' or 'sk_live_'",
+      );
+      return;
+    }
+
+    setRotatingKey(true);
+    setError(null);
+    setResult(null);
+
+    try {
+      const response = await fetch("/api/stripe-key-update", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          action: "rotateKey",
+          newKey: newSecretKey,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to rotate Stripe key");
+      }
+
+      setResult(data);
+      // Clear the input field after successful rotation
+      setNewSecretKey("");
+    } catch (err: any) {
+      setError(
+        err.message || "An error occurred while rotating the Stripe key",
+      );
+      console.error("Error rotating Stripe key:", err);
+    } finally {
+      setRotatingKey(false);
+    }
+  };
+
   return (
     <div className="space-y-6 w-full max-w-3xl mx-auto bg-white p-6 rounded-lg shadow">
       <Card>
@@ -167,6 +221,44 @@ export default function StripeKeysTester() {
         <CardFooter>
           <Button onClick={testApiKeys} disabled={loading}>
             {loading ? "Testing..." : "Test API Keys"}
+          </Button>
+        </CardFooter>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Rotate Stripe Secret Key</CardTitle>
+          <CardDescription>
+            Update your Stripe Secret Key in the environment. This will update
+            the key in your Vercel environment variables.
+            <Alert className="mt-4" variant="warning">
+              <AlertCircle className="h-4 w-4" />
+              <AlertTitle>Important</AlertTitle>
+              <AlertDescription>
+                Only administrators can perform this action. Make sure you have
+                already created a new key in the Stripe Dashboard.
+              </AlertDescription>
+            </Alert>
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="newSecretKey">New Stripe Secret Key</Label>
+            <Input
+              id="newSecretKey"
+              type="password"
+              placeholder="sk_test_..."
+              value={newSecretKey}
+              onChange={(e) => setNewSecretKey(e.target.value)}
+            />
+          </div>
+        </CardContent>
+        <CardFooter>
+          <Button
+            onClick={rotateStripeKey}
+            disabled={rotatingKey || !newSecretKey}
+          >
+            {rotatingKey ? "Updating..." : "Update Stripe Secret Key"}
           </Button>
         </CardFooter>
       </Card>

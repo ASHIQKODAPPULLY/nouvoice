@@ -3,8 +3,15 @@ import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {
   try {
-    const { action, customerId, priceId, amount, currency } =
-      await request.json();
+    const {
+      action,
+      customerId,
+      priceId,
+      amount,
+      currency,
+      paymentIntentId,
+      clientSecret,
+    } = await request.json();
 
     if (!action) {
       return NextResponse.json(
@@ -26,6 +33,8 @@ export async function POST(request: Request) {
           priceId,
           amount,
           currency,
+          paymentIntentId,
+          clientSecret,
         },
       },
     );
