@@ -14,12 +14,18 @@ export default function KeyStatusButton({
 }: KeyStatusButtonProps) {
   return (
     <Button
+      type="button"
       onClick={onRefresh}
       disabled={loading}
+      aria-busy={loading}
       variant="outline"
       className="mr-2"
+      aria-label="Refresh status"
     >
-      <RefreshCw className="h-4 w-4 mr-2" />
+      <RefreshCw
+        className={`h-4 w-4 mr-2 ${loading ? "animate-spin" : ""}`}
+        aria-hidden="true"
+      />
       Refresh Status
     </Button>
   );

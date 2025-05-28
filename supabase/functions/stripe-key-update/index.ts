@@ -7,47 +7,49 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const {
-      scopeType = "account",
-      scopeUser,
-      limit = 10,
-      startingAfter,
-      endingBefore,
-    } = await req.json();
+    const { name, payload, scopeType, scopeUser, expiresAt } = await req.json();
 
-    // Create query parameters for the request
+    if (!name || !payload || !scopeType) {
+      return new Response(
+        JSON.stringify({
+          success: false,
+          error: "Missing required parameters: name, payload, or scopeType",
+        }),
+        {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 400,
+        },
+      );
+    }
+
+    // Create form data for the request
     const params = new URLSearchParams();
+    params.append("name", name);
+    params.append("payload", payload);
     params.append("scope[type]", scopeType);
 
     if (scopeType === "user" && scopeUser) {
       params.append("scope[user]", scopeUser);
     }
 
-    if (limit) {
-      params.append("limit", limit.toString());
+    if (expiresAt) {
+      params.append("expires_at", expiresAt.toString());
     }
 
-    if (startingAfter) {
-      params.append("starting_after", startingAfter);
-    }
-
-    if (endingBefore) {
-      params.append("ending_before", endingBefore);
-    }
-
-    // Call the Pica passthrough API to list secrets
+    // Call the Pica passthrough API to set the secret
     const response = await fetch(
-      `https://api.picaos.com/v1/passthrough/apps/secrets?${params.toString()}`,
+      "https://api.picaos.com/v1/passthrough/v1/apps/secrets",
       {
-        method: "GET",
+        method: "POST",
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
           "x-pica-secret": Deno.env.get("PICA_SECRET_KEY") || "",
           "x-pica-connection-key":
             Deno.env.get("PICA_STRIPE_CONNECTION_KEY") || "",
           "x-pica-action-id":
-            "conn_mod_def::GCmLL-J1uYs::BOMcYIBiQCyGFTORilN5GQ",
+            "conn_mod_def::GCmLMrEc5Q0::-f5ubHYTSi2nRU7fMdCGkQ",
         },
+        body: params,
       },
     );
 
@@ -57,7 +59,7 @@ Deno.serve(async (req) => {
       return new Response(
         JSON.stringify({
           success: false,
-          error: "Failed to list Stripe secrets",
+          error: "Failed to set Stripe secret",
           details: data,
         }),
         {
@@ -78,12 +80,12 @@ Deno.serve(async (req) => {
       },
     );
   } catch (error) {
-    console.error("Error in list-stripe-secrets function:", error);
+    console.error("Error in stripe-key-update function:", error);
 
     return new Response(
       JSON.stringify({
         success: false,
-        error: error.message || "An error occurred while listing secrets",
+        error: error.message || "An error occurred during key update",
       }),
       {
         headers: { ...corsHeaders, "Content-Type": "application/json" },

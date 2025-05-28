@@ -60,9 +60,32 @@ export async function POST(request: Request) {
           );
         }
 
-        // Key is valid, now update it in Vercel environment variables
-        // Note: In a real implementation, this would call a secure API to update the environment variable
-        // For this demo, we'll simulate success but note that actual implementation requires Vercel API integration
+        // Key is valid, now update it using the Pica passthrough API
+        const params = new URLSearchParams();
+        params.append("name", "stripe_secret_key");
+        params.append("payload", newKey);
+        params.append("scope[type]", "account");
+
+        // Call the Edge Function to set the secret
+        const { data: secretData, error: secretError } =
+          await supabase.functions.invoke(
+            "supabase-functions-stripe-key-update",
+            {
+              body: {
+                name: "stripe_secret_key",
+                payload: newKey,
+                scopeType: "account",
+              },
+            },
+          );
+
+        if (secretError) {
+          console.error("Error setting Stripe secret:", secretError);
+          return NextResponse.json(
+            { error: secretError.message || "Failed to set Stripe secret" },
+            { status: 500 },
+          );
+        }
 
         // Call the Edge Function to test the new key
         const { data: testData, error: testError } =
@@ -86,15 +109,8 @@ export async function POST(request: Request) {
 
         return NextResponse.json({
           success: true,
-          message:
-            "Stripe Secret Key validated successfully. To complete the rotation, please update your Vercel environment variables with this new key.",
-          instructions: [
-            "1. Go to your Vercel Dashboard",
-            "2. Select your project",
-            "3. Navigate to Settings > Environment Variables",
-            "4. Update the STRIPE_SECRET_KEY variable with your new key",
-            "5. Redeploy your application to apply the changes",
-          ],
+          message: "Stripe Secret Key validated and stored successfully.",
+          secretData,
           testResults: testData,
         });
       } catch (rotateError: any) {

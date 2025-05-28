@@ -15,8 +15,11 @@ export default function StripeKeyUpdateButton({
 }: StripeKeyUpdateButtonProps) {
   return (
     <Button
+      type="button"
       onClick={onUpdate}
       disabled={rotatingKey || !newSecretKey}
+      aria-busy={rotatingKey}
+      aria-label="Update Stripe secret key"
       className="w-full"
     >
       {rotatingKey ? "Updating..." : "Update Stripe Secret Key"}

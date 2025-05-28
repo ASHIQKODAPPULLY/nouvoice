@@ -21,8 +21,30 @@ const nextConfig = {
     },
     // Ensure proper handling of client components
     serverComponentsExternalPackages: [],
+    // Improve client component handling
+    optimizeCss: true,
+    esmExternals: true,
+    // Improve client/server component boundary
+    serverActions: {
+      bodySizeLimit: "2mb",
+    },
   },
-  // Disable static optimization for pages using client hooks
+  transpilePackages: ["stripe", "@stripe/stripe-js"],
+  // Ensure Stripe components are properly handled
+  modularizeImports: {
+    "lucide-react": {
+      transform: "lucide-react/dist/esm/icons/{{kebabCase member}}",
+    },
+  },
+  webpack: (config) => {
+    // Handle client-side only packages
+    config.resolve.fallback = { fs: false, net: false, tls: false };
+    return config;
+  },
+  // Explicitly mark Stripe-related pages as client-side only
+  compiler: {
+    styledComponents: true,
+  },
 };
 
 module.exports = nextConfig;

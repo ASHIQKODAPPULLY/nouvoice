@@ -177,11 +177,6 @@ export default function StripeKeysTester() {
   };
 
   // In storyboard mode, don't automatically fetch key status
-  useState(() => {
-    // This is a bug - useState should not be used for effects
-    // This will be executed immediately during render
-  });
-
   // Use useEffect for side effects
   useEffect(() => {
     // Check if we're in a storyboard environment
