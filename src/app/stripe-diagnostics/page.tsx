@@ -1,7 +1,7 @@
-import dynamic from "next/dynamic";
+import loadClient from "next/dynamic";
 
 // Dynamically import the client wrapper with SSR disabled
-const StripeDiagnosticsClient = dynamic(
+const StripeDiagnosticsClient = loadClient(
   () => import("@/components/StripeDiagnosticsClient"),
   { ssr: false },
 );
