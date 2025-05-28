@@ -3,6 +3,8 @@
 import React from "react";
 import EdgeFunctionDeploymentStatus from "@/components/EdgeFunctionDeploymentStatus";
 import StripeKeyErrorDisplay from "@/components/StripeKeyErrorDisplay";
+import StripeKeysTester from "@/components/StripeKeysTester";
+import StripeWebhookTester from "@/components/StripeWebhookTester";
 
 // Force dynamic rendering to prevent caching issues
 export const dynamic = "force-dynamic";
@@ -22,7 +24,17 @@ export default function StripeDiagnosticsPage() {
         <EdgeFunctionDeploymentStatus />
       </div>
 
-      <StripeKeyErrorDisplay />
+      <div className="mb-8">
+        <StripeKeysTester />
+      </div>
+
+      <div className="mb-8">
+        <StripeKeyErrorDisplay />
+      </div>
+
+      <div className="mb-8">
+        <StripeWebhookTester />
+      </div>
     </div>
   );
 }
