@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
+// Using native button element instead of Button component to isolate potential issues
 import { Input } from "@/components/ui/input";
 import {
   Card,
@@ -135,6 +135,7 @@ export default function StripeWebhookTester() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
+          action: "test_webhook",
           url: webhookUrl,
           secret: webhookSecret || undefined,
         }),
@@ -214,35 +215,28 @@ export default function StripeWebhookTester() {
           </div>
         </CardContent>
         <CardFooter className="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-2">
-          <Button
+          <button
             onClick={createWebhook}
             disabled={loading}
-            className="w-full sm:w-auto"
+            className="bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 rounded-md w-full sm:w-auto"
+            type="button"
           >
-            {loading ? (
-              <>
-                <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
-                Creating...
-              </>
-            ) : (
-              "Create Webhook"
+            {loading && (
+              <RefreshCw className="h-4 w-4 mr-2 inline animate-spin" />
             )}
-          </Button>
-          <Button
-            variant="outline"
+            {loading ? "Creating..." : "Create Webhook"}
+          </button>
+          <button
             onClick={testWebhook}
             disabled={loading}
-            className="w-full sm:w-auto"
+            className="border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2 rounded-md w-full sm:w-auto"
+            type="button"
           >
-            {loading ? (
-              <>
-                <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
-                Testing...
-              </>
-            ) : (
-              "Test Webhook"
+            {loading && (
+              <RefreshCw className="h-4 w-4 mr-2 inline animate-spin" />
             )}
-          </Button>
+            {loading ? "Testing..." : "Test Webhook"}
+          </button>
         </CardFooter>
       </Card>
 

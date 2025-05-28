@@ -1,9 +1,7 @@
-import { TempoInit } from "./tempo-init";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import ClientLayoutWrapper from "@/components/ClientLayoutWrapper";
 import Script from "next/script";
-import { Providers } from "./providers";
-import Footer from "@/components/Footer";
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -27,15 +25,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <Script src="https://api.tempo.new/proxy-asset?url=https://storage.googleapis.com/tempo-public-assets/error-handling.js" />
       <body className={inter.className}>
-        <Providers>
-          <div className="flex flex-col min-h-screen">
-            <main className="flex-1">{children}</main>
-            <Footer />
-          </div>
-          <TempoInit />
-        </Providers>
+        <Script src="https://api.tempo.new/proxy-asset?url=https://storage.googleapis.com/tempo-public-assets/error-handling.js" />
+        <ClientLayoutWrapper>{children}</ClientLayoutWrapper>
       </body>
     </html>
   );
