@@ -3,11 +3,11 @@
 // Force dynamic rendering to prevent static generation issues
 export const dynamic = "force-dynamic";
 
-import dynamic from "next/dynamic";
+import dynamicImport from "next/dynamic";
 import { Suspense } from "react";
 
 // Use dynamic import with no SSR to prevent server-side rendering issues
-const StripeKeyRotation = dynamic(
+const StripeKeyRotation = dynamicImport(
   () => import("@/components/StripeKeyRotation"),
   {
     ssr: false,
