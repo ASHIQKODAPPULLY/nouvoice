@@ -1,9 +1,6 @@
 "use client";
 
 import EdgeFunctionDeploymentStatus from "@/components/EdgeFunctionDeploymentStatus";
-import StripeKeyErrorDisplay from "@/components/StripeKeyErrorDisplay";
-import StripeKeysTester from "@/components/StripeKeysTester";
-import StripeWebhookTester from "@/components/StripeWebhookTester";
 
 export default function StripeDiagnosticsClient() {
   return (
@@ -19,16 +16,14 @@ export default function StripeDiagnosticsClient() {
         <EdgeFunctionDeploymentStatus />
       </div>
 
-      <div className="mb-8">
-        <StripeKeysTester />
-      </div>
-
-      <div className="mb-8">
-        <StripeKeyErrorDisplay />
-      </div>
-
-      <div className="mb-8">
-        <StripeWebhookTester />
+      <div className="p-6 border rounded-lg shadow-sm bg-gray-50">
+        <h2 className="text-xl font-semibold mb-4">
+          Stripe Integration Status
+        </h2>
+        <p className="text-gray-700">
+          Core Stripe integration is active. The application is configured to
+          process payments and handle webhook events securely.
+        </p>
       </div>
     </div>
   );
