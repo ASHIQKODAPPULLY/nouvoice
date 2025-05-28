@@ -90,13 +90,13 @@ export default function StripeWebhookTester() {
     setResult(null);
 
     try {
-      const response = await fetch("/api/stripe/webhook-management", {
+      const response = await fetch("/api/webhook-test", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          action: "create",
+          action: "create_webhook",
           url: webhookUrl,
           events: enabledEvents,
           secret: webhookSecret || undefined,
