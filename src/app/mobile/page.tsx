@@ -41,18 +41,27 @@ export default function MobileApp() {
       {/* Main Content - Mobile Optimized */}
       <main className="flex-1 container mx-auto py-6 px-4">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-3 mb-6">
-            <TabsTrigger value="create" className="flex items-center gap-1">
+          <TabsList className="flex flex-wrap w-full mb-6 gap-1">
+            <TabsTrigger
+              value="create"
+              className="flex-1 min-w-[100px] flex items-center justify-center gap-1"
+            >
               <FileText className="h-4 w-4" />
-              <span className="hidden sm:inline">Create</span>
+              <span className="text-xs sm:text-sm">Create</span>
             </TabsTrigger>
-            <TabsTrigger value="history" className="flex items-center gap-1">
+            <TabsTrigger
+              value="history"
+              className="flex-1 min-w-[100px] flex items-center justify-center gap-1"
+            >
               <Clock className="h-4 w-4" />
-              <span className="hidden sm:inline">History</span>
+              <span className="text-xs sm:text-sm">History</span>
             </TabsTrigger>
-            <TabsTrigger value="settings" className="flex items-center gap-1">
+            <TabsTrigger
+              value="settings"
+              className="flex-1 min-w-[100px] flex items-center justify-center gap-1"
+            >
               <Settings className="h-4 w-4" />
-              <span className="hidden sm:inline">Settings</span>
+              <span className="text-xs sm:text-sm">Settings</span>
             </TabsTrigger>
           </TabsList>
 
