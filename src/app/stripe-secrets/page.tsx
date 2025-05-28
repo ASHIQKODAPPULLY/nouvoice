@@ -1,8 +1,5 @@
 "use client";
 
-// Force dynamic rendering to prevent static generation issues
-export const dynamic = "force-dynamic";
-
 import dynamic from "next/dynamic";
 import { Suspense } from "react";
 
