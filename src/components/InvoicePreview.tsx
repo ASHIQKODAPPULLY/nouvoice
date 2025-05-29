@@ -520,7 +520,7 @@ const InvoicePreview: React.FC<InvoicePreviewProps> = ({
                 >
                   <Save className="h-4 w-4" /> Save Company Details
                 </Button>
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2">
                   <div className="flex gap-1">
                     <Badge
                       variant={
@@ -701,7 +701,7 @@ const InvoicePreview: React.FC<InvoicePreviewProps> = ({
                     </CardHeader>
 
                     <CardContent>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6">
                         <div className="space-y-1 relative group">
                           <div className="flex items-center">
                             <h3 className="text-sm font-medium text-muted-foreground">
@@ -1218,7 +1218,7 @@ const InvoicePreview: React.FC<InvoicePreviewProps> = ({
                         </Table>
 
                         <div className="flex justify-end mt-12">
-                          <div className="w-1/3">
+                          <div className="w-full sm:w-1/2 md:w-1/3">
                             <div className="flex justify-between mb-2">
                               <span className="text-sm">Subtotal</span>
                               <span>
@@ -1370,7 +1370,7 @@ const InvoicePreview: React.FC<InvoicePreviewProps> = ({
                         </div>
                       </div>
 
-                      <div className="grid grid-cols-3 gap-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                         <div className="bg-white/50 p-4 rounded-lg shadow-sm">
                           <h3 className="text-xs text-muted-foreground mb-1">
                             Invoice Number
@@ -1456,7 +1456,7 @@ const InvoicePreview: React.FC<InvoicePreviewProps> = ({
                       </div>
 
                       <div className="flex justify-end">
-                        <div className="w-1/3 bg-white/50 p-4 rounded-lg shadow-sm">
+                        <div className="w-1/3 bg-white/50 p-4 rounded-lg shadow-sm border-t-4 border-purple-500">
                           <div className="flex justify-between py-2">
                             <span className="text-muted-foreground">
                               Subtotal:
@@ -1487,7 +1487,7 @@ const InvoicePreview: React.FC<InvoicePreviewProps> = ({
                           <h3 className="text-sm font-medium mb-2 text-blue-600">
                             Payment Details
                           </h3>
-                          <div className="grid grid-cols-3 gap-4">
+                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                             <div>
                               <p className="text-xs text-muted-foreground mb-1">
                                 Bank
@@ -1534,7 +1534,7 @@ const InvoicePreview: React.FC<InvoicePreviewProps> = ({
                   <div className="p-8 bg-white rounded-lg relative">
                     <div className="absolute top-0 left-0 w-full h-24 bg-slate-800 rounded-t-lg"></div>
 
-                    <div className="relative z-10 flex justify-between items-start mb-8 pt-6 px-6">
+                    <div className="relative z-10 flex flex-col sm:flex-row justify-between items-start mb-8 pt-6 px-6 gap-6">
                       <div className="bg-white p-6 rounded-lg shadow-lg">
                         <h1 className="text-3xl font-black tracking-tight">
                           {editableInvoice.companyName}
@@ -1614,7 +1614,7 @@ const InvoicePreview: React.FC<InvoicePreviewProps> = ({
                       </div>
                     </div>
 
-                    <div className="mt-12 grid grid-cols-2 gap-8">
+                    <div className="mt-12 grid grid-cols-1 sm:grid-cols-2 gap-8">
                       <div className="p-6 bg-slate-50 rounded-lg">
                         <h3 className="text-lg font-bold mb-3 text-slate-800">
                           Bill To
@@ -1694,7 +1694,7 @@ const InvoicePreview: React.FC<InvoicePreviewProps> = ({
                     </div>
 
                     <div className="flex justify-end mt-8">
-                      <div className="w-1/3 p-6 bg-slate-50 rounded-lg">
+                      <div className="w-full sm:w-1/2 md:w-1/3 bg-muted/50 p-4 rounded-lg">
                         <div className="flex justify-between py-2">
                           <span className="text-muted-foreground">
                             Subtotal:
@@ -1834,7 +1834,7 @@ const InvoicePreview: React.FC<InvoicePreviewProps> = ({
                         </div>
                       </div>
 
-                      <div className="grid grid-cols-3 gap-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                         <div className="bg-white/70 p-4 rounded-lg shadow-sm">
                           <h3 className="text-xs text-purple-600 font-medium mb-1">
                             Invoice Number
