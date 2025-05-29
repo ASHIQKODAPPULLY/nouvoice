@@ -118,6 +118,8 @@ export default function Home() {
     }
     try {
       setIsProcessing(true);
+      // Clear any previous invoice data
+      setInvoiceData(null);
 
       // Check if user has reached free usage limit
       if (usageCount >= 50 && !isPremium) {

@@ -12,6 +12,8 @@ import Link from "next/link";
 
 export default function MobileApp() {
   const [activeTab, setActiveTab] = useState("create");
+  const [invoiceData, setInvoiceData] = useState(null);
+  const [isProcessing, setIsProcessing] = useState(false);
 
   // Set active tab based on URL hash
   useEffect(() => {
@@ -20,6 +22,20 @@ export default function MobileApp() {
       setActiveTab(hash);
     }
   }, []);
+
+  const handleGenerateInvoice = async (promptText) => {
+    setIsProcessing(true);
+    // Clear any previous invoice data
+    setInvoiceData(null);
+
+    // Simulate invoice generation
+    setTimeout(() => {
+      setInvoiceData({
+        /* mock data would go here */
+      });
+      setIsProcessing(false);
+    }, 2000);
+  };
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -80,8 +96,8 @@ export default function MobileApp() {
             <Card>
               <CardContent className="pt-4 px-2 sm:px-4">
                 <InvoicePromptInput
-                  onGenerateInvoice={() => {}}
-                  isProcessing={false}
+                  onGenerateInvoice={handleGenerateInvoice}
+                  isProcessing={isProcessing}
                 />
               </CardContent>
             </Card>
@@ -89,23 +105,29 @@ export default function MobileApp() {
             {/* Mobile-optimized preview placeholder */}
             <Card>
               <CardContent className="p-4 text-center">
-                <div className="py-6 flex flex-col items-center justify-center">
-                  <div className="h-14 w-14 rounded-full bg-muted flex items-center justify-center mb-4">
-                    <Sparkles className="h-7 w-7 text-muted-foreground" />
+                {invoiceData ? (
+                  <div>Invoice Preview Content</div>
+                ) : (
+                  <div className="py-6 flex flex-col items-center justify-center">
+                    <div className="h-14 w-14 rounded-full bg-muted flex items-center justify-center mb-4">
+                      <Sparkles className="h-7 w-7 text-muted-foreground" />
+                    </div>
+                    <h3 className="text-lg font-medium mb-2">
+                      Invoice Preview
+                    </h3>
+                    <p className="text-sm text-muted-foreground mb-4">
+                      Generate an invoice to see the preview here
+                    </p>
+                    <Button
+                      size="lg"
+                      variant="outline"
+                      className="flex items-center gap-2 h-12 touch-manipulation"
+                    >
+                      <Sparkles className="h-5 w-5" />
+                      Generate Sample
+                    </Button>
                   </div>
-                  <h3 className="text-lg font-medium mb-2">Invoice Preview</h3>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    Generate an invoice to see the preview here
-                  </p>
-                  <Button
-                    size="lg"
-                    variant="outline"
-                    className="flex items-center gap-2 h-12 touch-manipulation"
-                  >
-                    <Sparkles className="h-5 w-5" />
-                    Generate Sample
-                  </Button>
-                </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
