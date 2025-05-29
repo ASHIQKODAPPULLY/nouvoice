@@ -704,19 +704,23 @@ export default function InvoicePromptInput({
                             <Button
                               variant="outline"
                               size="sm"
-                              className={`flex items-center gap-1 ${openDropdown === "products" ? "bg-accent text-accent-foreground" : ""}`}
+                              className={`flex items-center gap-1 h-10 touch-manipulation ${openDropdown === "products" ? "bg-accent text-accent-foreground" : ""}`}
                               onClick={() => toggleDropdown("products")}
                             >
-                              <Tag className="h-3 w-3" /> Products
+                              <Tag className="h-4 w-4" /> Products
                             </Button>
                           </PopoverTrigger>
                           <PopoverContent
-                            className="w-[200px] p-0 max-w-[90vw]"
+                            className="w-[250px] p-0 max-w-[95vw]"
                             align="start"
+                            sideOffset={5}
                           >
                             <Command>
-                              <CommandInput placeholder="Search products..." />
-                              <CommandList>
+                              <CommandInput
+                                placeholder="Search products..."
+                                className="h-10"
+                              />
+                              <CommandList className="max-h-[50vh]">
                                 <CommandEmpty>No products found.</CommandEmpty>
                                 <CommandGroup heading="Products">
                                   {productSuggestions.map((product) => (
@@ -724,7 +728,7 @@ export default function InvoicePromptInput({
                                       key={product.name}
                                       value={product.name}
                                       onSelect={() => insertProduct(product)}
-                                      className="flex justify-between cursor-pointer hover:bg-accent"
+                                      className="flex justify-between cursor-pointer hover:bg-accent py-3 px-3 touch-manipulation"
                                     >
                                       <span>{product.name}</span>
                                       <span className="text-muted-foreground">
@@ -965,7 +969,7 @@ export default function InvoicePromptInput({
                         <Textarea
                           ref={textareaRef}
                           placeholder={placeholderText}
-                          className="min-h-[120px] resize-none text-base p-4 pr-12 w-full"
+                          className="min-h-[120px] resize-none text-base p-4 pr-14 w-full text-base"
                           value={promptText}
                           onChange={handlePromptChange}
                           onKeyDown={handleKeyDown}
@@ -978,10 +982,10 @@ export default function InvoicePromptInput({
                             }
                           }}
                         />
-                        <div className="absolute right-2 bottom-2 flex gap-1">
+                        <div className="absolute right-2 bottom-2 flex gap-2">
                           {isGeneratingPreview && (
-                            <div className="flex items-center justify-center h-8 w-8">
-                              <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                            <div className="flex items-center justify-center h-10 w-10">
+                              <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
                             </div>
                           )}
                           {voiceSupported && (
@@ -989,7 +993,7 @@ export default function InvoicePromptInput({
                               type="button"
                               variant="ghost"
                               size="icon"
-                              className={`${isListening ? "text-red-500" : ""}`}
+                              className={`h-10 w-10 touch-manipulation ${isListening ? "text-red-500" : ""}`}
                               onClick={toggleVoiceRecognition}
                               disabled={isProcessing}
                               title={
@@ -999,9 +1003,9 @@ export default function InvoicePromptInput({
                               }
                             >
                               {isListening ? (
-                                <MicOff className="h-5 w-5" />
+                                <MicOff className="h-6 w-6" />
                               ) : (
-                                <Mic className="h-5 w-5" />
+                                <Mic className="h-6 w-6" />
                               )}
                             </Button>
                           )}
@@ -1268,16 +1272,16 @@ export default function InvoicePromptInput({
                 <Button
                   onClick={handleGenerateInvoice}
                   disabled={isProcessing || !promptText.trim()}
-                  className="px-6 flex items-center gap-2"
+                  className="px-6 flex items-center gap-2 h-12 text-base touch-manipulation w-full sm:w-auto"
                 >
                   {isProcessing ? (
                     <>
-                      <Loader2 className="h-4 w-4 animate-spin" />
+                      <Loader2 className="h-5 w-5 animate-spin" />
                       <span>Processing with AI...</span>
                     </>
                   ) : (
                     <>
-                      <Sparkles className="h-4 w-4" />
+                      <Sparkles className="h-5 w-5" />
                       <span>Generate Invoice with AI</span>
                     </>
                   )}

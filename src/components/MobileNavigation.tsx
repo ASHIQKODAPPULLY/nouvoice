@@ -22,40 +22,52 @@ export default function MobileNavigation() {
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
-        <Button variant="ghost" size="icon" className="md:hidden">
-          <Menu className="h-5 w-5" />
+        <Button
+          variant="ghost"
+          size="icon"
+          className="md:hidden h-12 w-12 touch-manipulation"
+        >
+          <Menu className="h-6 w-6" />
           <span className="sr-only">Toggle menu</span>
         </Button>
       </SheetTrigger>
-      <SheetContent side="left" className="w-[250px] sm:w-[300px]">
+      <SheetContent side="left" className="w-[280px] sm:w-[320px] p-0">
         <div className="flex flex-col h-full">
-          <div className="flex items-center justify-between py-4 border-b">
-            <div className="flex items-center gap-2">
-              <div className="h-8 w-8 rounded-md bg-gradient-to-r from-gradient-blue to-gradient-purple flex items-center justify-center">
-                <span className="text-white font-bold">I</span>
+          <div className="flex items-center justify-between p-4 border-b">
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-md bg-gradient-to-r from-gradient-blue to-gradient-purple flex items-center justify-center">
+                <span className="text-white font-bold text-lg">I</span>
               </div>
               <h1 className="text-xl font-bold">Nouvoice</h1>
             </div>
-            <Button variant="ghost" size="icon" onClick={() => setOpen(false)}>
-              <X className="h-5 w-5" />
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-10 w-10 touch-manipulation"
+              onClick={() => setOpen(false)}
+            >
+              <X className="h-6 w-6" />
               <span className="sr-only">Close menu</span>
             </Button>
           </div>
 
-          <nav className="flex-1 py-4">
-            <ul className="space-y-2">
+          <nav className="flex-1 py-2 overflow-y-auto">
+            <ul className="space-y-1">
               {routes.map((route) => {
-                const isActive = pathname === route.path;
+                const isActive =
+                  pathname === route.path ||
+                  (pathname.includes("/mobile") &&
+                    route.path.includes("/mobile#"));
                 const Icon = route.icon;
                 return (
                   <li key={route.path}>
                     <Link
                       href={route.path}
                       onClick={() => setOpen(false)}
-                      className={`flex items-center gap-3 px-4 py-3 text-base rounded-md hover:bg-muted ${isActive ? "bg-muted font-medium" : ""}`}
+                      className={`flex items-center gap-3 px-4 py-4 text-base rounded-md hover:bg-muted touch-manipulation ${isActive ? "bg-muted font-medium" : ""}`}
                     >
-                      <Icon className="h-5 w-5" />
-                      {route.name}
+                      <Icon className="h-5 w-5 min-w-5" />
+                      <span className="truncate">{route.name}</span>
                     </Link>
                   </li>
                 );
@@ -63,8 +75,8 @@ export default function MobileNavigation() {
             </ul>
           </nav>
 
-          <div className="border-t py-4">
-            <Button className="w-full bg-gradient-to-r from-gradient-blue to-gradient-purple hover:opacity-90">
+          <div className="border-t p-4">
+            <Button className="w-full h-12 text-base bg-gradient-to-r from-gradient-blue to-gradient-purple hover:opacity-90 touch-manipulation">
               Upgrade to Pro
             </Button>
           </div>

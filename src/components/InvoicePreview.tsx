@@ -511,17 +511,17 @@ const InvoicePreview: React.FC<InvoicePreviewProps> = ({
           <div className="w-full max-w-full sm:max-w-6xl mx-auto bg-background rounded-xl shadow-sm border border-border overflow-hidden">
             <div className="p-2 sm:p-4 border-b border-border flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-4">
               <h2 className="text-xl font-semibold">Invoice Preview</h2>
-              <div className="flex items-center gap-2">
+              <div className="flex flex-col sm:flex-row gap-3 w-full">
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={openCompanyDetailsDialog}
-                  className="flex items-center gap-1"
+                  className="flex items-center gap-1 h-10 touch-manipulation"
                 >
                   <Save className="h-4 w-4" /> Save Company Details
                 </Button>
-                <div className="flex flex-wrap items-center gap-1 sm:gap-2">
-                  <div className="flex gap-1">
+                <div className="flex flex-wrap items-center gap-2">
+                  <div className="flex gap-1 flex-wrap">
                     <Badge
                       variant={
                         editableInvoice.clientName &&
@@ -529,7 +529,7 @@ const InvoicePreview: React.FC<InvoicePreviewProps> = ({
                           ? "default"
                           : "outline"
                       }
-                      className="text-xs"
+                      className="text-xs h-6"
                     >
                       {editableInvoice.clientName &&
                       editableInvoice.clientName !== "Client"
@@ -543,7 +543,7 @@ const InvoicePreview: React.FC<InvoicePreviewProps> = ({
                           ? "default"
                           : "outline"
                       }
-                      className="text-xs"
+                      className="text-xs h-6"
                     >
                       {editableInvoice.lineItems.length > 0 ? "✓" : "✗"} Items
                     </Badge>
@@ -551,7 +551,7 @@ const InvoicePreview: React.FC<InvoicePreviewProps> = ({
                       variant={
                         editableInvoice.taxRate > 0 ? "default" : "outline"
                       }
-                      className="text-xs"
+                      className="text-xs h-6"
                     >
                       {editableInvoice.taxRate > 0 ? "✓" : "✗"} Tax
                     </Badge>
@@ -560,14 +560,14 @@ const InvoicePreview: React.FC<InvoicePreviewProps> = ({
                     variant="outline"
                     size="sm"
                     onClick={handleAddLineItem}
-                    className="mr-4"
+                    className="h-10 touch-manipulation"
                   >
                     <Plus className="h-4 w-4 mr-1" /> Add Item
                   </Button>
                 </div>
-                <div className="w-full max-w-[300px] sm:max-w-full sm:w-[600px]">
+                <div className="w-full">
                   <select
-                    className="w-full p-2 border rounded-md bg-background"
+                    className="w-full p-3 border rounded-md bg-background text-base h-10 touch-manipulation"
                     value={activeTemplate}
                     onChange={(e) => setActiveTemplate(e.target.value)}
                   >
@@ -2050,14 +2050,20 @@ const InvoicePreview: React.FC<InvoicePreviewProps> = ({
               </div>
             </div>
           </div>
-          <DialogFooter>
+          <DialogFooter className="flex-col sm:flex-row gap-2">
             <Button
               variant="outline"
               onClick={() => setIsEditDialogOpen(false)}
+              className="w-full sm:w-auto h-12 touch-manipulation"
             >
               Cancel
             </Button>
-            <Button onClick={handleSaveLineItem}>Save</Button>
+            <Button
+              onClick={handleSaveLineItem}
+              className="w-full sm:w-auto h-12 touch-manipulation"
+            >
+              Save
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -2072,14 +2078,19 @@ const InvoicePreview: React.FC<InvoicePreviewProps> = ({
             Are you sure you want to delete this item? This action cannot be
             undone.
           </p>
-          <DialogFooter>
+          <DialogFooter className="flex-col sm:flex-row gap-2">
             <Button
               variant="outline"
               onClick={() => setIsDeleteDialogOpen(false)}
+              className="w-full sm:w-auto h-12 touch-manipulation"
             >
               Cancel
             </Button>
-            <Button variant="destructive" onClick={confirmDeleteLineItem}>
+            <Button
+              variant="destructive"
+              onClick={confirmDeleteLineItem}
+              className="w-full sm:w-auto h-12 touch-manipulation"
+            >
               Delete
             </Button>
           </DialogFooter>
@@ -2181,14 +2192,20 @@ const InvoicePreview: React.FC<InvoicePreviewProps> = ({
               </div>
             </div>
           </div>
-          <DialogFooter>
+          <DialogFooter className="flex-col sm:flex-row gap-2">
             <Button
               variant="outline"
               onClick={() => setIsCompanyDetailsDialogOpen(false)}
+              className="w-full sm:w-auto h-12 touch-manipulation"
             >
               Cancel
             </Button>
-            <Button onClick={saveCompanyDetails}>Save Details</Button>
+            <Button
+              onClick={saveCompanyDetails}
+              className="w-full sm:w-auto h-12 touch-manipulation"
+            >
+              Save Details
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -2227,14 +2244,20 @@ const InvoicePreview: React.FC<InvoicePreviewProps> = ({
               )}
             </div>
           </div>
-          <DialogFooter>
+          <DialogFooter className="flex-col sm:flex-row gap-2">
             <Button
               variant="outline"
               onClick={() => setIsLogoDialogOpen(false)}
+              className="w-full sm:w-auto h-12 touch-manipulation"
             >
               Cancel
             </Button>
-            <Button onClick={applyLogoSize}>Apply</Button>
+            <Button
+              onClick={applyLogoSize}
+              className="w-full sm:w-auto h-12 touch-manipulation"
+            >
+              Apply
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
