@@ -122,24 +122,27 @@ export default function Footer() {
             <ul className="space-y-2 text-sm">
               <li>
                 <Link
-                  href="/privacy-au"
+                  href="#"
                   className="text-muted-foreground hover:text-foreground transition-colors"
+                  onClick={(e) => e.preventDefault()}
                 >
                   Privacy Policy
                 </Link>
               </li>
               <li>
                 <Link
-                  href="/terms-au"
+                  href="#"
                   className="text-muted-foreground hover:text-foreground transition-colors"
+                  onClick={(e) => e.preventDefault()}
                 >
                   Terms of Service
                 </Link>
               </li>
               <li>
                 <Link
-                  href="/cookies-au"
+                  href="#"
                   className="text-muted-foreground hover:text-foreground transition-colors"
+                  onClick={(e) => e.preventDefault()}
                 >
                   Cookie Policy
                 </Link>
