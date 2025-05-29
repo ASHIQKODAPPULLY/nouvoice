@@ -116,53 +116,85 @@ export default function SupportPage() {
         <TabsContent value="contact" className="mt-6">
           <Card>
             <CardHeader>
-              <CardTitle>Contact Support</CardTitle>
+              <CardTitle>Contact Us</CardTitle>
               <CardDescription>
-                Our support team is here to help you
+                Need help? Want to share feedback? Our team is here for you.
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <form className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <label htmlFor="name" className="text-sm font-medium">
-                      Name
-                    </label>
-                    <Input id="name" placeholder="Your name" />
+              <div className="space-y-6">
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="20"
+                      height="20"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className="text-blue-600"
+                    >
+                      <rect width="20" height="16" x="2" y="4" rx="2" />
+                      <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+                    </svg>
                   </div>
+                  <div>
+                    <h3 className="font-medium">Email us directly</h3>
+                    <p className="text-blue-600">contact@nouvoice.com.au</p>
+                  </div>
+                </div>
+
+                <div className="bg-muted p-4 rounded-lg">
+                  <p className="text-sm">
+                    We aim to respond within 24 hours, Monday to Friday.
+                  </p>
+                </div>
+
+                <form className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <label htmlFor="name" className="text-sm font-medium">
+                        Name
+                      </label>
+                      <Input id="name" placeholder="Your name" />
+                    </div>
+                    <div className="space-y-2">
+                      <label htmlFor="email" className="text-sm font-medium">
+                        Email
+                      </label>
+                      <Input
+                        id="email"
+                        type="email"
+                        placeholder="Your email address"
+                      />
+                    </div>
+                  </div>
+
                   <div className="space-y-2">
-                    <label htmlFor="email" className="text-sm font-medium">
-                      Email
+                    <label htmlFor="subject" className="text-sm font-medium">
+                      Subject
                     </label>
                     <Input
-                      id="email"
-                      type="email"
-                      placeholder="Your email address"
+                      id="subject"
+                      placeholder="What is your inquiry about?"
                     />
                   </div>
-                </div>
 
-                <div className="space-y-2">
-                  <label htmlFor="subject" className="text-sm font-medium">
-                    Subject
-                  </label>
-                  <Input
-                    id="subject"
-                    placeholder="What is your inquiry about?"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <label htmlFor="message" className="text-sm font-medium">
-                    Message
-                  </label>
-                  <textarea
-                    id="message"
-                    className="w-full min-h-[150px] p-3 border rounded-md"
-                    placeholder="Please describe your issue in detail"
-                  ></textarea>
-                </div>
-              </form>
+                  <div className="space-y-2">
+                    <label htmlFor="message" className="text-sm font-medium">
+                      Message
+                    </label>
+                    <textarea
+                      id="message"
+                      className="w-full min-h-[150px] p-3 border rounded-md"
+                      placeholder="Please describe your issue in detail"
+                    ></textarea>
+                  </div>
+                </form>
+              </div>
             </CardContent>
             <CardFooter>
               <Button className="w-full">Submit Support Request</Button>
