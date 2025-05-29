@@ -122,27 +122,24 @@ export default function Footer() {
             <ul className="space-y-2 text-sm">
               <li>
                 <Link
-                  href="#"
+                  href="/privacy-policy"
                   className="text-muted-foreground hover:text-foreground transition-colors"
-                  onClick={(e) => e.preventDefault()}
                 >
                   Privacy Policy
                 </Link>
               </li>
               <li>
                 <Link
-                  href="#"
+                  href="/terms-of-service"
                   className="text-muted-foreground hover:text-foreground transition-colors"
-                  onClick={(e) => e.preventDefault()}
                 >
                   Terms of Service
                 </Link>
               </li>
               <li>
                 <Link
-                  href="#"
+                  href="/cookie-policy"
                   className="text-muted-foreground hover:text-foreground transition-colors"
-                  onClick={(e) => e.preventDefault()}
                 >
                   Cookie Policy
                 </Link>
