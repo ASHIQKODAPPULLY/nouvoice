@@ -18,7 +18,7 @@ export default function AboutPage() {
           Melbourne-Brewed Innovation for Smarter Business
         </p>
 
-        <div className="prose prose-lg dark:prose-invert">
+        <div className="space-y-4">
           <p className="mb-4">
             Nouvoice was born out of a simple but frustrating reality: small
             business owners and freelancers were wasting countless hours
