@@ -488,12 +488,11 @@ export default function Home() {
                 improving accuracy, and letting you focus on what truly matters:
                 your business.
               </p>
-              <p>
-                Our core mission is to empower customers with intuitive,
-                intelligent invoicing tools that do the work for them. Whether
-                you're a solo entrepreneur, consultant, or growing team,
-                Nouvoice adapts to your workflow and scales with your ambition.
-              </p>
+              <div className="mt-6 text-center">
+                <Link href="/about" passHref>
+                  <Button variant="outline">Learn More About Us</Button>
+                </Link>
+              </div>
             </div>
           </div>
 

@@ -41,7 +41,7 @@ export default function Footer() {
       )}
 
       <div className="container px-4 md:px-6 py-8 mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div className="space-y-3">
             <h3 className="text-lg font-semibold">Nouvoice</h3>
             <p className="text-sm text-muted-foreground">
@@ -70,7 +70,7 @@ export default function Footer() {
                 </Link>
               </Button>
               <Button variant="ghost" size="icon" asChild>
-                <Link href="mailto:contact@nouvoice.com">
+                <Link href="mailto:contact@nouvoice.com.au">
                   <Mail className="h-5 w-5" />
                   <span className="sr-only">Email</span>
                 </Link>
@@ -80,14 +80,14 @@ export default function Footer() {
           </div>
 
           <div className="space-y-3">
-            <h3 className="text-sm font-semibold">Product</h3>
+            <h3 className="text-sm font-semibold">Company</h3>
             <ul className="space-y-2 text-sm">
               <li>
                 <Link
-                  href="/"
+                  href="/about"
                   className="text-muted-foreground hover:text-foreground transition-colors"
                 >
-                  Features
+                  About Us
                 </Link>
               </li>
               <li>
@@ -100,58 +100,10 @@ export default function Footer() {
               </li>
               <li>
                 <Link
-                  href="/#faq"
-                  className="text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  FAQ
-                </Link>
-              </li>
-            </ul>
-          </div>
-
-          <div className="space-y-3">
-            <h3 className="text-sm font-semibold">Resources</h3>
-            <ul className="space-y-2 text-sm">
-              <li>
-                <Link
-                  href="/blog"
-                  className="text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  Blog
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/guides"
-                  className="text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  Guides
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/templates"
-                  className="text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  Templates
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="https://docs.nouvoice.com"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  Documentation
-                </Link>
-              </li>
-              <li>
-                <Link
                   href="/support"
                   className="text-muted-foreground hover:text-foreground transition-colors"
                 >
-                  Support Center
+                  Support
                 </Link>
               </li>
             </ul>
