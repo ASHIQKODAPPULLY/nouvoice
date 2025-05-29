@@ -106,6 +106,14 @@ export default function Footer() {
                   Support
                 </Link>
               </li>
+              <li>
+                <Link
+                  href="/blog"
+                  className="text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  Blog
+                </Link>
+              </li>
             </ul>
           </div>
 

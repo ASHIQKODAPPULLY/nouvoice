@@ -64,7 +64,7 @@ export default function SupportPage() {
 
               <div className="pt-4">
                 <Link href="/about" passHref>
-                  <Button variant="outline">Learn More About Us</Button>
+                  <Button variant="outline">About Our Company</Button>
                 </Link>
               </div>
             </div>
