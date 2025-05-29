@@ -505,11 +505,11 @@ const InvoicePreview: React.FC<InvoicePreviewProps> = ({
   }
 
   return (
-    <Card className="border-dashed w-full">
-      <CardContent className="pt-6">
+    <Card className="border-dashed w-full overflow-hidden">
+      <CardContent className="pt-4 px-2 sm:px-4 md:px-6">
         {isClient ? (
-          <div className="w-full max-w-6xl mx-auto bg-background rounded-xl shadow-sm border border-border">
-            <div className="p-4 border-b border-border flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div className="w-full max-w-full sm:max-w-6xl mx-auto bg-background rounded-xl shadow-sm border border-border overflow-hidden">
+            <div className="p-2 sm:p-4 border-b border-border flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-4">
               <h2 className="text-xl font-semibold">Invoice Preview</h2>
               <div className="flex items-center gap-2">
                 <Button
@@ -520,7 +520,7 @@ const InvoicePreview: React.FC<InvoicePreviewProps> = ({
                 >
                   <Save className="h-4 w-4" /> Save Company Details
                 </Button>
-                <div className="flex flex-wrap items-center gap-2">
+                <div className="flex flex-wrap items-center gap-1 sm:gap-2">
                   <div className="flex gap-1">
                     <Badge
                       variant={
@@ -565,7 +565,7 @@ const InvoicePreview: React.FC<InvoicePreviewProps> = ({
                     <Plus className="h-4 w-4 mr-1" /> Add Item
                   </Button>
                 </div>
-                <div className="w-full sm:w-[600px]">
+                <div className="w-full max-w-[300px] sm:max-w-full sm:w-[600px]">
                   <select
                     className="w-full p-2 border rounded-md bg-background"
                     value={activeTemplate}
@@ -586,12 +586,12 @@ const InvoicePreview: React.FC<InvoicePreviewProps> = ({
               </div>
             </div>
 
-            <div className="p-6">
+            <div className="p-2 sm:p-4 md:p-6">
               <Tabs value={activeTemplate} onValueChange={setActiveTemplate}>
                 {/* Standard Template */}
                 <TabsContent value="standard" className="mt-0">
                   <Card className="border shadow-sm">
-                    <CardHeader className="flex flex-col md:flex-row justify-between items-start pb-2 gap-4">
+                    <CardHeader className="flex flex-col md:flex-row justify-between items-start pb-2 gap-2 sm:gap-4 px-2 sm:px-4">
                       <div>
                         <CardTitle
                           className="text-2xl font-bold"
@@ -735,7 +735,7 @@ const InvoicePreview: React.FC<InvoicePreviewProps> = ({
                         </div>
                       </div>
 
-                      <div className="relative overflow-x-auto mt-6 w-full">
+                      <div className="relative overflow-x-auto mt-4 sm:mt-6 w-full">
                         <Table>
                           <TableHeader>
                             <TableRow>
@@ -799,8 +799,8 @@ const InvoicePreview: React.FC<InvoicePreviewProps> = ({
                         </Table>
                       </div>
 
-                      <div className="flex justify-end mt-6">
-                        <div className="w-full sm:w-1/2 md:w-1/3 space-y-2">
+                      <div className="flex justify-end mt-4 sm:mt-6">
+                        <div className="w-full sm:w-1/2 md:w-1/3 space-y-2 px-2 sm:px-0">
                           <div className="flex justify-between">
                             <span className="text-muted-foreground">
                               Subtotal:
@@ -837,7 +837,7 @@ const InvoicePreview: React.FC<InvoicePreviewProps> = ({
                         </div>
                       </div>
 
-                      <div className="mt-8 pt-4 border-t relative group">
+                      <div className="mt-4 sm:mt-8 pt-4 border-t relative group px-2 sm:px-0">
                         <div className="flex items-center">
                           <h4 className="font-medium mb-2">Notes</h4>
                           <Button
@@ -1958,7 +1958,7 @@ const InvoicePreview: React.FC<InvoicePreviewProps> = ({
                   </div>
                 </TabsContent>
               </Tabs>
-              <div className="border-t border-border p-4 mt-4">
+              <div className="border-t border-border p-2 sm:p-4 mt-2 sm:mt-4">
                 <InvoiceExportOptions
                   isPremiumUser={isPremium}
                   invoiceData={editableInvoice}

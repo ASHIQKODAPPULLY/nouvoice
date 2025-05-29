@@ -12,10 +12,10 @@ export default function MobileNavigation() {
   const pathname = usePathname();
 
   const routes = [
-    { name: "Home", path: "/", icon: Home },
-    { name: "Create Invoice", path: "/#create", icon: FileText },
-    { name: "Invoice History", path: "/#history", icon: Clock },
-    { name: "Pricing", path: "/pricing", icon: Settings },
+    { name: "Dashboard", path: "/", icon: Home },
+    { name: "Create Invoice", path: "/mobile#create", icon: FileText },
+    { name: "Invoice History", path: "/mobile#history", icon: Clock },
+    { name: "Settings", path: "/mobile#settings", icon: Settings },
     { name: "Account", path: "/account", icon: User },
   ];
 
@@ -27,7 +27,7 @@ export default function MobileNavigation() {
           <span className="sr-only">Toggle menu</span>
         </Button>
       </SheetTrigger>
-      <SheetContent side="left" className="w-[300px] sm:w-[400px]">
+      <SheetContent side="left" className="w-[250px] sm:w-[300px]">
         <div className="flex flex-col h-full">
           <div className="flex items-center justify-between py-4 border-b">
             <div className="flex items-center gap-2">

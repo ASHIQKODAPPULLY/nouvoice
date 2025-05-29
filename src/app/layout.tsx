@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import ClientLayoutWrapper from "@/components/ClientLayoutWrapper";
 import Script from "next/script";
+import { TempoInit } from "./tempo-init";
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -16,6 +17,7 @@ export const viewport = {
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
+  userScalable: false,
 };
 
 export default function RootLayout({
@@ -28,6 +30,7 @@ export default function RootLayout({
       <body className={inter.className}>
         <Script src="https://api.tempo.new/proxy-asset?url=https://storage.googleapis.com/tempo-public-assets/error-handling.js" />
         <ClientLayoutWrapper>{children}</ClientLayoutWrapper>
+        <TempoInit />
       </body>
     </html>
   );

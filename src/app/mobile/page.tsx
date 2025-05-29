@@ -39,9 +39,9 @@ export default function MobileApp() {
       </div>
 
       {/* Main Content - Mobile Optimized */}
-      <main className="flex-1 container mx-auto py-6 px-4 overflow-hidden">
+      <main className="flex-1 container mx-auto py-4 px-2 overflow-hidden max-w-full">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="flex flex-wrap w-full mb-6 gap-1">
+          <TabsList className="flex w-full mb-4 gap-0.5">
             <TabsTrigger
               value="create"
               className="flex-1 min-w-[100px] flex items-center justify-center gap-1"
@@ -67,7 +67,7 @@ export default function MobileApp() {
 
           <TabsContent value="create" className="space-y-4">
             <Card>
-              <CardContent className="pt-6 px-2 sm:px-6">
+              <CardContent className="pt-4 px-1 sm:px-4">
                 <InvoicePromptInput
                   onGenerateInvoice={() => {}}
                   isProcessing={false}
