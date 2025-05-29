@@ -666,7 +666,7 @@ export default function InvoicePromptInput({
                         </RadioGroup>
                       </div>
 
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-2 mb-3">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 mb-3">
                         {examples.map((example, index) => (
                           <Button
                             key={index}
@@ -687,7 +687,7 @@ export default function InvoicePromptInput({
                     </div>
 
                     <div className="space-y-4">
-                      <div className="flex gap-2 flex-wrap">
+                      <div className="flex gap-2 flex-wrap max-w-full overflow-x-auto pb-2">
                         <Popover
                           open={openDropdown === "products"}
                           onOpenChange={(open) => {
@@ -711,7 +711,7 @@ export default function InvoicePromptInput({
                             </Button>
                           </PopoverTrigger>
                           <PopoverContent
-                            className="w-[200px] p-0"
+                            className="w-[200px] p-0 max-w-[90vw]"
                             align="start"
                           >
                             <Command>
@@ -761,7 +761,7 @@ export default function InvoicePromptInput({
                             </Button>
                           </PopoverTrigger>
                           <PopoverContent
-                            className="w-[200px] p-0"
+                            className="w-[200px] p-0 max-w-[90vw]"
                             align="start"
                           >
                             <Command>
@@ -806,7 +806,7 @@ export default function InvoicePromptInput({
                             </Button>
                           </PopoverTrigger>
                           <PopoverContent
-                            className="w-[150px] p-0"
+                            className="w-[150px] p-0 max-w-[90vw]"
                             align="start"
                           >
                             <Command>
@@ -851,7 +851,7 @@ export default function InvoicePromptInput({
                             </Button>
                           </PopoverTrigger>
                           <PopoverContent
-                            className="w-[150px] p-0"
+                            className="w-[150px] p-0 max-w-[90vw]"
                             align="start"
                           >
                             <Command>
@@ -896,7 +896,7 @@ export default function InvoicePromptInput({
                             </Button>
                           </PopoverTrigger>
                           <PopoverContent
-                            className="w-[300px] p-0"
+                            className="w-[300px] p-0 max-w-[90vw]"
                             align="start"
                           >
                             <Command>
@@ -965,7 +965,7 @@ export default function InvoicePromptInput({
                         <Textarea
                           ref={textareaRef}
                           placeholder={placeholderText}
-                          className="min-h-[120px] resize-none text-base p-4 pr-12"
+                          className="min-h-[120px] resize-none text-base p-4 pr-12 w-full"
                           value={promptText}
                           onChange={handlePromptChange}
                           onKeyDown={handleKeyDown}

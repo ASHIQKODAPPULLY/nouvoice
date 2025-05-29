@@ -509,7 +509,7 @@ const InvoicePreview: React.FC<InvoicePreviewProps> = ({
       <CardContent className="pt-6">
         {isClient ? (
           <div className="w-full max-w-6xl mx-auto bg-background rounded-xl shadow-sm border border-border">
-            <div className="p-4 border-b border-border flex justify-between items-center">
+            <div className="p-4 border-b border-border flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
               <h2 className="text-xl font-semibold">Invoice Preview</h2>
               <div className="flex items-center gap-2">
                 <Button
@@ -565,7 +565,7 @@ const InvoicePreview: React.FC<InvoicePreviewProps> = ({
                     <Plus className="h-4 w-4 mr-1" /> Add Item
                   </Button>
                 </div>
-                <div className="w-[600px]">
+                <div className="w-full sm:w-[600px]">
                   <select
                     className="w-full p-2 border rounded-md bg-background"
                     value={activeTemplate}
@@ -591,7 +591,7 @@ const InvoicePreview: React.FC<InvoicePreviewProps> = ({
                 {/* Standard Template */}
                 <TabsContent value="standard" className="mt-0">
                   <Card className="border shadow-sm">
-                    <CardHeader className="flex flex-row justify-between items-start pb-2">
+                    <CardHeader className="flex flex-col md:flex-row justify-between items-start pb-2 gap-4">
                       <div>
                         <CardTitle
                           className="text-2xl font-bold"
@@ -701,7 +701,7 @@ const InvoicePreview: React.FC<InvoicePreviewProps> = ({
                     </CardHeader>
 
                     <CardContent>
-                      <div className="grid grid-cols-2 gap-6 mb-6">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                         <div className="space-y-1 relative group">
                           <div className="flex items-center">
                             <h3 className="text-sm font-medium text-muted-foreground">
@@ -735,7 +735,7 @@ const InvoicePreview: React.FC<InvoicePreviewProps> = ({
                         </div>
                       </div>
 
-                      <div className="relative overflow-x-auto mt-6">
+                      <div className="relative overflow-x-auto mt-6 w-full">
                         <Table>
                           <TableHeader>
                             <TableRow>
@@ -800,7 +800,7 @@ const InvoicePreview: React.FC<InvoicePreviewProps> = ({
                       </div>
 
                       <div className="flex justify-end mt-6">
-                        <div className="w-1/3 space-y-2">
+                        <div className="w-full sm:w-1/2 md:w-1/3 space-y-2">
                           <div className="flex justify-between">
                             <span className="text-muted-foreground">
                               Subtotal:
