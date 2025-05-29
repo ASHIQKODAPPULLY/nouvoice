@@ -465,37 +465,6 @@ export default function Home() {
             </TabsContent>
           </Tabs>
 
-          {/* About Section */}
-          <div className="py-12 bg-muted/30 rounded-xl">
-            <div className="text-center mb-8">
-              <h2 className="text-3xl font-bold mb-4">About Nouvoice</h2>
-              <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-                Melbourne-Brewed Innovation for Smarter Business
-              </p>
-            </div>
-
-            <div className="max-w-3xl mx-auto space-y-4 px-4">
-              <p>
-                Nouvoice was born out of a simple but frustrating reality: small
-                business owners and freelancers were wasting countless hours
-                manually creating invoices, cross-checking numbers, and managing
-                outdated templates.
-              </p>
-              <p>
-                Built in Melbourne, Nouvoice is the solution to this common pain
-                point. We provide an AI-powered platform that lets you generate
-                professional, compliant invoices in seconds—saving you time,
-                improving accuracy, and letting you focus on what truly matters:
-                your business.
-              </p>
-              <div className="mt-6 text-center">
-                <Link href="/about" passHref>
-                  <Button variant="outline">Learn More About Us</Button>
-                </Link>
-              </div>
-            </div>
-          </div>
-
           {/* Features Section */}
           <div className="py-12">
             <div className="text-center mb-12">
