@@ -112,16 +112,21 @@ export default function InvoicePromptInput({
   const [recentInputs, setRecentInputs] = useState<string[]>([]);
 
   // Suggestion data
-  const productSuggestions = [
-    { name: "Website Design", price: 1500 },
-    { name: "Logo Design", price: 350 },
-    { name: "Content Creation", price: 500 },
-    { name: "SEO Optimization", price: 800 },
-    { name: "Hosting Setup", price: 200 },
-    { name: "Consulting Services", price: 2000 },
-    { name: "Social Media Graphics", price: 300 },
-    { name: "Herald Sun Newspaper Delivery", price: 2.5 },
-  ];
+  const [productSuggestions, setProductSuggestions] = useState<
+    Array<{ name: string; price: number }>
+  >([]);
+
+  // Load saved products from localStorage on component mount
+  useEffect(() => {
+    const savedProducts = localStorage.getItem("savedProducts");
+    if (savedProducts) {
+      try {
+        setProductSuggestions(JSON.parse(savedProducts));
+      } catch (e) {
+        console.error("Error parsing saved products", e);
+      }
+    }
+  }, []);
 
   const taxRateSuggestions = ["5%", "8%", "10%", "15%", "20%"];
   const paymentTermSuggestions = [
@@ -257,6 +262,14 @@ export default function InvoicePromptInput({
 
     setError(null);
 
+    // Clear the product search field
+    const productSearchInput = document.getElementById(
+      "product-search",
+    ) as HTMLInputElement;
+    if (productSearchInput) {
+      productSearchInput.value = "";
+    }
+
     // Save to recent inputs if not already there
     if (!recentInputs.includes(promptText)) {
       const updatedInputs = [promptText, ...recentInputs.slice(0, 4)]; // Keep last 5 inputs
@@ -358,8 +371,25 @@ export default function InvoicePromptInput({
     setShowSuggestions(false);
     setOpenDropdown(null);
 
-    const suggestion = `${product.name} for $${product.price}`;
+    const suggestion = `${product.name} for ${product.price}`;
     insertSuggestion(suggestion);
+  };
+
+  const addNewProduct = (name: string, price: number) => {
+    const newProduct = { name, price };
+    const updatedProducts = [...productSuggestions, newProduct];
+    setProductSuggestions(updatedProducts);
+
+    // Save to localStorage
+    localStorage.setItem("savedProducts", JSON.stringify(updatedProducts));
+
+    // Insert the new product into the prompt
+    const suggestion = `${name} for ${price}`;
+    insertSuggestion(suggestion);
+
+    // Close dropdown
+    setShowSuggestions(false);
+    setOpenDropdown(null);
   };
 
   const insertDate = (date: { label: string; value: string }) => {
@@ -717,11 +747,60 @@ export default function InvoicePromptInput({
                           >
                             <Command>
                               <CommandInput
-                                placeholder="Search products..."
+                                placeholder="Search or add new product..."
                                 className="h-10"
+                                id="product-search"
                               />
                               <CommandList className="max-h-[50vh]">
-                                <CommandEmpty>No products found.</CommandEmpty>
+                                <CommandEmpty>
+                                  <div className="p-2">
+                                    <p className="text-sm">
+                                      No products found.
+                                    </p>
+                                    <div className="mt-2">
+                                      <input
+                                        type="text"
+                                        placeholder="New product name"
+                                        className="w-full p-2 text-sm border rounded mb-2"
+                                        id="new-product-name"
+                                      />
+                                      <div className="flex gap-2">
+                                        <input
+                                          type="number"
+                                          placeholder="Price"
+                                          className="flex-1 p-2 text-sm border rounded"
+                                          id="new-product-price"
+                                        />
+                                        <Button
+                                          size="sm"
+                                          onClick={() => {
+                                            const nameInput =
+                                              document.getElementById(
+                                                "new-product-name",
+                                              ) as HTMLInputElement;
+                                            const priceInput =
+                                              document.getElementById(
+                                                "new-product-price",
+                                              ) as HTMLInputElement;
+                                            if (
+                                              nameInput?.value &&
+                                              priceInput?.value
+                                            ) {
+                                              addNewProduct(
+                                                nameInput.value,
+                                                parseFloat(priceInput.value),
+                                              );
+                                              nameInput.value = "";
+                                              priceInput.value = "";
+                                            }
+                                          }}
+                                        >
+                                          Add
+                                        </Button>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </CommandEmpty>
                                 <CommandGroup heading="Products">
                                   {productSuggestions.map((product) => (
                                     <CommandItem
