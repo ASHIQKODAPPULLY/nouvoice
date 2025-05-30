@@ -9,7 +9,6 @@ export default function MobileHeader() {
     <header className="border-b sticky top-0 z-10 bg-background">
       <div className="container mx-auto py-3 px-4 flex justify-between items-center">
         <div className="flex items-center gap-2">
-          <MobileNavigation />
           <Link href="/" className="flex items-center gap-2">
             <div className="h-8 w-8 rounded-md bg-gradient-to-r from-gradient-blue to-gradient-purple flex items-center justify-center">
               <span className="text-white font-bold">I</span>
@@ -20,6 +19,7 @@ export default function MobileHeader() {
 
         <div className="flex items-center gap-2">
           <ThemeSwitcher />
+          <MobileNavigation />
         </div>
       </div>
     </header>
