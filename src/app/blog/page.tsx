@@ -20,6 +20,14 @@ export default function BlogPage() {
           management.
         </p>
 
+        <div className="mb-12">
+          <img
+            src="https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=800&q=80"
+            alt="Professional looking at invoices on laptop"
+            className="rounded-lg w-full object-cover h-64"
+          />
+        </div>
+
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {/* Featured blog post - full width */}
           <div className="border rounded-lg overflow-hidden bg-card col-span-1 md:col-span-2 lg:col-span-3">
@@ -44,17 +52,6 @@ export default function BlogPage() {
                   you time, help you get paid faster, and give your clients a
                   smoother experience.
                 </p>
-
-                <div className="my-6">
-                  <img
-                    src="https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=800&q=80"
-                    alt="Professional looking at invoices on laptop"
-                    className="rounded-lg w-full object-cover h-64"
-                  />
-                  <p className="text-sm text-muted-foreground mt-2 text-center">
-                    Streamline your invoicing process with professional tools
-                  </p>
-                </div>
 
                 <h4 className="text-lg font-semibold mt-6 text-foreground">
                   1. Always Include the Essentials
