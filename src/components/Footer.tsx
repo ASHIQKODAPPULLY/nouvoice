@@ -3,7 +3,7 @@
 import { ThemeSwitcher } from "./theme-switcher";
 import { Button } from "./ui/button";
 import { Separator } from "./ui/separator";
-import { Github, Twitter, Mail, Heart, ArrowUp } from "lucide-react";
+import { Mail, Heart, ArrowUp, X } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import NewsletterSignup from "./NewsletterSignup";
@@ -51,22 +51,12 @@ export default function Footer() {
             <div className="flex items-center space-x-3">
               <Button variant="ghost" size="icon" asChild>
                 <Link
-                  href="https://github.com"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <Github className="h-5 w-5" />
-                  <span className="sr-only">GitHub</span>
-                </Link>
-              </Button>
-              <Button variant="ghost" size="icon" asChild>
-                <Link
                   href="https://twitter.com"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  <Twitter className="h-5 w-5" />
-                  <span className="sr-only">Twitter</span>
+                  <X className="h-5 w-5" />
+                  <span className="sr-only">X</span>
                 </Link>
               </Button>
               <Button variant="ghost" size="icon" asChild>

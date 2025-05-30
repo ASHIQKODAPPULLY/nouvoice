@@ -105,12 +105,7 @@ export default function AboutPage() {
                 contact@nouvoice.com.au
               </a>
             </p>
-            <p className="mb-4">
-              <span className="font-medium">Office:</span>{" "}
-              <span className="text-muted-foreground">
-                101 Collins Street, Melbourne VIC 3000, Australia
-              </span>
-            </p>
+
             <p>
               <span className="font-medium">Support Hours:</span>{" "}
               <span className="text-muted-foreground">
