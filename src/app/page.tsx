@@ -300,22 +300,32 @@ export default function Home() {
         </div>
       </header>
       {mobileMenuOpen && (
-        <div className="md:hidden bg-white border rounded-lg shadow-lg p-4 mx-4 mt-2 space-y-2 z-50 absolute top-16 right-0 left-0">
-          <Link href="/pricing">
+        <div className="md:hidden fixed top-[64px] left-4 right-4 bg-white border rounded-lg shadow-lg p-4 space-y-2 z-50">
+          <Link href="/pricing" onClick={() => setMobileMenuOpen(false)}>
             <Button variant="ghost" className="w-full">
               Pricing
             </Button>
           </Link>
-          <Link href="/team">
+          <Link href="/team" onClick={() => setMobileMenuOpen(false)}>
             <Button variant="ghost" className="w-full">
               Teams
             </Button>
           </Link>
-          <Button variant="outline" className="w-full gap-2">
+          <Button
+            variant="outline"
+            className="w-full gap-2"
+            onClick={() => setMobileMenuOpen(false)}
+          >
             <UserIcon className="h-4 w-4" />
             <span>Account</span>
           </Button>
-          <Button onClick={handleUpgrade} className="w-full">
+          <Button
+            onClick={() => {
+              handleUpgrade();
+              setMobileMenuOpen(false);
+            }}
+            className="w-full"
+          >
             {isPremium
               ? "Premium Active"
               : `Upgrade to Pro ${!isPremium && usageCount >= 50 ? "(Required)" : ""}`}
