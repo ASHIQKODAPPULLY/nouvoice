@@ -67,7 +67,7 @@ export default function PricingPage() {
             <h1 className="text-xl font-bold">Nouvoice</h1>
           </Link>
 
-          <div className="flex items-center gap-4">
+          <div className="hidden md:flex items-center gap-4">
             <Link href="/" passHref>
               <Button variant="ghost">Home</Button>
             </Link>
@@ -77,40 +77,51 @@ export default function PricingPage() {
             <Button variant="outline">Sign In</Button>
             <Button>Get Started</Button>
           </div>
+
+          <div className="md:hidden flex items-center">
+            <Button variant="outline" size="sm" className="mr-2">
+              Sign In
+            </Button>
+            <Button size="sm">Get Started</Button>
+          </div>
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="flex-1 container mx-auto py-12 px-4">
-        <div className="max-w-6xl mx-auto space-y-12">
+      <main className="flex-1 container mx-auto py-8 md:py-12 px-4">
+        <div className="max-w-6xl mx-auto space-y-8 md:space-y-12">
           {/* Hero Section */}
-          <div className="text-center space-y-4">
-            <Badge className="bg-gradient-to-r from-gradient-blue to-gradient-purple text-white px-4 py-1 rounded-full">
+          <div className="text-center space-y-3 md:space-y-4">
+            <Badge className="bg-gradient-to-r from-gradient-blue to-gradient-purple text-white px-3 md:px-4 py-1 rounded-full text-xs md:text-sm">
               Pricing Plans
             </Badge>
-            <h1 className="text-4xl md:text-5xl font-bold tracking-tight">
+            <h1 className="text-3xl md:text-5xl font-bold tracking-tight">
               Choose the perfect plan for your business
             </h1>
-            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+            <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto">
               Simple, transparent pricing that grows with your business. No
               hidden fees or surprises.
             </p>
           </div>
 
           {/* Pricing Cards */}
-          <div className="grid md:grid-cols-4 gap-6 pt-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 pt-6 md:pt-8">
             {/* Free Plan */}
             <Card className="border shadow-sm hover:shadow-md transition-shadow">
-              <CardHeader>
+              <CardHeader className="pb-4 md:pb-6">
                 <CardTitle className="flex items-center justify-between">
-                  <span className="text-2xl font-bold">Free</span>
-                  <Badge variant="outline">Limited</Badge>
+                  <span className="text-xl md:text-2xl font-bold">Free</span>
+                  <Badge variant="outline" className="text-xs md:text-sm">
+                    Limited
+                  </Badge>
                 </CardTitle>
-                <div className="mt-4">
-                  <span className="text-4xl font-bold">$0</span>
-                  <span className="text-muted-foreground ml-2">/month</span>
+                <div className="mt-3 md:mt-4">
+                  <span className="text-3xl md:text-4xl font-bold">$0</span>
+                  <span className="text-muted-foreground ml-2 text-sm md:text-base">
+                    /month
+                  </span>
                 </div>
-                <p className="text-muted-foreground mt-2">
+                <p className="text-muted-foreground mt-2 text-sm md:text-base">
                   Perfect for individuals just getting started
                 </p>
               </CardHeader>
@@ -134,9 +145,9 @@ export default function PricingPage() {
                   </li>
                 </ul>
               </CardContent>
-              <CardFooter>
+              <CardFooter className="pt-2 md:pt-4">
                 <Button
-                  className="w-full"
+                  className="w-full py-2 md:py-2.5 text-sm md:text-base"
                   variant="outline"
                   onClick={() =>
                     handleSubscribe("price_1RPFsuBHa6CDK7TJfVmF8ld6")
@@ -150,8 +161,8 @@ export default function PricingPage() {
 
             {/* Annual Discount Plan */}
             <Card className="border-2 border-gradient-purple shadow-lg relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-24 h-24">
-                <div className="absolute transform rotate-45 bg-gradient-to-r from-gradient-pink to-gradient-purple text-white font-medium py-1 right-[-35px] top-[32px] w-[170px] text-center text-xs">
+              <div className="absolute top-0 right-0 w-20 md:w-24 h-20 md:h-24 overflow-hidden">
+                <div className="absolute transform rotate-45 bg-gradient-to-r from-gradient-pink to-gradient-purple text-white font-medium py-1 right-[-35px] top-[28px] md:top-[32px] w-[150px] md:w-[170px] text-center text-[10px] md:text-xs">
                   SPECIAL OFFER
                 </div>
               </div>
@@ -389,18 +400,18 @@ export default function PricingPage() {
           </div>
 
           {/* Team Features Section */}
-          <div className="py-12 border-t border-b">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl font-bold mb-4">
+          <div className="py-8 md:py-12 border-t border-b">
+            <div className="text-center mb-8 md:mb-12">
+              <h2 className="text-2xl md:text-3xl font-bold mb-3 md:mb-4">
                 Team Collaboration Features
               </h2>
-              <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+              <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
                 Streamline your team's workflow with our powerful collaboration
                 tools
               </p>
             </div>
 
-            <div className="grid md:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 md:gap-8">
               <div className="space-y-4">
                 <div className="h-12 w-12 rounded-lg bg-blue-100 flex items-center justify-center">
                   <Users className="h-6 w-6 text-blue-600" />
@@ -473,16 +484,16 @@ export default function PricingPage() {
           </div>
 
           {/* FAQ Section */}
-          <div className="mt-24 space-y-8">
-            <h2 className="text-3xl font-bold text-center">
+          <div className="mt-16 md:mt-24 space-y-6 md:space-y-8">
+            <h2 className="text-2xl md:text-3xl font-bold text-center">
               Frequently Asked Questions
             </h2>
-            <div className="grid md:grid-cols-2 gap-8 mt-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 mt-6 md:mt-8">
               <div className="space-y-2">
-                <h3 className="text-xl font-medium">
+                <h3 className="text-lg md:text-xl font-medium">
                   Can I switch plans later?
                 </h3>
-                <p className="text-muted-foreground">
+                <p className="text-sm md:text-base text-muted-foreground">
                   Yes, you can upgrade, downgrade, or cancel your plan at any
                   time. Changes take effect at the start of your next billing
                   cycle.
@@ -529,7 +540,7 @@ export default function PricingPage() {
             <p className="text-sm text-muted-foreground">
               © 2023 Nouvoice. All rights reserved.
             </p>
-            <div className="flex gap-6">
+            <div className="flex gap-4 md:gap-6">
               <a
                 href="#"
                 className="text-sm text-muted-foreground hover:text-foreground"
