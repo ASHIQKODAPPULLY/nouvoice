@@ -1,111 +1,74 @@
-import { createClient } from "@/lib/supabase/server";
+import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs";
+import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
-import Stripe from "stripe";
 
 export async function POST(request: Request) {
   try {
-    const { priceId, returnUrl } = await request.json();
+    const cookieStore = cookies();
+    const supabase = createRouteHandlerClient({ cookies: () => cookieStore });
 
-    if (!priceId) {
-      return NextResponse.json(
-        { error: "Price ID is required" },
-        { status: 400 },
-      );
-    }
-
-    // Validate priceId format to prevent injection attacks
-    const validPriceIdPattern = /^price_[a-zA-Z0-9_]+$/;
-    if (!validPriceIdPattern.test(priceId)) {
-      return NextResponse.json(
-        { error: "Invalid price ID format" },
-        { status: 400 },
-      );
-    }
-
-    // Get user info from auth if available
-    const supabase = createClient();
+    // Get the current user
     const {
       data: { user },
-      error: userError,
     } = await supabase.auth.getUser();
 
-    if (userError) {
-      console.error("Error fetching user:", userError);
-      // Continue without user, will be handled as anonymous checkout
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // Require authenticated user for paid subscriptions
-    if (!user && priceId !== "price_free") {
-      return NextResponse.json(
-        { error: "Authentication required for paid subscriptions" },
-        { status: 401 },
-      );
+    const { priceId, returnUrl } = await request.json();
+
+    if (!priceId || typeof priceId !== "string") {
+      return NextResponse.json({ error: "Invalid price ID" }, { status: 400 });
     }
 
-    // Sanitize and validate return URL
-    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
-    let validatedReturnUrl = baseUrl;
+    // Create form body for Pica API
+    const formBody = new URLSearchParams();
+    formBody.append("mode", "subscription");
+    formBody.append("line_items[0][price]", priceId);
+    formBody.append("line_items[0][quantity]", "1");
+    formBody.append(
+      "success_url",
+      `${returnUrl || process.env.NEXT_PUBLIC_SITE_URL}/payment-success`,
+    );
+    formBody.append(
+      "cancel_url",
+      `${returnUrl || process.env.NEXT_PUBLIC_SITE_URL}/pricing`,
+    );
+    formBody.append("automatic_tax[enabled]", "true");
+    formBody.append("client_reference_id", user.id);
 
-    if (returnUrl) {
-      try {
-        const url = new URL(returnUrl);
-        // Only accept URLs from our domain
-        if (url.hostname === new URL(baseUrl).hostname) {
-          validatedReturnUrl = returnUrl;
-        }
-      } catch (e) {
-        // Invalid URL, fall back to base URL
-        console.warn("Invalid return URL provided, using default");
-      }
-    }
-
-    // Check if user already has an active subscription
-    if (user) {
-      const { data: existingSubscription } = await supabase
-        .from("subscriptions")
-        .select("*")
-        .eq("user_id", user.id)
-        .eq("status", "active")
-        .single();
-
-      if (existingSubscription) {
-        // Optionally handle existing subscription (redirect to manage subscription page)
-        // For now, we'll allow creating a new subscription which will replace the old one
-        console.log(
-          "User has existing subscription, creating new one will replace it",
-        );
-      }
-    }
-
-    // Call the Edge Function to create a checkout session
-    const { data, error } = await supabase.functions.invoke(
-      "supabase-functions-create-checkout-session",
+    // Call Pica API to create checkout session
+    const response = await fetch(
+      "https://api.picaos.com/v1/passthrough/v1/checkout/sessions",
       {
-        body: {
-          priceId,
-          returnUrl: validatedReturnUrl,
-          userId: user?.id,
-          userEmail: user?.email,
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+          "x-pica-secret": process.env.PICA_SECRET_KEY || "",
+          "x-pica-connection-key": process.env.PICA_STRIPE_CONNECTION_KEY || "",
+          "x-pica-action-id": process.env.PICA_STRIPE_ACTION_ID || "",
         },
+        body: formBody.toString(),
       },
     );
 
-    if (error) {
-      console.error("Error invoking create-checkout-session function:", error);
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error("Checkout session creation failed:", errorData);
       return NextResponse.json(
         { error: "Failed to create checkout session" },
-        { status: 500 },
+        { status: response.status },
       );
     }
 
-    const session = data;
+    const sessionData = await response.json();
 
-    return NextResponse.json({ sessionId: session.id, url: session.url });
-  } catch (error: any) {
+    return NextResponse.json({ url: sessionData.url });
+  } catch (error) {
     console.error("Error creating checkout session:", error);
-    // Don't expose detailed error messages to client
     return NextResponse.json(
-      { error: "Failed to create checkout session" },
+      { error: "Internal server error" },
       { status: 500 },
     );
   }
