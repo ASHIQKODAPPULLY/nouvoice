@@ -39,6 +39,17 @@ export default function BlogPage() {
                 smoother experience.
               </p>
 
+              <div className="my-6">
+                <img
+                  src="https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=800&q=80"
+                  alt="Professional looking at invoices on laptop"
+                  className="rounded-lg w-full object-cover h-64"
+                />
+                <p className="text-sm text-muted-foreground mt-2 text-center">
+                  Streamline your invoicing process with professional tools
+                </p>
+              </div>
+
               <h4 className="text-lg font-semibold mt-6 text-foreground">
                 1. Always Include the Essentials
               </h4>
