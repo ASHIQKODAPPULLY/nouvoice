@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { Button } from "./ui/button";
 import { ThemeSwitcher } from "./theme-switcher";
-import { Home, Menu } from "lucide-react";
+import { Home, Menu as MenuIcon } from "lucide-react";
 
 export default function Header() {
   return (
@@ -68,7 +68,7 @@ export default function Header() {
             </Link>
           </div>
           <button className="md:hidden">
-            <Menu className="h-6 w-6" />
+            <MenuIcon className="h-6 w-6" />
           </button>
         </div>
       </div>

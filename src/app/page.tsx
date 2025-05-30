@@ -9,7 +9,7 @@ import InvoicePreview from "@/components/InvoicePreview";
 import InvoiceExportOptions from "@/components/InvoiceExportOptions";
 import InvoiceTracker from "@/components/InvoiceTracker";
 import DashboardSummary from "@/components/DashboardSummary";
-import { UserIcon, Sparkles, ArrowRight, Menu as MenuIcon } from "lucide-react";
+import { UserIcon, Sparkles, ArrowRight, Menu } from "lucide-react";
 import { ThemeSwitcher } from "@/components/theme-switcher";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
@@ -288,7 +288,7 @@ export default function Home() {
           <div className="md:hidden flex items-center gap-2">
             <ThemeSwitcher />
             <Button variant="outline" size="icon" className="h-8 w-8">
-              <MenuIcon className="h-5 w-5" />
+              <Menu className="h-5 w-5" />
             </Button>
           </div>
         </div>
