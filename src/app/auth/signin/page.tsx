@@ -20,20 +20,36 @@ export default function SigninPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
   const router = useRouter();
 
   const handleSignin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    setError("");
 
     try {
-      // In a real implementation, this would call the Supabase auth API
-      // For now, we'll just simulate a login and redirect
-      setTimeout(() => {
-        router.push("/");
-      }, 1500);
-    } catch (error) {
+      // Import the createClient from the client-side module
+      const { createClient } = await import("@/lib/supabase/client");
+      const supabase = createClient();
+
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      // Redirect to dashboard on successful login
+      router.push("/");
+      router.refresh();
+    } catch (error: any) {
       console.error("Signin error:", error);
+      setError(
+        error.message || "Failed to sign in. Please check your credentials.",
+      );
       setIsLoading(false);
     }
   };
@@ -52,6 +68,11 @@ export default function SigninPage() {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSignin} className="space-y-4">
+            {error && (
+              <div className="p-3 bg-red-100 border border-red-400 text-red-700 rounded">
+                {error}
+              </div>
+            )}
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <Input

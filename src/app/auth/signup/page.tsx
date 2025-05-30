@@ -20,18 +20,40 @@ export default function SignupPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
   const [selectedPlan, setSelectedPlan] = useState("free");
   const router = useRouter();
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    setError("");
 
     try {
-      // Redirect to the Supabase Auth signup page with plan info
-      window.location.href = `/api/auth/signup?plan=${selectedPlan}`;
-    } catch (error) {
+      // Import the createClient from the client-side module
+      const { createClient } = await import("@/lib/supabase/client");
+      const supabase = createClient();
+
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            plan: selectedPlan,
+          },
+          emailRedirectTo: `${window.location.origin}/auth/callback`,
+        },
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      // Redirect to a verification page or show a success message
+      router.push(`/auth/callback?plan=${selectedPlan}`);
+    } catch (error: any) {
       console.error("Signup error:", error);
+      setError(error.message || "Failed to sign up. Please try again.");
       setIsLoading(false);
     }
   };
@@ -55,6 +77,11 @@ export default function SignupPage() {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSignup} className="space-y-4">
+            {error && (
+              <div className="p-3 bg-red-100 border border-red-400 text-red-700 rounded">
+                {error}
+              </div>
+            )}
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <Input
