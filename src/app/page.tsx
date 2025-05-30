@@ -300,7 +300,7 @@ export default function Home() {
         </div>
       </header>
       {mobileMenuOpen && (
-        <div className="md:hidden fixed top-[64px] left-4 right-4 bg-white border rounded-lg shadow-lg p-4 space-y-2 z-50">
+        <div className="md:hidden fixed top-[64px] left-4 right-4 bg-background border rounded-lg shadow-lg p-4 space-y-2 z-50">
           <Link href="/pricing" onClick={() => setMobileMenuOpen(false)}>
             <Button variant="ghost" className="w-full">
               Pricing
@@ -347,7 +347,12 @@ export default function Home() {
               {catchphrases[catchphraseIndex]}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
-              <Link href="/auth/signup" passHref className="w-full sm:w-auto">
+              <Link
+                href="/auth/signup"
+                passHref
+                className="w-full sm:w-auto"
+                onClick={() => setMobileMenuOpen(false)}
+              >
                 <Button
                   size="lg"
                   className="w-full sm:w-auto bg-gradient-to-r from-blue-500 to-purple-500 hover:opacity-90 relative overflow-hidden group"
