@@ -51,6 +51,7 @@ export default function Home() {
   const [activeMainTab, setActiveMainTab] = useState("dashboard");
   const [heroTextIndex, setHeroTextIndex] = useState(0);
   const [catchphraseIndex, setCatchphraseIndex] = useState(0);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Rotate hero text and catchphrase every 5 seconds
   useEffect(() => {
@@ -248,7 +249,7 @@ export default function Home() {
     <div className="min-h-screen bg-background flex flex-col">
       <MobileAppBanner />
       {/* Header */}
-      <header className="border-b sticky top-0 z-10 bg-background">
+      <header className="border-b sticky top-0 z-10 bg-background relative">
         <div className="container mx-auto py-4 px-4 flex justify-between items-center">
           <div className="flex items-center gap-2">
             <div className="h-8 w-8 rounded-md bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center">
@@ -287,12 +288,40 @@ export default function Home() {
 
           <div className="md:hidden flex items-center gap-2">
             <ThemeSwitcher />
-            <Button variant="outline" size="icon" className="h-8 w-8">
+            <Button
+              variant="outline"
+              size="icon"
+              className="h-8 w-8"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            >
               <Menu className="h-5 w-5" />
             </Button>
           </div>
         </div>
       </header>
+      {mobileMenuOpen && (
+        <div className="md:hidden bg-white border rounded-lg shadow-lg p-4 mx-4 mt-2 space-y-2 z-50 absolute top-16 right-0 left-0">
+          <Link href="/pricing">
+            <Button variant="ghost" className="w-full">
+              Pricing
+            </Button>
+          </Link>
+          <Link href="/team">
+            <Button variant="ghost" className="w-full">
+              Teams
+            </Button>
+          </Link>
+          <Button variant="outline" className="w-full gap-2">
+            <UserIcon className="h-4 w-4" />
+            <span>Account</span>
+          </Button>
+          <Button onClick={handleUpgrade} className="w-full">
+            {isPremium
+              ? "Premium Active"
+              : `Upgrade to Pro ${!isPremium && usageCount >= 50 ? "(Required)" : ""}`}
+          </Button>
+        </div>
+      )}
 
       {/* Hero Section */}
       <div className="bg-gradient-to-r from-blue-500/10 to-purple-500/10 py-8 md:py-12">
