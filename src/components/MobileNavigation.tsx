@@ -3,7 +3,15 @@
 import { useState } from "react";
 import { Button } from "./ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "./ui/sheet";
-import { Menu, X, Home, FileText, Clock, Settings, User } from "lucide-react";
+import {
+  Menu as MenuIcon,
+  X,
+  Home,
+  FileText,
+  Clock,
+  Settings,
+  User,
+} from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -27,7 +35,7 @@ export default function MobileNavigation() {
           size="icon"
           className="md:hidden h-12 w-12 touch-manipulation"
         >
-          <Menu className="h-6 w-6" />
+          <MenuIcon className="h-6 w-6" />
           <span className="sr-only">Toggle menu</span>
         </Button>
       </SheetTrigger>
