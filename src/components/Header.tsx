@@ -1,11 +1,14 @@
 "use client";
 
+import React, { useState } from "react";
 import Link from "next/link";
 import { Button } from "./ui/button";
 import { ThemeSwitcher } from "./theme-switcher";
-import { Home, Menu as MenuIcon } from "lucide-react";
+import { Menu as MenuIcon, X as CloseIcon } from "lucide-react";
 
 export default function Header() {
+  const [isMobileMenuOpen, setMobileMenuOpen] = useState(false);
+
   return (
     <header className="border-b sticky top-0 z-10 bg-background">
       <div className="container mx-auto py-4 px-4 flex justify-between items-center">
@@ -67,11 +70,64 @@ export default function Header() {
               <Button size="sm">Sign Up</Button>
             </Link>
           </div>
-          <button className="md:hidden">
-            <MenuIcon className="h-6 w-6" />
+          <button
+            className="md:hidden"
+            onClick={() => setMobileMenuOpen(!isMobileMenuOpen)}
+          >
+            {isMobileMenuOpen ? (
+              <CloseIcon className="h-6 w-6" />
+            ) : (
+              <MenuIcon className="h-6 w-6" />
+            )}
           </button>
         </div>
       </div>
+
+      {/* Mobile Menu Panel */}
+      {isMobileMenuOpen && (
+        <div className="md:hidden bg-background border-t">
+          <nav className="flex flex-col px-4 py-2 space-y-2">
+            <Link
+              href="/"
+              className="text-sm font-medium hover:text-primary"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Home
+            </Link>
+            <Link
+              href="/about"
+              className="text-sm font-medium hover:text-primary"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              About
+            </Link>
+            <Link
+              href="/pricing"
+              className="text-sm font-medium hover:text-primary"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Pricing
+            </Link>
+            <Link
+              href="/support"
+              className="text-sm font-medium hover:text-primary"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Support
+            </Link>
+            <Link href="/auth/signin" onClick={() => setMobileMenuOpen(false)}>
+              <Button variant="outline" size="sm" className="w-full">
+                Sign In
+              </Button>
+            </Link>
+            <Link href="/auth/signup" onClick={() => setMobileMenuOpen(false)}>
+              <Button size="sm" className="w-full">
+                Sign Up
+              </Button>
+            </Link>
+          </nav>
+        </div>
+      )}
     </header>
   );
 }
