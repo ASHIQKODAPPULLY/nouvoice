@@ -8,7 +8,6 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import Header from "@/components/Header";
 
 export const metadata: Metadata = {
   title: "Invoice Templates | InvoiceGen",
@@ -19,7 +18,6 @@ export const metadata: Metadata = {
 export default function TemplatesPage() {
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      <Header />
       <main className="flex-1 container px-4 py-12 mx-auto">
         <h1 className="text-4xl font-bold tracking-tight mb-6">
           Invoice Templates

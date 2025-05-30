@@ -15,7 +15,6 @@ import {
 } from "@/components/ui/card";
 import { Mail } from "lucide-react";
 import Link from "next/link";
-import Header from "@/components/Header";
 
 export const metadata: Metadata = {
   title: "Support Center | Nouvoice",
@@ -26,7 +25,6 @@ export const metadata: Metadata = {
 export default function SupportPage() {
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      <Header />
       <main className="flex-1 container px-4 py-12 mx-auto">
         <h1 className="text-4xl font-bold tracking-tight mb-6">
           Support Center

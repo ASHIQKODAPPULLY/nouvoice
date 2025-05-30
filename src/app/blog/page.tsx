@@ -1,5 +1,4 @@
 import { Metadata } from "next";
-import Header from "@/components/Header";
 
 export const metadata: Metadata = {
   title: "Blog | InvoiceGen",
@@ -10,7 +9,6 @@ export const metadata: Metadata = {
 export default function BlogPage() {
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      <Header />
       <main className="flex-1 container px-4 py-12 mx-auto">
         <h1 className="text-4xl font-bold tracking-tight mb-6">Blog</h1>
         <p className="text-xl text-muted-foreground mb-12">

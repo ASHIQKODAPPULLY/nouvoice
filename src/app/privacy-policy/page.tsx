@@ -1,5 +1,4 @@
 import { Metadata } from "next";
-import Header from "@/components/Header";
 
 export const metadata: Metadata = {
   title: "Privacy Policy | Nouvoice",
@@ -9,7 +8,6 @@ export const metadata: Metadata = {
 export default function PrivacyPolicyPage() {
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      <Header />
       <main className="flex-1">
         <div className="container max-w-4xl mx-auto px-4 py-12 space-y-8">
           <h1 className="text-3xl font-bold tracking-tight">Privacy Policy</h1>
