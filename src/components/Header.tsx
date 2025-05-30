@@ -11,9 +11,21 @@ export default function Header() {
       <div className="container mx-auto py-4 px-4 flex justify-between items-center">
         <div className="flex items-center gap-4">
           <Link href="/" className="flex items-center gap-2">
-            <div className="h-8 w-8 rounded-md bg-gradient-to-r from-gradient-blue to-gradient-purple flex items-center justify-center">
-              <span className="text-white font-bold">N</span>
-            </div>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 100 100"
+              width="32"
+              height="32"
+            >
+              <rect width="100" height="100" rx="20" fill="#2D2A70" />
+              <path
+                d="M30,70 L30,30 L70,70 L70,30"
+                stroke="#00D2FF"
+                stroke-width="10"
+                fill="none"
+                stroke-linecap="round"
+              />
+            </svg>
             <h1 className="text-xl font-bold">Nouvoice</h1>
           </Link>
 
