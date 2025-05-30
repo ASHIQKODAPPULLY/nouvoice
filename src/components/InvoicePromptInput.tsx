@@ -717,7 +717,7 @@ export default function InvoicePromptInput({
                     </div>
 
                     <div className="space-y-4">
-                      <div className="flex gap-1 flex-wrap w-full pb-2">
+                      <div className="flex gap-1 flex-wrap w-full pb-2 overflow-x-auto">
                         <Popover
                           open={openDropdown === "products"}
                           onOpenChange={(open) => {
@@ -1351,7 +1351,7 @@ export default function InvoicePromptInput({
                 <Button
                   onClick={handleGenerateInvoice}
                   disabled={isProcessing || !promptText.trim()}
-                  className="px-6 flex items-center gap-2 h-12 text-base touch-manipulation w-full sm:w-auto"
+                  className="px-4 md:px-6 flex items-center justify-center gap-2 h-12 text-base touch-manipulation w-full"
                 >
                   {isProcessing ? (
                     <>

@@ -170,7 +170,7 @@ export default function InvoiceTracker({
               <p className="text-muted-foreground">No invoices to track yet</p>
             </div>
           ) : (
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto -mx-4 sm:mx-0 px-4 sm:px-0">
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -210,7 +210,7 @@ export default function InvoiceTracker({
                         </TableCell>
                         <TableCell>{getStatusBadge(invoice.status)}</TableCell>
                         <TableCell>
-                          <div className="flex items-center gap-2">
+                          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
                             {invoice.status !== "paid" && (
                               <Button
                                 variant="outline"

@@ -555,9 +555,9 @@ const InvoicePreview: React.FC<InvoicePreviewProps> = ({
       <CardContent className="pt-4 px-2 sm:px-4 md:px-6">
         {isClient ? (
           <div className="w-full max-w-full sm:max-w-6xl mx-auto bg-background rounded-xl shadow-sm border border-border overflow-hidden">
-            <div className="p-2 sm:p-4 border-b border-border flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-4">
+            <div className="p-2 sm:p-4 border-b border-border flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-4 overflow-x-auto">
               <h2 className="text-xl font-semibold">Invoice Preview</h2>
-              <div className="flex flex-col sm:flex-row gap-3 w-full">
+              <div className="flex flex-col sm:flex-row gap-3 w-full overflow-x-auto">
                 <Button
                   variant="outline"
                   size="sm"
@@ -566,7 +566,7 @@ const InvoicePreview: React.FC<InvoicePreviewProps> = ({
                 >
                   <Save className="h-4 w-4" /> Save Company Details
                 </Button>
-                <div className="flex flex-wrap items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2 overflow-x-auto">
                   <div className="flex gap-1 flex-wrap">
                     <Badge
                       variant={
@@ -681,7 +681,7 @@ const InvoicePreview: React.FC<InvoicePreviewProps> = ({
                                         ?.click()
                                     }
                                   >
-                                    <Upload className="h-4 w-4 mr-1" /> Change
+                                    <Upload className="h-4 w-4" /> Change
                                   </Button>
                                   <Button
                                     variant="ghost"

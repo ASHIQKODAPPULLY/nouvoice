@@ -308,7 +308,7 @@ const InvoiceExportOptions = ({
   };
   return (
     <div className="w-full p-4 bg-background border rounded-lg shadow-sm">
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 overflow-x-auto">
         <div className="flex items-center gap-2">
           <h3 className="text-lg font-medium">Export Invoice</h3>
           {isPremiumUser && (
@@ -321,7 +321,7 @@ const InvoiceExportOptions = ({
           )}
         </div>
 
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto justify-center sm:justify-start">
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>

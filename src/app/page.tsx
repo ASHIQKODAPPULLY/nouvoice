@@ -9,7 +9,7 @@ import InvoicePreview from "@/components/InvoicePreview";
 import InvoiceExportOptions from "@/components/InvoiceExportOptions";
 import InvoiceTracker from "@/components/InvoiceTracker";
 import DashboardSummary from "@/components/DashboardSummary";
-import { UserIcon, Sparkles, ArrowRight } from "lucide-react";
+import { UserIcon, Sparkles, ArrowRight, Menu as MenuIcon } from "lucide-react";
 import { ThemeSwitcher } from "@/components/theme-switcher";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
@@ -257,7 +257,7 @@ export default function Home() {
             <h1 className="text-xl font-bold">Nouvoice</h1>
           </div>
 
-          <div className="flex items-center gap-4">
+          <div className="hidden md:flex items-center gap-4">
             <Link href="/pricing" passHref>
               <Button variant="ghost">Pricing</Button>
             </Link>
@@ -284,29 +284,36 @@ export default function Home() {
                 : `Upgrade to Pro ${!isPremium && usageCount >= 50 ? "(Required)" : ""}`}
             </Button>
           </div>
+
+          <div className="md:hidden flex items-center gap-2">
+            <ThemeSwitcher />
+            <Button variant="outline" size="icon" className="h-8 w-8">
+              <MenuIcon className="h-5 w-5" />
+            </Button>
+          </div>
         </div>
       </header>
 
       {/* Hero Section */}
-      <div className="bg-gradient-to-r from-blue-500/10 to-purple-500/10 py-12">
+      <div className="bg-gradient-to-r from-blue-500/10 to-purple-500/10 py-8 md:py-12">
         <div className="container mx-auto px-4">
-          <div className="max-w-3xl mx-auto text-center space-y-6">
-            <Badge className="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-4 py-1 rounded-full">
+          <div className="max-w-3xl mx-auto text-center space-y-4 md:space-y-6">
+            <Badge className="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-3 py-1 md:px-4 rounded-full text-xs md:text-sm">
               AI-Powered Invoice Generator
             </Badge>
-            <h1 className="text-4xl md:text-5xl font-bold tracking-tight">
+            <h1 className="text-3xl md:text-5xl font-bold tracking-tight">
               {heroTexts[heroTextIndex]}
             </h1>
-            <p className="text-xl text-muted-foreground">
+            <p className="text-lg md:text-xl text-muted-foreground">
               {catchphrases[catchphraseIndex]}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
-              <Link href="/auth/signup" passHref>
+              <Link href="/auth/signup" passHref className="w-full sm:w-auto">
                 <Button
                   size="lg"
-                  className="bg-gradient-to-r from-blue-500 to-purple-500 hover:opacity-90 relative overflow-hidden group"
+                  className="w-full sm:w-auto bg-gradient-to-r from-blue-500 to-purple-500 hover:opacity-90 relative overflow-hidden group"
                 >
-                  <span className="relative z-10 flex items-center transition-transform duration-300 group-hover:translate-x-2">
+                  <span className="relative z-10 flex items-center justify-center transition-transform duration-300 group-hover:translate-x-2">
                     Get Started{" "}
                     <ArrowRight className="ml-2 h-5 w-5 transition-transform duration-300 group-hover:translate-x-1" />
                   </span>
@@ -319,15 +326,15 @@ export default function Home() {
       </div>
 
       {/* Main Content */}
-      <main className="flex-1 container mx-auto py-12 px-4">
-        <div className="max-w-6xl mx-auto space-y-12">
+      <main className="flex-1 container mx-auto py-6 md:py-12 px-4">
+        <div className="max-w-6xl mx-auto space-y-8 md:space-y-12">
           {/* Tabs */}
           <Tabs
             value={activeMainTab}
             onValueChange={setActiveMainTab}
             className="w-full"
           >
-            <TabsList className="grid w-full grid-cols-4 mb-8">
+            <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 mb-4 md:mb-8 overflow-x-auto">
               <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
               <TabsTrigger value="create">Create Invoice</TabsTrigger>
               <TabsTrigger value="tracker">Invoice Tracker</TabsTrigger>
@@ -466,16 +473,18 @@ export default function Home() {
           </Tabs>
 
           {/* Features Section */}
-          <div className="py-12">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl font-bold mb-4">Why Choose Nouvoice?</h2>
-              <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+          <div className="py-8 md:py-12">
+            <div className="text-center mb-8 md:mb-12">
+              <h2 className="text-2xl md:text-3xl font-bold mb-3 md:mb-4">
+                Why Choose Nouvoice?
+              </h2>
+              <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
                 Our AI-powered platform transforms how you create and manage
                 invoices
               </p>
             </div>
 
-            <div className="grid md:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 md:gap-8">
               <Card className="border shadow-sm hover:shadow-md transition-shadow">
                 <CardContent className="pt-6">
                   <div className="h-12 w-12 rounded-lg bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center mb-4">
@@ -550,19 +559,19 @@ export default function Home() {
           </div>
 
           {/* CTA Section */}
-          <div className="bg-gradient-to-r from-blue-500 to-purple-500 rounded-xl p-8 md:p-12 text-white">
-            <div className="max-w-3xl mx-auto text-center space-y-6">
-              <h2 className="text-3xl font-bold">
+          <div className="bg-gradient-to-r from-blue-500 to-purple-500 rounded-xl p-6 md:p-12 text-white">
+            <div className="max-w-3xl mx-auto text-center space-y-4 md:space-y-6">
+              <h2 className="text-2xl md:text-3xl font-bold">
                 Ready to transform your invoicing process?
               </h2>
-              <p className="text-xl opacity-90">
+              <p className="text-lg md:text-xl opacity-90">
                 Join thousands of businesses that use Nouvoice to streamline
                 their billing workflow.
               </p>
               <div className="pt-4">
                 <Button
                   size="lg"
-                  className="bg-white text-blue-500 hover:bg-white/90"
+                  className="w-full sm:w-auto bg-white text-blue-500 hover:bg-white/90"
                   onClick={handleUpgrade}
                 >
                   Upgrade to Pro <Sparkles className="ml-2 h-5 w-5" />
