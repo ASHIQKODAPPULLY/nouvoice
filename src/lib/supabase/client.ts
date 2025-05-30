@@ -12,7 +12,12 @@ export function createClient() {
     return {
       auth: {
         getSession: () => Promise.resolve({ data: { session: null } }),
-        signIn: () =>
+        signInWithPassword: () =>
+          Promise.resolve({
+            data: null,
+            error: new Error("Missing Supabase credentials"),
+          }),
+        signUp: () =>
           Promise.resolve({
             data: null,
             error: new Error("Missing Supabase credentials"),
