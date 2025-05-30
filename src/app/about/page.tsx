@@ -76,47 +76,13 @@ export default function AboutPage() {
             </div>
           </div>
 
-          <h2 className="text-2xl font-bold mt-8 mb-4">Our Team</h2>
-          <p className="mb-4">
-            We're a small team of developers, designers, and business experts
-            based in Melbourne, Australia. With backgrounds in fintech, AI, and
-            small business operations, we understand the challenges that
-            entrepreneurs and freelancers face when it comes to financial
-            management.
-          </p>
-
-          <div className="grid md:grid-cols-3 gap-6 my-8">
-            <div className="text-center">
-              <div className="w-32 h-32 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 mx-auto mb-4 flex items-center justify-center">
-                <span className="text-white text-2xl font-bold">JD</span>
-              </div>
-              <h3 className="font-semibold text-lg">Jane Doe</h3>
-              <p className="text-muted-foreground">Founder & CEO</p>
-            </div>
-            <div className="text-center">
-              <div className="w-32 h-32 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 mx-auto mb-4 flex items-center justify-center">
-                <span className="text-white text-2xl font-bold">JS</span>
-              </div>
-              <h3 className="font-semibold text-lg">John Smith</h3>
-              <p className="text-muted-foreground">CTO</p>
-            </div>
-            <div className="text-center">
-              <div className="w-32 h-32 rounded-full bg-gradient-to-r from-amber-500 to-orange-500 mx-auto mb-4 flex items-center justify-center">
-                <span className="text-white text-2xl font-bold">AL</span>
-              </div>
-              <h3 className="font-semibold text-lg">Alice Lee</h3>
-              <p className="text-muted-foreground">Head of Design</p>
-            </div>
-          </div>
-
           <h2 className="text-2xl font-bold mt-8 mb-4">Our Story</h2>
           <p className="mb-4">
-            Founded in 2022, Nouvoice began as a side project to solve our own
-            invoicing frustrations. What started as a simple tool quickly
-            evolved as we discovered how many others shared the same pain
-            points. Today, we're proud to serve thousands of businesses across
-            Australia and beyond, helping them streamline their financial
-            operations.
+            Nouvoice began as a side project to solve our own invoicing
+            frustrations. What started as a simple tool quickly evolved as we
+            discovered how many others shared the same pain points. Today, we're
+            proud to serve thousands of businesses across Australia and beyond,
+            helping them streamline their financial operations.
           </p>
           <p className="mb-8">
             Our journey is just beginning, and we're excited to continue
