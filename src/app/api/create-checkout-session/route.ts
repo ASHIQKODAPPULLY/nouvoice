@@ -1,6 +1,7 @@
 import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
+import Stripe from "stripe";
 
 export async function POST(request: Request) {
   try {
@@ -22,49 +23,27 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Invalid price ID" }, { status: 400 });
     }
 
-    // Create form body for Pica API
-    const formBody = new URLSearchParams();
-    formBody.append("mode", "subscription");
-    formBody.append("line_items[0][price]", priceId);
-    formBody.append("line_items[0][quantity]", "1");
-    formBody.append(
-      "success_url",
-      `${returnUrl || process.env.NEXT_PUBLIC_SITE_URL}/payment-success`,
-    );
-    formBody.append(
-      "cancel_url",
-      `${returnUrl || process.env.NEXT_PUBLIC_SITE_URL}/pricing`,
-    );
-    formBody.append("automatic_tax[enabled]", "true");
-    formBody.append("client_reference_id", user.id);
+    // Initialize Stripe
+    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "", {
+      apiVersion: "2023-08-16",
+    });
 
-    // Call Pica API to create checkout session
-    const response = await fetch(
-      "https://api.picaos.com/v1/passthrough/v1/checkout/sessions",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-          "x-pica-secret": process.env.PICA_SECRET_KEY || "",
-          "x-pica-connection-key": process.env.PICA_STRIPE_CONNECTION_KEY || "",
-          "x-pica-action-id": process.env.PICA_STRIPE_ACTION_ID || "",
+    // Create checkout session directly with Stripe
+    const session = await stripe.checkout.sessions.create({
+      mode: "subscription",
+      line_items: [
+        {
+          price: priceId,
+          quantity: 1,
         },
-        body: formBody.toString(),
-      },
-    );
+      ],
+      success_url: `${returnUrl || process.env.NEXT_PUBLIC_SITE_URL}/payment-success`,
+      cancel_url: `${returnUrl || process.env.NEXT_PUBLIC_SITE_URL}/pricing`,
+      automatic_tax: { enabled: true },
+      client_reference_id: user.id,
+    });
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      console.error("Checkout session creation failed:", errorData);
-      return NextResponse.json(
-        { error: "Failed to create checkout session" },
-        { status: response.status },
-      );
-    }
-
-    const sessionData = await response.json();
-
-    return NextResponse.json({ url: sessionData.url });
+    return NextResponse.json({ url: session.url });
   } catch (error) {
     console.error("Error creating checkout session:", error);
     return NextResponse.json(

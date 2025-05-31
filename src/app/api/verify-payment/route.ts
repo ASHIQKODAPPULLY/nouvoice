@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
+import Stripe from "stripe";
 
 export const dynamic = "force-dynamic";
 
@@ -12,24 +12,17 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    // Call the Supabase Edge Function to verify the session
-    const supabase = createClient();
-    const { data, error } = await supabase.functions.invoke(
-      "supabase-functions-verify-stripe-session",
-      {
-        body: { session_id: sessionId },
-      },
-    );
+    // Initialize Stripe
+    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "", {
+      apiVersion: "2023-08-16",
+    });
 
-    if (error) {
-      console.error("Error invoking verify-stripe-session function:", error);
-      return NextResponse.json(
-        { error: "Payment verification failed" },
-        { status: 500 },
-      );
-    }
+    // Retrieve the session directly from Stripe
+    const session = await stripe.checkout.sessions.retrieve(sessionId, {
+      expand: ["line_items", "payment_intent"],
+    });
 
-    if (!data || !data.session) {
+    if (!session) {
       return NextResponse.json(
         { error: "Invalid session data returned" },
         { status: 400 },
@@ -37,18 +30,18 @@ export async function GET(request: NextRequest) {
     }
 
     // Check if payment was successful
-    if (data.session.payment_status !== "paid") {
+    if (session.payment_status !== "paid") {
       return NextResponse.json(
         {
           error: "Payment not completed",
-          status: data.session.payment_status,
+          status: session.payment_status,
         },
         { status: 400 },
       );
     }
 
     // Return the session data
-    return NextResponse.json(data.session);
+    return NextResponse.json(session);
   } catch (error: any) {
     console.error("Error verifying payment:", error);
     return NextResponse.json(

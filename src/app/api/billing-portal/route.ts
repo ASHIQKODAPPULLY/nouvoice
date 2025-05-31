@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
+import Stripe from "stripe";
 
 export async function POST(request: Request) {
   try {
@@ -34,27 +35,19 @@ export async function POST(request: Request) {
 
     const customerId = subscription.stripe_customer_id;
 
-    // Call the Edge Function to create a billing portal session
-    const { data, error } = await supabase.functions.invoke(
-      "supabase-functions-create-billing-portal",
-      {
-        body: {
-          customerId,
-          returnUrl:
-            request.headers.get("origin") || "http://localhost:3000/account",
-        },
-      },
-    );
+    // Initialize Stripe
+    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "", {
+      apiVersion: "2023-08-16",
+    });
 
-    if (error) {
-      console.error("Error creating billing portal session:", error);
-      return NextResponse.json(
-        { error: "Failed to create billing portal session" },
-        { status: 500 },
-      );
-    }
+    // Create billing portal session directly with Stripe
+    const session = await stripe.billingPortal.sessions.create({
+      customer: customerId,
+      return_url:
+        request.headers.get("origin") || "http://localhost:3000/account",
+    });
 
-    return NextResponse.json(data);
+    return NextResponse.json({ url: session.url });
   } catch (error: any) {
     console.error("Unexpected error creating billing portal session:", error);
     return NextResponse.json(
