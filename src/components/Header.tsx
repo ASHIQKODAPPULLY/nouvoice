@@ -4,17 +4,53 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { Button } from "./ui/button";
 import { ThemeSwitcher } from "./theme-switcher";
-import { Menu as MenuIcon, X as CloseIcon } from "lucide-react";
+import { Menu as MenuIcon, X as CloseIcon, User } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
 
 export default function Header() {
   const [isMobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [user, setUser] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
   const router = useRouter();
 
-  // Close mobile menu when route changes
+  // Fetch user data on component mount
   useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const supabase = createClient();
+        const { data, error } = await supabase.auth.getUser();
+
+        if (error) {
+          console.error("Error fetching user:", error);
+          setUser(null);
+        } else {
+          setUser(data.user);
+        }
+      } catch (err) {
+        console.error("Unexpected error fetching user:", err);
+        setUser(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUser();
     setMobileMenuOpen(false);
   }, []);
+
+  // Handle sign out
+  const handleSignOut = async () => {
+    try {
+      const supabase = createClient();
+      await supabase.auth.signOut();
+      setUser(null);
+      router.push("/");
+      router.refresh();
+    } catch (error) {
+      console.error("Error signing out:", error);
+    }
+  };
 
   return (
     <header className="border-b sticky top-0 z-[999] bg-background">
@@ -68,17 +104,33 @@ export default function Header() {
         <div className="flex items-center gap-4">
           <ThemeSwitcher />
           <div className="hidden md:block">
-            <Button
-              variant="outline"
-              size="sm"
-              className="mr-2"
-              onClick={() => router.push("/auth/signin")}
-            >
-              Sign In
-            </Button>
-            <Button size="sm" onClick={() => router.push("/auth/signup")}>
-              Sign Up
-            </Button>
+            {user ? (
+              <div className="flex items-center gap-3">
+                <div className="text-sm">
+                  <span className="text-muted-foreground mr-1">Hello,</span>
+                  <span className="font-medium">
+                    {user.email?.split("@")[0]}
+                  </span>
+                </div>
+                <Button variant="outline" size="sm" onClick={handleSignOut}>
+                  Sign Out
+                </Button>
+              </div>
+            ) : (
+              <>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="mr-2"
+                  onClick={() => router.push("/auth/signin")}
+                >
+                  Sign In
+                </Button>
+                <Button size="sm" onClick={() => router.push("/auth/signup")}>
+                  Sign Up
+                </Button>
+              </>
+            )}
           </div>
           <button
             className="md:hidden"
@@ -131,27 +183,61 @@ export default function Header() {
             >
               Support
             </Link>
-            <Button
-              variant="outline"
-              size="sm"
-              className="w-full"
-              onClick={() => {
-                setMobileMenuOpen(false);
-                router.push("/auth/signin");
-              }}
-            >
-              Sign In
-            </Button>
-            <Button
-              size="sm"
-              className="w-full"
-              onClick={() => {
-                setMobileMenuOpen(false);
-                router.push("/auth/signup");
-              }}
-            >
-              Sign Up
-            </Button>
+
+            {user ? (
+              <>
+                <div className="py-2 px-1 border-t border-b my-1">
+                  <div className="flex items-center gap-2">
+                    <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
+                      <User className="h-4 w-4" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium">
+                        {user.email?.split("@")[0]}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {user.email}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="w-full"
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    handleSignOut();
+                  }}
+                >
+                  Sign Out
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="w-full"
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    router.push("/auth/signin");
+                  }}
+                >
+                  Sign In
+                </Button>
+                <Button
+                  size="sm"
+                  className="w-full"
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    router.push("/auth/signup");
+                  }}
+                >
+                  Sign Up
+                </Button>
+              </>
+            )}
           </nav>
         </div>
       )}
