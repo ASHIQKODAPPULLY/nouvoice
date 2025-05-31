@@ -286,7 +286,6 @@ export default function Home() {
                 size="lg"
                 className="w-full sm:w-auto bg-gradient-to-r from-blue-500 to-purple-500 hover:opacity-90 relative overflow-hidden group"
                 onClick={() => {
-                  setMobileMenuOpen(false);
                   window.location.href = "/auth/signup";
                 }}
               >
