@@ -18,7 +18,7 @@ export default function Header() {
   }, [pathname]);
 
   return (
-    <header className="border-b sticky top-0 z-[100] bg-background">
+    <header className="border-b sticky top-0 z-[999] bg-background">
       <div className="container mx-auto py-4 px-4 flex justify-between items-center">
         <div className="flex items-center gap-4">
           <Link href="/" className="flex items-center gap-2">
