@@ -6,7 +6,13 @@ import { Separator } from "./ui/separator";
 import { Mail, Heart, ArrowUp, X } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import NewsletterSignup from "./NewsletterSignup";
+import dynamic from "next/dynamic";
+import { Suspense } from "react";
+
+// Import NewsletterSignup with no SSR to prevent hydration errors
+const NewsletterSignup = dynamic(() => import("./NewsletterSignup"), {
+  ssr: false,
+});
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
@@ -18,8 +24,11 @@ export default function Footer() {
       setShowScrollTop(window.scrollY > 300);
     };
 
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+    // Only add event listener on client side
+    if (typeof window !== "undefined") {
+      window.addEventListener("scroll", handleScroll);
+      return () => window.removeEventListener("scroll", handleScroll);
+    }
   }, []);
 
   const scrollToTop = () => {
@@ -139,7 +148,15 @@ export default function Footer() {
         </div>
 
         <div className="mt-8">
-          <NewsletterSignup />
+          <Suspense
+            fallback={
+              <div className="bg-muted/30 p-6 rounded-lg h-[200px] flex items-center justify-center">
+                Loading newsletter signup...
+              </div>
+            }
+          >
+            <NewsletterSignup />
+          </Suspense>
         </div>
 
         <Separator className="my-6" />
