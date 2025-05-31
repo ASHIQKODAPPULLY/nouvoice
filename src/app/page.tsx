@@ -9,7 +9,7 @@ import InvoicePreview from "@/components/InvoicePreview";
 import InvoiceExportOptions from "@/components/InvoiceExportOptions";
 import InvoiceTracker from "@/components/InvoiceTracker";
 import DashboardSummary from "@/components/DashboardSummary";
-import { UserIcon, Sparkles, ArrowRight, Menu } from "lucide-react";
+import { UserIcon, Sparkles, ArrowRight } from "lucide-react";
 import { ThemeSwitcher } from "@/components/theme-switcher";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
@@ -51,7 +51,6 @@ export default function Home() {
   const [activeMainTab, setActiveMainTab] = useState("dashboard");
   const [heroTextIndex, setHeroTextIndex] = useState(0);
   const [catchphraseIndex, setCatchphraseIndex] = useState(0);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Rotate hero text and catchphrase every 5 seconds
   useEffect(() => {
@@ -265,90 +264,38 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <MobileAppBanner />
-      {/* Header */}
-      <header className="border-b sticky top-0 z-10 bg-background relative">
-        <div className="container mx-auto py-4 px-4 flex justify-between items-center">
-          <div className="flex items-center gap-2">
-            <div className="h-8 w-8 rounded-md bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center">
-              <span className="text-white font-bold">I</span>
-            </div>
-            <h1 className="text-xl font-bold">Nouvoice</h1>
-          </div>
+      {/* Header - Using the responsive Header component */}
+      <Header />
 
-          <div className="hidden md:flex items-center gap-4">
-            <Link href="/pricing" passHref>
-              <Button variant="ghost">Pricing</Button>
-            </Link>
-            <Link href="/team" passHref>
-              <Button variant="ghost">Teams</Button>
-            </Link>
-            <ThemeSwitcher />
-
-            <Button variant="outline" className="gap-2">
-              <UserIcon className="h-4 w-4" />
-              <span>Account</span>
-            </Button>
-
-            <Button
-              onClick={handleUpgrade}
-              className={
-                isPremium
-                  ? "bg-gradient-to-r from-pink-500 to-purple-500 hover:opacity-90"
-                  : ""
-              }
-            >
-              {isPremium
-                ? "Premium Active"
-                : `Upgrade to Pro ${!isPremium && usageCount >= 50 ? "(Required)" : ""}`}
-            </Button>
-          </div>
-
-          <div className="md:hidden flex items-center gap-2">
-            <ThemeSwitcher />
-            <Button
-              variant="outline"
-              size="icon"
-              className="h-8 w-8"
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            >
-              <Menu className="h-5 w-5" />
-            </Button>
-          </div>
-        </div>
-      </header>
-      {mobileMenuOpen && (
-        <div className="md:hidden fixed top-[64px] left-4 right-4 bg-background border rounded-lg shadow-lg p-4 space-y-2 z-50">
-          <Link href="/pricing" onClick={() => setMobileMenuOpen(false)}>
-            <Button variant="ghost" className="w-full">
-              Pricing
-            </Button>
+      {/* Custom header content for landing page */}
+      <div className="container mx-auto px-4 py-2 flex justify-end items-center -mt-14">
+        <div className="hidden md:flex items-center gap-4">
+          <Link href="/pricing" passHref>
+            <Button variant="ghost">Pricing</Button>
           </Link>
-          <Link href="/team" onClick={() => setMobileMenuOpen(false)}>
-            <Button variant="ghost" className="w-full">
-              Teams
-            </Button>
+          <Link href="/team" passHref>
+            <Button variant="ghost">Teams</Button>
           </Link>
-          <Button
-            variant="outline"
-            className="w-full gap-2"
-            onClick={() => setMobileMenuOpen(false)}
-          >
+
+          <Button variant="outline" className="gap-2">
             <UserIcon className="h-4 w-4" />
             <span>Account</span>
           </Button>
+
           <Button
-            onClick={() => {
-              handleUpgrade();
-              setMobileMenuOpen(false);
-            }}
-            className="w-full"
+            onClick={handleUpgrade}
+            className={
+              isPremium
+                ? "bg-gradient-to-r from-pink-500 to-purple-500 hover:opacity-90"
+                : ""
+            }
           >
             {isPremium
               ? "Premium Active"
               : `Upgrade to Pro ${!isPremium && usageCount >= 50 ? "(Required)" : ""}`}
           </Button>
         </div>
-      )}
+      </div>
 
       {/* Hero Section */}
       <div className="bg-gradient-to-r from-blue-500/10 to-purple-500/10 py-8 md:py-12">
