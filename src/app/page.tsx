@@ -268,36 +268,6 @@ export default function Home() {
       {/* Header - Using the responsive Header component */}
       <Header />
 
-      {/* Custom header content for landing page */}
-      <div className="container mx-auto px-4 py-2 flex justify-end items-center -mt-14">
-        <div className="hidden md:flex items-center gap-4">
-          <Link href="/pricing" passHref>
-            <Button variant="ghost">Pricing</Button>
-          </Link>
-          <Link href="/team" passHref>
-            <Button variant="ghost">Teams</Button>
-          </Link>
-
-          <Button variant="outline" className="gap-2">
-            <UserIcon className="h-4 w-4" />
-            <span>Account</span>
-          </Button>
-
-          <Button
-            onClick={handleUpgrade}
-            className={
-              isPremium
-                ? "bg-gradient-to-r from-pink-500 to-purple-500 hover:opacity-90"
-                : ""
-            }
-          >
-            {isPremium
-              ? "Premium Active"
-              : `Upgrade to Pro ${!isPremium && usageCount >= 50 ? "(Required)" : ""}`}
-          </Button>
-        </div>
-      </div>
-
       {/* Hero Section */}
       <div className="bg-gradient-to-r from-blue-500/10 to-purple-500/10 py-8 md:py-12">
         <div className="container mx-auto px-4">
