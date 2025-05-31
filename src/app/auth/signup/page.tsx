@@ -30,9 +30,8 @@ export default function SignupPage() {
     setError("");
 
     try {
-      // Import the createClient from the client-side module
-      const { createClient } = await import("@/lib/supabase/client");
-      const supabase = createClient();
+      // Import the supabase client directly
+      const { supabase } = await import("@/lib/supabase/client");
 
       const { error } = await supabase.auth.signUp({
         email,

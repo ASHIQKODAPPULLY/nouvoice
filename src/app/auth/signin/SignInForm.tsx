@@ -32,9 +32,8 @@ export default function SignInForm() {
 
     try {
       console.log("Attempting to sign in...");
-      // Import the createClient from the client-side module
-      const { createClient } = await import("@/lib/supabase/client");
-      const supabase = createClient();
+      // Import the supabase client directly
+      const { supabase } = await import("@/lib/supabase/client");
 
       // Log environment variables availability (not their values)
       console.log("Environment check:", {
