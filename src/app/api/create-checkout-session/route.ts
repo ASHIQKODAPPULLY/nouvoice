@@ -11,10 +11,23 @@ export async function POST(request: Request) {
     // Get the current user
     const {
       data: { user },
+      error: sessionError,
     } = await supabase.auth.getUser();
 
+    if (sessionError) {
+      console.error("Auth error:", sessionError);
+      return NextResponse.json(
+        { error: "Authentication error", details: sessionError.message },
+        { status: 401 },
+      );
+    }
+
     if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      console.error("No user found in session");
+      return NextResponse.json(
+        { error: "Unauthorized - No user found in session" },
+        { status: 401 },
+      );
     }
 
     const { priceId, returnUrl } = await request.json();
@@ -47,7 +60,10 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error("Error creating checkout session:", error);
     return NextResponse.json(
-      { error: "Internal server error" },
+      {
+        error: "Internal server error",
+        details: error instanceof Error ? error.message : String(error),
+      },
       { status: 500 },
     );
   }
