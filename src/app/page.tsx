@@ -14,6 +14,7 @@ import { ThemeSwitcher } from "@/components/theme-switcher";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 import MobileAppBanner from "@/components/MobileAppBanner";
+import Header from "@/components/Header";
 import {
   generateInvoiceFromPrompt,
   GeneratedInvoice,
