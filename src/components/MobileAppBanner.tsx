@@ -42,7 +42,7 @@ export default function MobileAppBanner() {
   if (!isVisible || isMobile) return null;
 
   return (
-    <div className="fixed bottom-4 right-4 z-40 max-w-sm bg-card border shadow-lg rounded-lg p-4 animate-fade-in">
+    <div className="fixed bottom-4 right-4 z-30 max-w-sm bg-card border shadow-lg rounded-lg p-4 animate-fade-in">
       <div className="flex items-start gap-3">
         <div className="bg-gradient-to-r from-gradient-blue to-gradient-purple p-2 rounded-md">
           <Smartphone className="h-6 w-6 text-white" />
