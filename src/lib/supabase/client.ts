@@ -12,16 +12,24 @@ export function createClient() {
     return {
       auth: {
         getSession: () => Promise.resolve({ data: { session: null } }),
-        signInWithPassword: () =>
-          Promise.resolve({
+        signInWithPassword: (credentials) => {
+          console.error(
+            "Cannot sign in: Missing Supabase credentials in environment",
+          );
+          return Promise.resolve({
             data: null,
             error: new Error("Missing Supabase credentials"),
-          }),
-        signUp: () =>
-          Promise.resolve({
+          });
+        },
+        signUp: (credentials) => {
+          console.error(
+            "Cannot sign up: Missing Supabase credentials in environment",
+          );
+          return Promise.resolve({
             data: null,
             error: new Error("Missing Supabase credentials"),
-          }),
+          });
+        },
         signOut: () => Promise.resolve({ error: null }),
       },
       from: () => ({

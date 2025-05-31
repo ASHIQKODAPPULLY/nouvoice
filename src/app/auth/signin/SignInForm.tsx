@@ -31,6 +31,7 @@ export default function SignInForm() {
     setError("");
 
     try {
+      console.log("Attempting to sign in...");
       // Import the createClient from the client-side module
       const { createClient } = await import("@/lib/supabase/client");
       const supabase = createClient();
@@ -41,6 +42,7 @@ export default function SignInForm() {
       });
 
       if (error) {
+        console.error("Supabase auth error:", error);
         throw error;
       }
 

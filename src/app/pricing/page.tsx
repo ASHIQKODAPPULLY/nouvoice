@@ -18,6 +18,7 @@ export default function PricingPage() {
 
   const handleSubscribe = async (priceId: string) => {
     try {
+      console.log("Attempting to subscribe with price ID:", priceId);
       // Check if user is authenticated first
       const { createClient } = await import("@/lib/supabase/client");
       const supabase = createClient();
@@ -25,8 +26,14 @@ export default function PricingPage() {
         data: { session },
       } = await supabase.auth.getSession();
 
+      console.log(
+        "Authentication check result:",
+        session ? "Authenticated" : "Not authenticated",
+      );
+
       if (!session) {
         // Redirect to sign in if not authenticated
+        console.log("User not authenticated, redirecting to sign in");
         window.location.href = `/auth/signin?redirect=${encodeURIComponent("/pricing")}`;
         return;
       }
@@ -37,6 +44,7 @@ export default function PricingPage() {
       }
 
       setIsLoading(true);
+      console.log("Creating checkout session...");
       const response = await fetch("/api/create-checkout-session", {
         method: "POST",
         headers: {

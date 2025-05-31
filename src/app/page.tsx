@@ -238,9 +238,28 @@ export default function Home() {
     alert("Share Invoice: Sharing functionality will be available soon.");
   };
 
-  const handleUpgrade = () => {
-    // Redirect to pricing page instead of directly setting premium status
-    window.location.href = "/pricing";
+  const handleUpgrade = async () => {
+    try {
+      // Check if user is authenticated first
+      const { createClient } = await import("@/lib/supabase/client");
+      const supabase = createClient();
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      if (!session) {
+        // Redirect to sign in if not authenticated with return URL to pricing
+        window.location.href = `/auth/signin?redirect=${encodeURIComponent("/pricing")}`;
+        return;
+      }
+
+      // If authenticated, redirect to pricing page
+      window.location.href = "/pricing";
+    } catch (error) {
+      console.error("Error checking authentication:", error);
+      // Still redirect to pricing page, authentication will be checked there again
+      window.location.href = "/pricing";
+    }
   };
 
   return (
