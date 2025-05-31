@@ -239,10 +239,8 @@ export default function Home() {
   };
 
   const handleUpgrade = () => {
-    setIsPremium(true);
-    alert(
-      "Welcome to Premium! You now have access to unlimited usage and all premium features.",
-    );
+    // Redirect to pricing page instead of directly setting premium status
+    window.location.href = "/pricing";
   };
 
   return (

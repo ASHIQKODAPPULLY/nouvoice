@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/card";
 import { ArrowRight, Loader2 } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 export default function SigninPage() {
   const [email, setEmail] = useState("");
@@ -22,6 +22,8 @@ export default function SigninPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirect = searchParams.get("redirect") || "/";
 
   const handleSignin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,7 +35,7 @@ export default function SigninPage() {
       const { createClient } = await import("@/lib/supabase/client");
       const supabase = createClient();
 
-      const { error } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
@@ -42,14 +44,17 @@ export default function SigninPage() {
         throw error;
       }
 
-      // Redirect to dashboard on successful login
-      router.push("/");
+      console.log("Sign in successful:", data);
+
+      // Redirect to the requested page or dashboard on successful login
+      router.push(redirect);
       router.refresh();
     } catch (error: any) {
       console.error("Signin error:", error);
       setError(
         error.message || "Failed to sign in. Please check your credentials.",
       );
+    } finally {
       setIsLoading(false);
     }
   };

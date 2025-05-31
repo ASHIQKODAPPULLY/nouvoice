@@ -18,6 +18,19 @@ export default function PricingPage() {
 
   const handleSubscribe = async (priceId: string) => {
     try {
+      // Check if user is authenticated first
+      const { createClient } = await import("@/lib/supabase/client");
+      const supabase = createClient();
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      if (!session) {
+        // Redirect to sign in if not authenticated
+        window.location.href = `/auth/signin?redirect=${encodeURIComponent("/pricing")}`;
+        return;
+      }
+
       // Validate price ID format client-side
       if (!priceId.startsWith("price_")) {
         throw new Error("Invalid price ID format");
