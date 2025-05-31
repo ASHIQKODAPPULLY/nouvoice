@@ -36,6 +36,12 @@ export default function SignInForm() {
       const { createClient } = await import("@/lib/supabase/client");
       const supabase = createClient();
 
+      // Log environment variables availability (not their values)
+      console.log("Environment check:", {
+        hasUrl: !!process.env.NEXT_PUBLIC_SUPABASE_URL,
+        hasKey: !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+      });
+
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -53,9 +59,17 @@ export default function SignInForm() {
       router.refresh();
     } catch (error: any) {
       console.error("Signin error:", error);
-      setError(
-        error.message || "Failed to sign in. Please check your credentials.",
-      );
+
+      // More specific error message for missing credentials
+      if (error.message?.includes("Missing Supabase credentials")) {
+        setError(
+          "Authentication service is not properly configured. Please contact support.",
+        );
+      } else {
+        setError(
+          error.message || "Failed to sign in. Please check your credentials.",
+        );
+      }
     } finally {
       setIsLoading(false);
     }

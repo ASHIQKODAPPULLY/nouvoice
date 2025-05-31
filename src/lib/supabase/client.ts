@@ -2,11 +2,23 @@ import { createBrowserClient } from "@supabase/ssr";
 
 export function createClient() {
   // Make sure we're using the public environment variables
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  // Use window.ENV variables if available (for client-side), otherwise use process.env
+  const supabaseUrl =
+    typeof window !== "undefined" && window.ENV?.NEXT_PUBLIC_SUPABASE_URL
+      ? window.ENV.NEXT_PUBLIC_SUPABASE_URL
+      : process.env.NEXT_PUBLIC_SUPABASE_URL;
+
+  const supabaseAnonKey =
+    typeof window !== "undefined" && window.ENV?.NEXT_PUBLIC_SUPABASE_ANON_KEY
+      ? window.ENV.NEXT_PUBLIC_SUPABASE_ANON_KEY
+      : process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
   if (!supabaseUrl || !supabaseAnonKey) {
-    console.error("Missing Supabase environment variables");
+    console.error("Missing Supabase environment variables", {
+      supabaseUrl: !!supabaseUrl,
+      supabaseAnonKey: !!supabaseAnonKey,
+    });
+
     // Return a dummy client that won't cause errors but won't work either
     // This prevents crashes when env vars aren't available
     return {
