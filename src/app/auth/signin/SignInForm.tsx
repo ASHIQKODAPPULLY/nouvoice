@@ -48,6 +48,14 @@ export default function SignInForm() {
 
       if (error) {
         console.error("Supabase auth error:", error);
+
+        // Check if this is an unconfirmed account error
+        if (error.message?.includes("Email not confirmed")) {
+          throw new Error(
+            "Please check your email and confirm your account before signing in.",
+          );
+        }
+
         throw error;
       }
 

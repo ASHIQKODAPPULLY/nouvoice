@@ -21,6 +21,7 @@ export default function SignupPage() {
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState("free");
   const router = useRouter();
 
@@ -33,7 +34,7 @@ export default function SignupPage() {
       // Import the supabase client directly
       const { supabase } = await import("@/lib/supabase/client");
 
-      const { error } = await supabase.auth.signUp({
+      const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
@@ -48,11 +49,12 @@ export default function SignupPage() {
         throw error;
       }
 
-      // Redirect to a verification page or show a success message
-      router.push(`/auth/callback?plan=${selectedPlan}`);
+      // Show success message instead of redirecting
+      setSuccess(true);
     } catch (error: any) {
       console.error("Signup error:", error);
       setError(error.message || "Failed to sign up. Please try again.");
+    } finally {
       setIsLoading(false);
     }
   };
@@ -79,6 +81,12 @@ export default function SignupPage() {
             {error && (
               <div className="p-3 bg-red-100 border border-red-400 text-red-700 rounded">
                 {error}
+              </div>
+            )}
+            {success && (
+              <div className="p-3 bg-green-100 border border-green-400 text-green-700 rounded">
+                Please check your email for a confirmation link to complete your
+                registration.
               </div>
             )}
             <div className="space-y-2">
