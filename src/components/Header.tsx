@@ -61,14 +61,20 @@ export default function Header() {
         <div className="flex items-center gap-4">
           <ThemeSwitcher />
           <div className="hidden md:block">
-            <Link href="/auth/signin">
-              <Button variant="outline" size="sm" className="mr-2">
-                Sign In
-              </Button>
-            </Link>
-            <Link href="/auth/signup">
-              <Button size="sm">Sign Up</Button>
-            </Link>
+            <Button
+              variant="outline"
+              size="sm"
+              className="mr-2"
+              onClick={() => (window.location.href = "/auth/signin")}
+            >
+              Sign In
+            </Button>
+            <Button
+              size="sm"
+              onClick={() => (window.location.href = "/auth/signup")}
+            >
+              Sign Up
+            </Button>
           </div>
           <button
             className="md:hidden"
@@ -115,16 +121,27 @@ export default function Header() {
             >
               Support
             </Link>
-            <Link href="/auth/signin" onClick={() => setMobileMenuOpen(false)}>
-              <Button variant="outline" size="sm" className="w-full">
-                Sign In
-              </Button>
-            </Link>
-            <Link href="/auth/signup" onClick={() => setMobileMenuOpen(false)}>
-              <Button size="sm" className="w-full">
-                Sign Up
-              </Button>
-            </Link>
+            <Button
+              variant="outline"
+              size="sm"
+              className="w-full"
+              onClick={() => {
+                setMobileMenuOpen(false);
+                window.location.href = "/auth/signin";
+              }}
+            >
+              Sign In
+            </Button>
+            <Button
+              size="sm"
+              className="w-full"
+              onClick={() => {
+                setMobileMenuOpen(false);
+                window.location.href = "/auth/signup";
+              }}
+            >
+              Sign Up
+            </Button>
           </nav>
         </div>
       )}

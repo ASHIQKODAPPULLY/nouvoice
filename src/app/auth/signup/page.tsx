@@ -34,6 +34,12 @@ export default function SignupPage() {
       // Import the supabase client directly
       const { supabase } = await import("@/lib/supabase/client");
 
+      // Log environment variables availability (not their values)
+      console.log("Environment check:", {
+        hasUrl: !!process.env.NEXT_PUBLIC_SUPABASE_URL,
+        hasKey: !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+      });
+
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
@@ -49,8 +55,17 @@ export default function SignupPage() {
         throw error;
       }
 
-      // Show success message instead of redirecting
-      setSuccess(true);
+      console.log("Signup response:", data);
+
+      // Check if email confirmation is required
+      if (data?.user && !data.session) {
+        console.log("Email confirmation required");
+        setSuccess(true);
+      } else if (data?.session) {
+        // User was immediately signed in (email confirmation disabled in Supabase)
+        console.log("User signed in immediately");
+        router.push("/");
+      }
     } catch (error: any) {
       console.error("Signup error:", error);
       setError(error.message || "Failed to sign up. Please try again.");

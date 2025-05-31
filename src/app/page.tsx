@@ -364,23 +364,20 @@ export default function Home() {
               {catchphrases[catchphraseIndex]}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
-              <Link
-                href="/auth/signup"
-                passHref
-                className="w-full sm:w-auto"
-                onClick={() => setMobileMenuOpen(false)}
+              <Button
+                size="lg"
+                className="w-full sm:w-auto bg-gradient-to-r from-blue-500 to-purple-500 hover:opacity-90 relative overflow-hidden group"
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  window.location.href = "/auth/signup";
+                }}
               >
-                <Button
-                  size="lg"
-                  className="w-full sm:w-auto bg-gradient-to-r from-blue-500 to-purple-500 hover:opacity-90 relative overflow-hidden group"
-                >
-                  <span className="relative z-10 flex items-center justify-center transition-transform duration-300 group-hover:translate-x-2">
-                    Get Started{" "}
-                    <ArrowRight className="ml-2 h-5 w-5 transition-transform duration-300 group-hover:translate-x-1" />
-                  </span>
-                  <span className="absolute inset-0 bg-white/20 transform -translate-x-full group-hover:translate-x-0 transition-transform duration-300"></span>
-                </Button>
-              </Link>
+                <span className="relative z-10 flex items-center justify-center transition-transform duration-300 group-hover:translate-x-2">
+                  Get Started{" "}
+                  <ArrowRight className="ml-2 h-5 w-5 transition-transform duration-300 group-hover:translate-x-1" />
+                </span>
+                <span className="absolute inset-0 bg-white/20 transform -translate-x-full group-hover:translate-x-0 transition-transform duration-300"></span>
+              </Button>
             </div>
           </div>
         </div>
