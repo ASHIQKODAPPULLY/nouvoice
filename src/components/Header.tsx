@@ -5,11 +5,12 @@ import Link from "next/link";
 import { Button } from "./ui/button";
 import { ThemeSwitcher } from "./theme-switcher";
 import { Menu as MenuIcon, X as CloseIcon } from "lucide-react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 export default function Header() {
   const [isMobileMenuOpen, setMobileMenuOpen] = useState(false);
   const pathname = usePathname();
+  const router = useRouter();
   const isLandingPage = pathname === "/";
 
   // Close mobile menu when pathname changes
@@ -82,14 +83,11 @@ export default function Header() {
                 variant="outline"
                 size="sm"
                 className="mr-2"
-                onClick={() => (window.location.href = "/auth/signin")}
+                onClick={() => router.push("/auth/signin")}
               >
                 Sign In
               </Button>
-              <Button
-                size="sm"
-                onClick={() => (window.location.href = "/auth/signup")}
-              >
+              <Button size="sm" onClick={() => router.push("/auth/signup")}>
                 Sign Up
               </Button>
             </div>
@@ -97,6 +95,9 @@ export default function Header() {
           <button
             className="md:hidden"
             onClick={() => setMobileMenuOpen(!isMobileMenuOpen)}
+            aria-expanded={isMobileMenuOpen ? "true" : "false"}
+            aria-controls="mobile-menu"
+            aria-label="Toggle mobile menu"
           >
             {isMobileMenuOpen ? (
               <CloseIcon className="h-6 w-6" />
@@ -109,7 +110,7 @@ export default function Header() {
 
       {/* Mobile Menu Panel */}
       {isMobileMenuOpen && (
-        <div className="md:hidden bg-background border-t">
+        <div id="mobile-menu" className="md:hidden bg-background border-t">
           <nav className="flex flex-col px-4 py-2 space-y-2">
             {isLandingPage ? (
               <>
@@ -134,7 +135,7 @@ export default function Header() {
                     className="w-full mb-2"
                     onClick={() => {
                       setMobileMenuOpen(false);
-                      window.location.href = "/auth/signin";
+                      router.push("/auth/signin");
                     }}
                   >
                     <span className="flex items-center gap-2">
@@ -161,7 +162,7 @@ export default function Header() {
                     className="w-full"
                     onClick={() => {
                       setMobileMenuOpen(false);
-                      window.location.href = "/pricing";
+                      router.push("/pricing");
                     }}
                   >
                     Upgrade to Pro
@@ -204,7 +205,7 @@ export default function Header() {
                   className="w-full"
                   onClick={() => {
                     setMobileMenuOpen(false);
-                    window.location.href = "/auth/signin";
+                    router.push("/auth/signin");
                   }}
                 >
                   Sign In
@@ -214,7 +215,7 @@ export default function Header() {
                   className="w-full"
                   onClick={() => {
                     setMobileMenuOpen(false);
-                    window.location.href = "/auth/signup";
+                    router.push("/auth/signup");
                   }}
                 >
                   Sign Up
