@@ -22,7 +22,7 @@ export async function GET() {
 
     // Check for specific Supabase auth cookies
     const hasSupabaseAuthCookie = allCookies.some(
-      (c) => c.name.includes("supabase") && c.name.includes("auth"),
+      (c) => c.name.includes("sb-") && c.name.includes("-auth-token"),
     );
 
     // Get the session directly to check authentication status
