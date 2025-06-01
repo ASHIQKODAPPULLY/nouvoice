@@ -36,6 +36,15 @@ export const supabase = createSupabaseClient(
       autoRefreshToken: true,
       detectSessionInUrl: true,
       storage: logStorage,
+      flowType: "pkce",
+      storageKey: "supabase-auth-token",
+      cookieOptions: {
+        name: "sb-auth-token",
+        lifetime: 60 * 60 * 24 * 7, // 1 week
+        domain: "",
+        path: "/",
+        sameSite: "lax",
+      },
     },
   },
 );

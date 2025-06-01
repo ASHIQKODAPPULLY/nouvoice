@@ -41,9 +41,13 @@ export default function SignInForm() {
         hasKey: !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
       });
 
+      // Explicitly set cookie mode to ensure cookies are used
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
+        options: {
+          persistSession: true,
+        },
       });
 
       if (error) {
@@ -92,12 +96,20 @@ export default function SignInForm() {
         );
       }
 
-      // Force another getSession call to ensure cookies are written
-      const { data: initialSessionCheck } = await supabase.auth.getSession();
-      console.log(
-        "Final session check before redirect:",
-        initialSessionCheck.session ? "Session confirmed" : "Still no session",
-      );
+      // Make a fetch request to the debug-session endpoint to verify cookies
+      try {
+        const debugResponse = await fetch("/api/debug-session", {
+          method: "GET",
+          credentials: "include",
+          headers: {
+            "Cache-Control": "no-cache",
+          },
+        });
+        const debugData = await debugResponse.json();
+        console.log("Debug session check:", debugData);
+      } catch (debugError) {
+        console.error("Debug session check failed:", debugError);
+      }
 
       // Log cookie status - can't see HTTP-only cookies but can confirm the call was made
       console.log("Cookie write operations should be complete now");

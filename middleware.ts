@@ -22,6 +22,19 @@ export async function middleware(request: NextRequest) {
     // Create a Supabase client using the middleware helper
     const supabase = createMiddlewareClient({ req: request, res: response });
 
+    // Log all cookies from the request for debugging
+    const requestCookies = request.headers.get("cookie");
+    console.log(
+      "Middleware: Request cookies:",
+      requestCookies ? "Present" : "None",
+    );
+    if (requestCookies) {
+      const cookieNames = requestCookies
+        .split(";")
+        .map((c) => c.trim().split("=")[0]);
+      console.log("Middleware: Request cookie names:", cookieNames);
+    }
+
     // This will refresh the session if needed and set the auth cookies
     const {
       data: { session },
@@ -32,36 +45,28 @@ export async function middleware(request: NextRequest) {
       session ? "Session found" : "No session",
     );
 
-    // Log cookie headers for debugging
-    if (session) {
-      console.log("Middleware: Session cookies should be set in the response");
+    // Always force a session refresh to ensure cookies are properly set
+    const { data: refreshData, error: refreshError } =
+      await supabase.auth.refreshSession();
 
-      // Force a session refresh to ensure cookies are properly set
-      if (pathname.startsWith("/api/") || pathname === "/pricing") {
-        console.log(
-          "Middleware: Critical path detected, forcing session refresh",
-        );
-        const { data: refreshData, error: refreshError } =
-          await supabase.auth.refreshSession();
-        if (refreshError) {
-          console.error("Middleware: Session refresh error:", refreshError);
-        } else {
-          console.log(
-            "Middleware: Session refreshed successfully:",
-            refreshData.session ? "Valid session" : "No session after refresh",
-          );
-        }
-      }
-
-      // Log the cookie names that will be set
-      const cookieHeader = response.headers.get("set-cookie");
-      if (cookieHeader) {
-        console.log("Middleware: Setting cookies in response header");
-      } else {
-        console.warn("Middleware: No cookies found in response header");
-      }
+    if (refreshError) {
+      console.error("Middleware: Session refresh error:", refreshError);
     } else {
-      console.log("Middleware: No session found, no auth cookies will be set");
+      console.log(
+        "Middleware: Session refreshed:",
+        refreshData.session ? "Valid session" : "No session after refresh",
+      );
+    }
+
+    // Log the cookie names that will be set
+    const cookieHeader = response.headers.get("set-cookie");
+    if (cookieHeader) {
+      console.log(
+        "Middleware: Setting cookies in response header:",
+        cookieHeader,
+      );
+    } else {
+      console.warn("Middleware: No cookies found in response header");
     }
 
     // For debugging - log the URL being accessed

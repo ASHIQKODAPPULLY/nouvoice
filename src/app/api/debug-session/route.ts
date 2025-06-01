@@ -20,9 +20,12 @@ export async function GET() {
       })),
     );
 
-    // Check for specific Supabase auth cookies
+    // Check for specific Supabase auth cookies - expand the search patterns
     const hasSupabaseAuthCookie = allCookies.some(
-      (c) => c.name.includes("supabase") && c.name.includes("auth"),
+      (c) =>
+        c.name.includes("supabase") ||
+        c.name.includes("sb-") ||
+        c.name.includes("auth"),
     );
 
     // Get the session directly to check authentication status
@@ -30,6 +33,23 @@ export async function GET() {
       data: { session },
       error: sessionError,
     } = await supabase.auth.getSession();
+
+    // Try to refresh the session
+    let refreshResult = null;
+    try {
+      const { data: refreshData, error: refreshError } =
+        await supabase.auth.refreshSession();
+      refreshResult = {
+        success: !refreshError,
+        hasSession: !!refreshData.session,
+        error: refreshError?.message || null,
+      };
+    } catch (refreshException) {
+      refreshResult = {
+        success: false,
+        error: refreshException.message,
+      };
+    }
 
     console.log(
       "🔑 Debug route - Session check:",
@@ -40,6 +60,13 @@ export async function GET() {
       console.error("❌ Debug route - Auth error:", sessionError);
     }
 
+    // Check environment variables (without exposing values)
+    const envCheck = {
+      hasSupabaseUrl: !!process.env.NEXT_PUBLIC_SUPABASE_URL,
+      hasSupabaseAnonKey: !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+      hasSupabaseServiceKey: !!process.env.SUPABASE_SERVICE_KEY,
+    };
+
     return NextResponse.json({
       cookieCount: allCookies.length,
       hasSupabaseAuthCookie,
@@ -48,6 +75,9 @@ export async function GET() {
       userId: session?.user?.id || null,
       userEmail: session?.user?.email || null,
       error: sessionError?.message || null,
+      refreshResult,
+      envCheck,
+      timestamp: new Date().toISOString(),
     });
   } catch (error) {
     console.error("Error in debug-session route:", error);
