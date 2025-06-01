@@ -41,7 +41,7 @@ export default function PricingPage() {
           async ([plan, priceId]) => {
             try {
               const { data, error } = await supabase.functions.invoke(
-                "supabase-functions-get-stripe-prices",
+                "get-stripe-prices",
                 {
                   body: { priceId },
                 },
@@ -278,10 +278,16 @@ export default function PricingPage() {
                   onClick={() => handleSubscribe(priceIds.free)}
                   disabled={loadingPriceId !== null}
                 >
-                  {loadingPriceId === priceIds.free
-                    ? "Processing..."
-                    : "Get Started"}{" "}
-                  <ArrowRight className="ml-2 h-4 w-4" />
+                  {loadingPriceId === priceIds.free ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Processing...
+                    </>
+                  ) : (
+                    <>
+                      Get Started <ArrowRight className="ml-2 h-4 w-4" />
+                    </>
+                  )}
                 </Button>
               </CardFooter>
             </Card>
@@ -357,10 +363,16 @@ export default function PricingPage() {
                   onClick={() => handleSubscribe(priceIds.annual)}
                   disabled={loadingPriceId !== null}
                 >
-                  {loadingPriceId === priceIds.annual
-                    ? "Processing..."
-                    : "Get Annual Access"}{" "}
-                  <Sparkles className="ml-2 h-4 w-4" />
+                  {loadingPriceId === priceIds.annual ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Processing...
+                    </>
+                  ) : (
+                    <>
+                      Get Annual Access <Sparkles className="ml-2 h-4 w-4" />
+                    </>
+                  )}
                 </Button>
               </CardFooter>
             </Card>
@@ -430,10 +442,16 @@ export default function PricingPage() {
                   onClick={() => handleSubscribe(priceIds.pro)}
                   disabled={loadingPriceId !== null}
                 >
-                  {loadingPriceId === priceIds.pro
-                    ? "Processing..."
-                    : "Upgrade to Pro"}{" "}
-                  <Sparkles className="ml-2 h-4 w-4" />
+                  {loadingPriceId === priceIds.pro ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Processing...
+                    </>
+                  ) : (
+                    <>
+                      Upgrade to Pro <Sparkles className="ml-2 h-4 w-4" />
+                    </>
+                  )}
                 </Button>
               </CardFooter>
             </Card>
@@ -502,10 +520,16 @@ export default function PricingPage() {
                   onClick={() => handleSubscribe(priceIds.team)}
                   disabled={loadingPriceId !== null || loadingPrices}
                 >
-                  {loadingPriceId === priceIds.team
-                    ? "Processing..."
-                    : "Upgrade to Team"}{" "}
-                  <Users className="ml-2 h-4 w-4" />
+                  {loadingPriceId === priceIds.team ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Processing...
+                    </>
+                  ) : (
+                    <>
+                      Upgrade to Team <Users className="ml-2 h-4 w-4" />
+                    </>
+                  )}
                 </Button>
               </CardFooter>
             </Card>
