@@ -106,7 +106,9 @@ export default function SignInForm() {
       const { data: finalSessionCheckAgain } = await supabase.auth.getSession();
       console.log(
         "Final session check before redirect:",
-        finalSessionCheck.session ? "Session confirmed" : "Still no session",
+        finalSessionCheckAgain.session
+          ? "Session confirmed"
+          : "Still no session",
       );
 
       // Log cookie status - can't see HTTP-only cookies but can confirm the call was made
