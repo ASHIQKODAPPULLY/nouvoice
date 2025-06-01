@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Loader2 } from "lucide-react";
 import TeamManagement from "@/components/TeamManagement";
-import { createClient } from "@/lib/supabase/client";
+import { isBrowser } from "@/lib/environment";
 
 export default function TeamPage() {
   const [userId, setUserId] = useState<string | null>(null);
@@ -17,6 +17,10 @@ export default function TeamPage() {
     const checkAuth = async () => {
       try {
         setIsLoading(true);
+        if (!isBrowser) return; // Only run in browser
+
+        // Import dynamically to avoid SSR issues
+        const { createClient } = await import("@/lib/supabase/client");
         const supabase = createClient();
 
         const {

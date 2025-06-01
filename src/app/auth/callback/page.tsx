@@ -1,16 +1,22 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { createClient } from "@/lib/supabase/client";
+import { isBrowser } from "@/lib/environment";
 
 export default function AuthCallbackPage() {
   const router = useRouter();
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const handleAuth = async () => {
       try {
+        if (!isBrowser) return; // Only run in browser
+
         console.log("Starting auth callback process");
+        // Import dynamically to avoid SSR issues
+        const { createClient } = await import("@/lib/supabase/client");
         const supabase = createClient();
 
         // Log the current URL for debugging
@@ -22,7 +28,7 @@ export default function AuthCallbackPage() {
 
         if (error) {
           console.error("Failed to exchange code:", error.message);
-          alert(
+          setError(
             "There was a problem verifying your email. Please try signing up again.",
           );
           // Redirect to sign-in page after error
@@ -33,11 +39,13 @@ export default function AuthCallbackPage() {
         }
       } catch (err) {
         console.error("Authentication error:", err);
-        alert(
+        setError(
           "An unexpected error occurred during verification. Please try again.",
         );
         // Redirect to sign-in page after error
         setTimeout(() => router.push("/auth/signin"), 2000);
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -46,7 +54,15 @@ export default function AuthCallbackPage() {
 
   return (
     <div className="flex items-center justify-center min-h-[50vh]">
-      <p className="text-center text-lg">Verifying your account...</p>
+      {isLoading ? (
+        <p className="text-center text-lg">Verifying your account...</p>
+      ) : error ? (
+        <p className="text-center text-lg text-red-500">{error}</p>
+      ) : (
+        <p className="text-center text-lg">
+          Verification successful! Redirecting...
+        </p>
+      )}
     </div>
   );
 }

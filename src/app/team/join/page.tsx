@@ -13,7 +13,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Loader2, AlertCircle, Check, Users } from "lucide-react";
-import { createClient } from "@/lib/supabase/client";
+import { isBrowser } from "@/lib/environment";
 import Link from "next/link";
 
 // Explicitly mark as client-side only to prevent prerendering issues
@@ -34,6 +34,10 @@ function JoinTeamContent() {
   useEffect(() => {
     const checkAuth = async () => {
       setIsLoading(true);
+      if (!isBrowser) return; // Only run in browser
+
+      // Import dynamically to avoid SSR issues
+      const { createClient } = await import("@/lib/supabase/client");
       const supabase = createClient();
 
       const {

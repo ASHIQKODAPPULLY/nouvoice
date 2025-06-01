@@ -21,6 +21,7 @@ import {
   BusinessDetails,
 } from "@/lib/invoiceGenerator";
 import { InvoiceModel, InvoiceController, InvoicePresenter } from "@/lib/mcp";
+import { isBrowser } from "@/lib/environment";
 
 // Dynamic text options for hero section
 const heroTexts = [
@@ -240,6 +241,8 @@ export default function Home() {
 
   const handleUpgrade = async () => {
     try {
+      if (!isBrowser) return; // Only run in browser
+
       // Check if user is authenticated first
       const { createClient } = await import("@/lib/supabase/client");
       const supabase = createClient();
@@ -258,7 +261,9 @@ export default function Home() {
     } catch (error) {
       console.error("Error checking authentication:", error);
       // Still redirect to pricing page, authentication will be checked there again
-      window.location.href = "/pricing";
+      if (isBrowser) {
+        window.location.href = "/pricing";
+      }
     }
   };
 

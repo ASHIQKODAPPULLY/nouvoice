@@ -37,7 +37,7 @@ import {
   Check,
   Copy,
 } from "lucide-react";
-import { createClient } from "@/lib/supabase/client";
+import { isBrowser } from "@/lib/environment";
 import { Team } from "@/lib/types/team";
 
 export default function TeamAdminPage() {
@@ -57,6 +57,10 @@ export default function TeamAdminPage() {
   useEffect(() => {
     const checkAuth = async () => {
       setIsLoading(true);
+      if (!isBrowser) return; // Only run in browser
+
+      // Import dynamically to avoid SSR issues
+      const { createClient } = await import("@/lib/supabase/client");
       const supabase = createClient();
 
       const {
@@ -124,11 +128,13 @@ export default function TeamAdminPage() {
   };
 
   const generateInviteLink = (teamId: string) => {
+    if (!isBrowser) return;
     const baseUrl = window.location.origin;
     setInviteLink(`${baseUrl}/team/join?teamId=${teamId}`);
   };
 
   const copyInviteLink = () => {
+    if (!isBrowser) return;
     navigator.clipboard.writeText(inviteLink);
     setSuccess("Link copied to clipboard!");
     setTimeout(() => setSuccess(null), 3000);

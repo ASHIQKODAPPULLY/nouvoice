@@ -2,6 +2,9 @@ import { createClient } from "@/lib/supabase/server";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
+// Mark as dynamic to prevent static generation attempts
+export const dynamic = "force-dynamic";
+
 export async function GET() {
   try {
     const cookieStore = cookies();

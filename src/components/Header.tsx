@@ -6,7 +6,7 @@ import { Button } from "./ui/button";
 import { ThemeSwitcher } from "./theme-switcher";
 import { Menu as MenuIcon, X as CloseIcon, User } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { supabase } from "@/lib/supabase/client";
+import { isBrowser } from "@/lib/environment";
 
 export default function Header() {
   const [isMobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -18,6 +18,11 @@ export default function Header() {
   useEffect(() => {
     const fetchUser = async () => {
       try {
+        if (!isBrowser) return; // Only run in browser
+
+        // Import dynamically to avoid SSR issues
+        const { supabase } = await import("@/lib/supabase/client");
+
         // Use the singleton instance directly instead of creating a new client each time
         const { data, error } = await supabase.auth.getUser();
 
@@ -42,6 +47,11 @@ export default function Header() {
   // Handle sign out
   const handleSignOut = async () => {
     try {
+      if (!isBrowser) return; // Only run in browser
+
+      // Import dynamically to avoid SSR issues
+      const { supabase } = await import("@/lib/supabase/client");
+
       // Use the singleton instance directly
       const { error } = await supabase.auth.signOut();
 

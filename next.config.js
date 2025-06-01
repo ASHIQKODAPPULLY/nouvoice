@@ -45,6 +45,8 @@ const nextConfig = {
   compiler: {
     styledComponents: true,
   },
+  // Use standalone output for better compatibility with Vercel
+  output: "standalone",
 };
 
 module.exports = nextConfig;
