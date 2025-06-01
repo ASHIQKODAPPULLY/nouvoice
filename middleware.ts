@@ -5,6 +5,7 @@ import type { NextRequest } from "next/server";
 export async function middleware(request: NextRequest) {
   const response = NextResponse.next();
 
+  console.log("Middleware running, setting cookies");
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -32,7 +33,11 @@ export async function middleware(request: NextRequest) {
   );
 
   // This sets the cookie on initial request and refresh if needed
-  await supabase.auth.getSession();
+  const { data } = await supabase.auth.getSession();
+  console.log(
+    "Middleware session check:",
+    data.session ? "Session found" : "No session",
+  );
 
   return response;
 }
