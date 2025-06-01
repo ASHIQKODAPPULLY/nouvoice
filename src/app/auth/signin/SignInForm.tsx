@@ -62,14 +62,8 @@ export default function SignInForm() {
 
       console.log("Sign in successful:", data);
 
-      // Exchange code for session to properly write the cookie
-      const { error: exchangeError } =
-        await supabase.auth.exchangeCodeForSession();
-      if (exchangeError) {
-        console.error("Failed to exchange code for session:", exchangeError);
-        throw new Error("Failed to initialize session. Please try again.");
-      }
-      console.log("Successfully exchanged code for session and wrote cookie");
+      // No need to call exchangeCodeForSession() after password login
+      // The session is already established by signInWithPassword()
 
       // Explicitly verify session after login
       const { data: sessionData } = await supabase.auth.getSession();
