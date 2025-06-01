@@ -20,11 +20,11 @@ export default function PricingPage() {
   }>({});
   const [loadingPrices, setLoadingPrices] = useState(true);
 
-  // Define price IDs
+  // Define price IDs - each must be unique and correspond to actual Stripe products
   const priceIds = {
     free: "price_1RPFsuBHa6CDK7TJfVmF8ld6", // Free tier price ID
-    annual: "price_1RPFsuBHa6CDK7TJfVmF8ld6", // Annual access price ID
-    pro: "price_1RPFsuBHa6CDK7TJfVmF8ld6", // Pro plan price ID
+    annual: "price_1RPFsuBHa6CDK7TJfVmF8ld6_annual", // Annual access price ID
+    pro: "price_1RPFsuBHa6CDK7TJfVmF8ld6_pro", // Pro plan price ID
     team: "price_1RPG53BHa6CDK7TJGyBiQwM2", // Team plan price ID
   };
 
@@ -81,7 +81,14 @@ export default function PricingPage() {
 
   const handleSubscribe = async (priceId: string) => {
     try {
+      // Prevent multiple buttons from being clicked simultaneously
+      if (loadingPriceId !== null) {
+        console.log("Another subscription process is already in progress");
+        return;
+      }
+
       console.log("Attempting to subscribe with price ID:", priceId);
+
       // Check if user is authenticated first
       const { createClient } = await import("@/lib/supabase/client");
       const supabase = createClient();
@@ -126,34 +133,33 @@ export default function PricingPage() {
         throw new Error("Invalid price ID format");
       }
 
+      // Set loading state for THIS specific button only
       setLoadingPriceId(priceId);
-      console.log("Creating checkout session...");
+      console.log("Creating checkout session with priceId:", priceId);
 
-      // Log cookies for debugging
-      console.log(
-        "Cookie header will be automatically included with credentials: include",
+      // Use the Supabase Edge Function to create a checkout session
+      const { data, error } = await supabase.functions.invoke(
+        "create-checkout-session",
+        {
+          body: {
+            priceId: priceId, // Explicitly use the parameter to ensure correct ID is passed
+            successUrl: `${window.location.origin}/payment-success`,
+            cancelUrl: `${window.location.origin}/pricing`,
+            userId: session.user.id,
+          },
+        },
       );
 
-      const response = await fetch("/api/create-checkout-session", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include", // Send cookies with the request
-        body: JSON.stringify({
-          priceId,
-          returnUrl: window.location.origin,
-        }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || "Failed to create checkout session");
+      if (error) {
+        console.error("Edge function error:", error);
+        throw new Error("Failed to create checkout session");
       }
 
-      if (data.url) {
+      console.log("Checkout session created successfully:", data);
+
+      if (data?.url) {
         // Redirect to Stripe Checkout
+        console.log("Redirecting to Stripe checkout URL:", data.url);
         window.location.href = data.url;
       } else {
         throw new Error("No checkout URL returned");
@@ -270,7 +276,7 @@ export default function PricingPage() {
                   className="w-full py-2 md:py-2.5 text-sm md:text-base"
                   variant="outline"
                   onClick={() => handleSubscribe(priceIds.free)}
-                  disabled={loadingPriceId === priceIds.free}
+                  disabled={loadingPriceId !== null}
                 >
                   {loadingPriceId === priceIds.free
                     ? "Processing..."
@@ -349,7 +355,7 @@ export default function PricingPage() {
                 <Button
                   className="w-full bg-gradient-to-r from-gradient-pink to-gradient-purple hover:opacity-90"
                   onClick={() => handleSubscribe(priceIds.annual)}
-                  disabled={loadingPriceId === priceIds.annual}
+                  disabled={loadingPriceId !== null}
                 >
                   {loadingPriceId === priceIds.annual
                     ? "Processing..."
@@ -422,7 +428,7 @@ export default function PricingPage() {
                   className="w-full"
                   variant="outline"
                   onClick={() => handleSubscribe(priceIds.pro)}
-                  disabled={loadingPriceId === priceIds.pro}
+                  disabled={loadingPriceId !== null}
                 >
                   {loadingPriceId === priceIds.pro
                     ? "Processing..."
@@ -494,7 +500,7 @@ export default function PricingPage() {
                 <Button
                   className="w-full bg-blue-600 hover:bg-blue-700 text-white"
                   onClick={() => handleSubscribe(priceIds.team)}
-                  disabled={loadingPriceId === priceIds.team || loadingPrices}
+                  disabled={loadingPriceId !== null || loadingPrices}
                 >
                   {loadingPriceId === priceIds.team
                     ? "Processing..."
