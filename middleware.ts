@@ -15,13 +15,28 @@ export async function middleware(request: NextRequest) {
   // Create a response object to modify
   const response = NextResponse.next();
 
-  // Create a Supabase client using the middleware helper
-  const supabase = createMiddlewareClient({ req: request, res: response });
+  try {
+    // Create a Supabase client using the middleware helper
+    const supabase = createMiddlewareClient({ req: request, res: response });
 
-  // This will refresh the session if needed and set the auth cookies
-  await supabase.auth.getSession();
+    // This will refresh the session if needed and set the auth cookies
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
 
-  return response;
+    console.log(
+      "Middleware session check:",
+      session ? "Session found" : "No session",
+    );
+
+    // For debugging - log the URL being accessed
+    console.log(`Middleware processing: ${pathname}`);
+
+    return response;
+  } catch (error) {
+    console.error("Middleware error:", error);
+    return response;
+  }
 }
 
 export const config = {
