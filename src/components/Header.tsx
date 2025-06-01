@@ -5,7 +5,7 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { Button } from "./ui/button";
 import { ThemeSwitcher } from "./theme-switcher";
-import { Menu as MenuIcon, X as CloseIcon, User } from "lucide-react";
+import { Menu as MenuIcon, X as CloseIcon, User, Users } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { isBrowser } from "@/lib/environment";
 
@@ -129,6 +129,15 @@ export default function Header() {
                     {user.email?.split("@")[0]}
                   </span>
                 </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="flex items-center gap-1"
+                  onClick={() => router.push("/team")}
+                >
+                  <Users className="h-3 w-3" />
+                  Team
+                </Button>
                 <Button variant="outline" size="sm" onClick={handleSignOut}>
                   Sign Out
                 </Button>
@@ -218,6 +227,18 @@ export default function Header() {
                     </div>
                   </div>
                 </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="w-full flex items-center justify-center gap-1 mb-2"
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    router.push("/team");
+                  }}
+                >
+                  <Users className="h-3 w-3" />
+                  Team
+                </Button>
                 <Button
                   variant="outline"
                   size="sm"
