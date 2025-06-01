@@ -2,6 +2,11 @@ import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
 
+// Initialize Stripe once outside the handler for better performance
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "", {
+  apiVersion: "2023-08-16",
+});
+
 export async function POST(request: Request) {
   try {
     const supabase = createClient();
@@ -26,19 +31,14 @@ export async function POST(request: Request) {
       .eq("user_id", user.id)
       .single();
 
-    if (subscriptionError || !subscription) {
+    if (subscriptionError || !subscription?.stripe_customer_id) {
       return NextResponse.json(
-        { error: "No active subscription found" },
+        { error: "No active subscription or Stripe customer ID found" },
         { status: 404 },
       );
     }
 
     const customerId = subscription.stripe_customer_id;
-
-    // Initialize Stripe
-    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "", {
-      apiVersion: "2023-08-16",
-    });
 
     // Create billing portal session directly with Stripe
     const session = await stripe.billingPortal.sessions.create({
@@ -50,6 +50,9 @@ export async function POST(request: Request) {
     return NextResponse.json({ url: session.url });
   } catch (error: any) {
     console.error("Unexpected error creating billing portal session:", error);
+    if (error instanceof Error) {
+      console.error(error.stack);
+    }
     return NextResponse.json(
       { error: "An unexpected error occurred" },
       { status: 500 },
