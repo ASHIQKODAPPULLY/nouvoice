@@ -35,8 +35,8 @@ export async function POST(request: Request) {
     }
 
     // Log available cookies for detailed debugging (without exposing values)
-    const cookieNames = cookieStore.getAll().map((cookie) => cookie.name);
-    console.log("🍪 Available cookies:", cookieNames);
+    // Using the cookieNames variable already defined above
+    console.log("🍪 Available cookies (detailed):", cookieNames);
 
     // Get the full cookie objects for debugging (without exposing values)
     const allCookies = cookieStore.getAll();
@@ -53,16 +53,16 @@ export async function POST(request: Request) {
 
     // Get the session directly to check authentication status
     const {
-      data: { session },
+      data: { session: supabaseSession },
       error: sessionError,
     } = await supabase.auth.getSession();
     console.log(
       "🔑 Session check in API route:",
-      session ? "Session found" : "No session found",
+      supabaseSession ? "Session found" : "No session found",
     );
     console.log(
       "🔑 Session user:",
-      session?.user ? "User found" : "No user in session",
+      supabaseSession?.user ? "User found" : "No user in session",
     );
 
     if (sessionError) {
@@ -73,7 +73,7 @@ export async function POST(request: Request) {
       );
     }
 
-    if (!session?.user) {
+    if (!supabaseSession?.user) {
       console.error("❌ No user found in session");
       return NextResponse.json(
         { error: "Unauthorized - No user found in session" },
@@ -82,7 +82,7 @@ export async function POST(request: Request) {
     }
 
     // Use the user from the session
-    const user = session.user;
+    const user = supabaseSession.user;
 
     const { priceId, returnUrl } = await request.json();
 
@@ -91,7 +91,7 @@ export async function POST(request: Request) {
     }
 
     // Create checkout session directly with Stripe
-    const session = await stripe.checkout.sessions.create({
+    const stripeSession = await stripe.checkout.sessions.create({
       mode: "subscription",
       line_items: [
         {
@@ -106,7 +106,7 @@ export async function POST(request: Request) {
       customer_email: user.email, // Link Stripe checkout to the user
     });
 
-    return NextResponse.json({ url: session.url });
+    return NextResponse.json({ url: stripeSession.url });
   } catch (error) {
     console.error("Error creating checkout session:", error);
     console.error(error instanceof Error ? error.stack : error);
