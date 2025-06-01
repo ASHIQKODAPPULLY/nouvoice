@@ -16,13 +16,9 @@ Deno.serve(async (req) => {
 
     // Get the request body
     const requestData = await req.json();
-    console.log("Received request data:", JSON.stringify(requestData));
-
-    const { priceId, successUrl, cancelUrl, userId } = requestData;
-    console.log("Processing checkout for priceId:", priceId);
+    const { priceId, returnUrl, userId } = requestData;
 
     if (!priceId || typeof priceId !== "string") {
-      console.error("Invalid price ID received:", priceId);
       return new Response(JSON.stringify({ error: "Invalid price ID" }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -35,22 +31,19 @@ Deno.serve(async (req) => {
     formBody.append("line_items[0][price]", priceId);
     formBody.append("line_items[0][quantity]", "1");
 
-    // Use the provided success and cancel URLs or fallback to defaults
+    // Use absolute URLs for success and cancel URLs
     const siteUrl = Deno.env.get("SITE_URL") || "https://nouvoice.com.au";
     formBody.append(
       "success_url",
-      `${successUrl || `${siteUrl}/payment-success`}?session_id={CHECKOUT_SESSION_ID}`,
+      `${returnUrl || siteUrl}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
     );
-    formBody.append("cancel_url", cancelUrl || `${siteUrl}/pricing`);
+    formBody.append("cancel_url", `${returnUrl || siteUrl}/pricing`);
     formBody.append("automatic_tax[enabled]", "true");
 
     // Add client reference ID if userId is provided
     if (userId) {
       formBody.append("client_reference_id", userId);
     }
-
-    console.log("Sending request to Pica API with priceId:", priceId);
-    console.log("Form body:", formBody.toString());
 
     // Call Pica API to create checkout session
     const response = await fetch(
@@ -62,8 +55,7 @@ Deno.serve(async (req) => {
           "x-pica-secret": Deno.env.get("PICA_SECRET_KEY") || "",
           "x-pica-connection-key":
             Deno.env.get("PICA_STRIPE_CONNECTION_KEY") || "",
-          "x-pica-action-id":
-            "conn_mod_def::GCmLNSLWawg::Pj6pgAmnQhuqMPzB8fquRg",
+          "x-pica-action-id": Deno.env.get("PICA_STRIPE_ACTION_ID") || "",
         },
         body: formBody.toString(),
       },
@@ -85,11 +77,6 @@ Deno.serve(async (req) => {
     }
 
     const sessionData = await response.json();
-    console.log("Checkout session created successfully:", {
-      id: sessionData.id,
-      amount_total: sessionData.amount_total,
-      url: sessionData.url,
-    });
 
     return new Response(JSON.stringify({ url: sessionData.url }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },

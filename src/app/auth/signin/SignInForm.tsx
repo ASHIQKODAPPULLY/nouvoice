@@ -41,7 +41,6 @@ export default function SignInForm() {
         hasKey: !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
       });
 
-      // Sign in with password - no need to override cookie options here as they're set in the client
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -61,65 +60,6 @@ export default function SignInForm() {
       }
 
       console.log("Sign in successful:", data);
-
-      // No need to call exchangeCodeForSession() after password login
-      // The session is already established by signInWithPassword()
-
-      // Explicitly verify session after login
-      const { data: sessionData } = await supabase.auth.getSession();
-      console.log(
-        "Session after sign in:",
-        sessionData.session ? "Session established" : "No session",
-      );
-
-      // Log session user details for debugging
-      console.log(
-        "Session user after sign in:",
-        sessionData.session?.user
-          ? {
-              id: sessionData.session.user.id,
-              email: sessionData.session.user.email,
-              hasAuthCookies: "Checking in browser dev tools required",
-            }
-          : "No user in session",
-      );
-
-      // Force a session refresh to ensure cookies are set properly
-      const { data: refreshData, error: refreshError } =
-        await supabase.auth.refreshSession();
-      if (refreshError) {
-        console.error("Session refresh error:", refreshError);
-      } else {
-        console.log(
-          "Session refreshed successfully:",
-          refreshData.session ? "Valid session" : "No session after refresh",
-        );
-      }
-
-      // Make a fetch request to the debug-session endpoint to verify cookies
-      try {
-        const debugResponse = await fetch("/api/debug-session", {
-          method: "GET",
-          credentials: "include",
-          headers: {
-            "Cache-Control": "no-cache",
-          },
-        });
-        const debugData = await debugResponse.json();
-        console.log("Debug session check:", debugData);
-      } catch (debugError) {
-        console.error("Debug session check failed:", debugError);
-      }
-
-      // Log cookie status - can't see HTTP-only cookies but can confirm the call was made
-      console.log("Cookie write operations should be complete now");
-
-      // Final session check before redirect
-      const { data: lastSessionCheck } = await supabase.auth.getSession();
-      console.log(
-        "Final session check before redirect:",
-        lastSessionCheck.session ? "Session confirmed" : "Still no session",
-      );
 
       // Redirect to the requested page or dashboard on successful login
       router.push(redirect);

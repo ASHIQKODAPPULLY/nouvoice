@@ -1,17 +1,9 @@
-import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs";
-import { cookies } from "next/headers";
+import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
-import Stripe from "stripe";
-
-// Initialize Stripe once outside the handler for better performance
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "", {
-  apiVersion: "2023-08-16",
-});
 
 export async function POST(request: Request) {
   try {
-    // Use route handler client to ensure session is tied to cookies
-    const supabase = createRouteHandlerClient({ cookies: () => cookies() });
+    const supabase = createClient();
 
     // Get the current user
     const {
@@ -20,7 +12,6 @@ export async function POST(request: Request) {
     } = await supabase.auth.getUser();
 
     if (userError || !user) {
-      console.error("Authentication error:", userError);
       return NextResponse.json(
         { error: "Authentication required" },
         { status: 401 },
@@ -34,30 +25,40 @@ export async function POST(request: Request) {
       .eq("user_id", user.id)
       .single();
 
-    if (subscriptionError || !subscription?.stripe_customer_id) {
+    if (subscriptionError || !subscription) {
       return NextResponse.json(
-        { error: "No active subscription or Stripe customer ID found" },
+        { error: "No active subscription found" },
         { status: 404 },
       );
     }
 
     const customerId = subscription.stripe_customer_id;
 
-    // Create billing portal session directly with Stripe
-    const session = await stripe.billingPortal.sessions.create({
-      customer: customerId,
-      return_url:
-        request.headers.get("origin") || "http://localhost:3000/account",
-    });
+    // Call the Edge Function to create a billing portal session
+    const { data, error } = await supabase.functions.invoke(
+      "supabase-functions-create-billing-portal",
+      {
+        body: {
+          customerId,
+          returnUrl:
+            request.headers.get("origin") || "http://localhost:3000/account",
+        },
+      },
+    );
 
-    return NextResponse.json({ url: session.url });
+    if (error) {
+      console.error("Error creating billing portal session:", error);
+      return NextResponse.json(
+        { error: "Failed to create billing portal session" },
+        { status: 500 },
+      );
+    }
+
+    return NextResponse.json(data);
   } catch (error: any) {
     console.error("Unexpected error creating billing portal session:", error);
-    if (error instanceof Error) {
-      console.error(error.stack);
-    }
     return NextResponse.json(
-      { error: "An unexpected error occurred", message: error.message },
+      { error: "An unexpected error occurred" },
       { status: 500 },
     );
   }

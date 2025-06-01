@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   Card,
   CardContent,
@@ -9,86 +9,16 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Check, ArrowRight, Sparkles, Users, Loader2 } from "lucide-react";
+import { Check, ArrowRight, Sparkles, Users } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 
 export default function PricingPage() {
-  const [loadingPriceId, setLoadingPriceId] = useState<string | null>(null);
-  const [priceData, setPriceData] = useState<{
-    [key: string]: { formattedPrice: string; interval?: string };
-  }>({});
-  const [loadingPrices, setLoadingPrices] = useState(true);
-
-  // Define price IDs - each must be unique and correspond to actual Stripe products
-  const priceIds = {
-    free: "price_1RPFsuBHa6CDK7TJfVmF8ld6", // Free tier price ID
-    annual: "price_1RPFsuBHa6CDK7TJfVmF8ld6", // Annual access price ID
-    pro: "price_1RPFsuBHa6CDK7TJfVmF8ld6", // Pro plan price ID
-    team: "price_1RPG53BHa6CDK7TJGyBiQwM2", // Team plan price ID
-  };
-
-  // Fetch price data from Stripe
-  useEffect(() => {
-    const fetchPrices = async () => {
-      setLoadingPrices(true);
-      try {
-        const { createClient } = await import("@/lib/supabase/client");
-        const supabase = createClient();
-
-        // Fetch prices for each plan
-        const pricePromises = Object.entries(priceIds).map(
-          async ([plan, priceId]) => {
-            try {
-              const { data, error } = await supabase.functions.invoke(
-                "get-stripe-prices",
-                {
-                  body: { priceId },
-                },
-              );
-
-              if (error) {
-                console.error(`Error fetching price for ${plan}:`, error);
-                return [plan, { formattedPrice: "$0" }];
-              }
-
-              return [
-                plan,
-                {
-                  formattedPrice: data.formattedPrice,
-                  interval: data.recurring?.interval,
-                },
-              ];
-            } catch (err) {
-              console.error(`Error processing price for ${plan}:`, err);
-              return [plan, { formattedPrice: "$0" }];
-            }
-          },
-        );
-
-        const results = await Promise.all(pricePromises);
-        const priceDataObj = Object.fromEntries(results);
-        setPriceData(priceDataObj);
-      } catch (error) {
-        console.error("Error fetching prices:", error);
-      } finally {
-        setLoadingPrices(false);
-      }
-    };
-
-    fetchPrices();
-  }, []);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const handleSubscribe = async (priceId: string) => {
     try {
-      // Prevent multiple buttons from being clicked simultaneously
-      if (loadingPriceId !== null) {
-        console.log("Another subscription process is already in progress");
-        return;
-      }
-
       console.log("Attempting to subscribe with price ID:", priceId);
-
       // Check if user is authenticated first
       const { createClient } = await import("@/lib/supabase/client");
       const supabase = createClient();
@@ -108,58 +38,32 @@ export default function PricingPage() {
         return;
       }
 
-      // Force a session refresh before making the API call to ensure fresh tokens
-      console.log("Refreshing session before API call...");
-      const { data: refreshData, error: refreshError } =
-        await supabase.auth.refreshSession();
-      if (refreshError) {
-        console.error("Session refresh error:", refreshError);
-        throw new Error("Failed to refresh authentication session");
-      }
-      console.log(
-        "Session refreshed successfully:",
-        refreshData.session ? "Valid session" : "No session after refresh",
-      );
-
-      // Get session again to ensure cookies are properly set
-      const { data: finalSessionCheck } = await supabase.auth.getSession();
-      console.log(
-        "Final session check before API call:",
-        finalSessionCheck.session ? "Session confirmed" : "Still no session",
-      );
-
       // Validate price ID format client-side
       if (!priceId.startsWith("price_")) {
         throw new Error("Invalid price ID format");
       }
 
-      // Set loading state for THIS specific button only
-      setLoadingPriceId(priceId);
-      console.log("Creating checkout session with priceId:", priceId);
-
-      // Use the Supabase Edge Function to create a checkout session
-      const { data, error } = await supabase.functions.invoke(
-        "create-checkout-session",
-        {
-          body: {
-            priceId: priceId, // Explicitly use the parameter to ensure correct ID is passed
-            successUrl: `${window.location.origin}/payment-success`,
-            cancelUrl: `${window.location.origin}/pricing`,
-            userId: session.user.id,
-          },
+      setIsLoading(true);
+      console.log("Creating checkout session...");
+      const response = await fetch("/api/create-checkout-session", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
         },
-      );
+        body: JSON.stringify({
+          priceId,
+          returnUrl: window.location.origin,
+        }),
+      });
 
-      if (error) {
-        console.error("Edge function error:", error);
-        throw new Error("Failed to create checkout session");
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to create checkout session");
       }
 
-      console.log("Checkout session created successfully:", data);
-
-      if (data?.url) {
+      if (data.url) {
         // Redirect to Stripe Checkout
-        console.log("Redirecting to Stripe checkout URL:", data.url);
         window.location.href = data.url;
       } else {
         throw new Error("No checkout URL returned");
@@ -169,7 +73,7 @@ export default function PricingPage() {
       // Use a more user-friendly error message
       alert("Unable to process your request. Please try again later.");
     } finally {
-      setLoadingPriceId(null);
+      setIsLoading(false);
     }
   };
   return (
@@ -233,19 +137,10 @@ export default function PricingPage() {
                   </Badge>
                 </CardTitle>
                 <div className="mt-3 md:mt-4">
-                  {loadingPrices ? (
-                    <div className="flex items-center">
-                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                      <span>Loading...</span>
-                    </div>
-                  ) : (
-                    <>
-                      <span className="text-3xl md:text-4xl font-bold">$0</span>
-                      <span className="text-muted-foreground ml-2 text-sm md:text-base">
-                        /month
-                      </span>
-                    </>
-                  )}
+                  <span className="text-3xl md:text-4xl font-bold">$0</span>
+                  <span className="text-muted-foreground ml-2 text-sm md:text-base">
+                    /month
+                  </span>
                 </div>
                 <p className="text-muted-foreground mt-2 text-sm md:text-base">
                   Perfect for individuals just getting started
@@ -275,19 +170,12 @@ export default function PricingPage() {
                 <Button
                   className="w-full py-2 md:py-2.5 text-sm md:text-base"
                   variant="outline"
-                  onClick={() => handleSubscribe(priceIds.free)}
-                  disabled={loadingPriceId !== null}
+                  onClick={() =>
+                    handleSubscribe("price_1RPFsuBHa6CDK7TJfVmF8ld6")
+                  }
+                  disabled={isLoading}
                 >
-                  {loadingPriceId === priceIds.free ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Processing...
-                    </>
-                  ) : (
-                    <>
-                      Get Started <ArrowRight className="ml-2 h-4 w-4" />
-                    </>
-                  )}
+                  Get Started <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
               </CardFooter>
             </Card>
@@ -307,19 +195,8 @@ export default function PricingPage() {
                   </Badge>
                 </CardTitle>
                 <div className="mt-4">
-                  {loadingPrices ? (
-                    <div className="flex items-center">
-                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                      <span>Loading...</span>
-                    </div>
-                  ) : (
-                    <>
-                      <span className="text-4xl font-bold">
-                        {priceData.annual?.formattedPrice || "$50"}
-                      </span>
-                      <span className="text-muted-foreground ml-2">/year</span>
-                    </>
-                  )}
+                  <span className="text-4xl font-bold">$50</span>
+                  <span className="text-muted-foreground ml-2">/year</span>
                 </div>
                 <p className="text-muted-foreground mt-2">
                   Full access for an entire year at a discounted flat rate
@@ -360,19 +237,11 @@ export default function PricingPage() {
               <CardFooter>
                 <Button
                   className="w-full bg-gradient-to-r from-gradient-pink to-gradient-purple hover:opacity-90"
-                  onClick={() => handleSubscribe(priceIds.annual)}
-                  disabled={loadingPriceId !== null}
+                  onClick={() => handleSubscribe("price_annual_discount_50")}
+                  disabled={isLoading}
                 >
-                  {loadingPriceId === priceIds.annual ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Processing...
-                    </>
-                  ) : (
-                    <>
-                      Get Annual Access <Sparkles className="ml-2 h-4 w-4" />
-                    </>
-                  )}
+                  {isLoading ? "Processing..." : "Get Annual Access"}{" "}
+                  <Sparkles className="ml-2 h-4 w-4" />
                 </Button>
               </CardFooter>
             </Card>
@@ -385,19 +254,8 @@ export default function PricingPage() {
                   <Badge variant="outline">Monthly</Badge>
                 </CardTitle>
                 <div className="mt-4">
-                  {loadingPrices ? (
-                    <div className="flex items-center">
-                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                      <span>Loading...</span>
-                    </div>
-                  ) : (
-                    <>
-                      <span className="text-4xl font-bold">
-                        {priceData.pro?.formattedPrice || "$19"}
-                      </span>
-                      <span className="text-muted-foreground ml-2">/month</span>
-                    </>
-                  )}
+                  <span className="text-4xl font-bold">$19</span>
+                  <span className="text-muted-foreground ml-2">/month</span>
                 </div>
                 <p className="text-muted-foreground mt-2">
                   For growing businesses and professionals
@@ -439,19 +297,11 @@ export default function PricingPage() {
                 <Button
                   className="w-full"
                   variant="outline"
-                  onClick={() => handleSubscribe(priceIds.pro)}
-                  disabled={loadingPriceId !== null}
+                  onClick={() => handleSubscribe("price_monthly_pro")}
+                  disabled={isLoading}
                 >
-                  {loadingPriceId === priceIds.pro ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Processing...
-                    </>
-                  ) : (
-                    <>
-                      Upgrade to Pro <Sparkles className="ml-2 h-4 w-4" />
-                    </>
-                  )}
+                  {isLoading ? "Processing..." : "Upgrade to Pro"}{" "}
+                  <Sparkles className="ml-2 h-4 w-4" />
                 </Button>
               </CardFooter>
             </Card>
@@ -466,19 +316,8 @@ export default function PricingPage() {
                   </Badge>
                 </CardTitle>
                 <div className="mt-4">
-                  {loadingPrices ? (
-                    <div className="flex items-center">
-                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                      <span>Loading...</span>
-                    </div>
-                  ) : (
-                    <>
-                      <span className="text-4xl font-bold">
-                        {priceData.team?.formattedPrice || "$49"}
-                      </span>
-                      <span className="text-muted-foreground ml-2">/month</span>
-                    </>
-                  )}
+                  <span className="text-4xl font-bold">$49</span>
+                  <span className="text-muted-foreground ml-2">/month</span>
                 </div>
                 <p className="text-muted-foreground mt-2">
                   For teams that need to collaborate efficiently
@@ -517,19 +356,13 @@ export default function PricingPage() {
               <CardFooter>
                 <Button
                   className="w-full bg-blue-600 hover:bg-blue-700 text-white"
-                  onClick={() => handleSubscribe(priceIds.team)}
-                  disabled={loadingPriceId !== null || loadingPrices}
+                  onClick={() =>
+                    handleSubscribe("price_1RPG53BHa6CDK7TJGyBiQwM2")
+                  }
+                  disabled={isLoading}
                 >
-                  {loadingPriceId === priceIds.team ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Processing...
-                    </>
-                  ) : (
-                    <>
-                      Upgrade to Team <Users className="ml-2 h-4 w-4" />
-                    </>
-                  )}
+                  {isLoading ? "Processing..." : "Upgrade to Team"}{" "}
+                  <Users className="ml-2 h-4 w-4" />
                 </Button>
               </CardFooter>
             </Card>
@@ -576,10 +409,10 @@ export default function PricingPage() {
                 <Button
                   className="w-full"
                   variant="outline"
-                  onClick={() => {
-                    window.location.href =
-                      "mailto:contact@nouvoice.com.au?subject=Enterprise%20Plan%20Inquiry";
-                  }}
+                  onClick={() =>
+                    (window.location.href =
+                      "mailto:sales@nouvoice.com?subject=Enterprise%20Plan%20Inquiry")
+                  }
                 >
                   Contact Sales <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>

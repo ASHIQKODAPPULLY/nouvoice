@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import Stripe from "stripe";
-import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs";
-import { cookies } from "next/headers";
+import { createClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
 
@@ -13,64 +11,48 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "Missing session ID" }, { status: 400 });
   }
 
-  // Validate Supabase user session
-  const supabase = createRouteHandlerClient({ cookies });
-  const {
-    data: { session: supabaseSession },
-  } = await supabase.auth.getSession();
-
-  if (!supabaseSession?.user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
   try {
-    // Initialize Stripe with proper error handling
-    const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
+    // Call the Supabase Edge Function to verify the session
+    const supabase = createClient();
+    const { data, error } = await supabase.functions.invoke(
+      "supabase-functions-verify-stripe-session",
+      {
+        body: { session_id: sessionId },
+      },
+    );
 
-    if (!stripeSecretKey) {
-      console.error("❌ STRIPE_SECRET_KEY not set");
+    if (error) {
+      console.error("Error invoking verify-stripe-session function:", error);
       return NextResponse.json(
-        { error: "Stripe secret key not configured" },
+        { error: "Payment verification failed" },
         { status: 500 },
       );
     }
 
-    const stripe = new Stripe(stripeSecretKey, {
-      apiVersion: "2023-08-16",
-    });
-
-    // Retrieve the session directly from Stripe
-    const session = await stripe.checkout.sessions.retrieve(sessionId, {
-      expand: ["line_items", "payment_intent"],
-    });
-
-    if (!session) {
+    if (!data || !data.session) {
       return NextResponse.json(
         { error: "Invalid session data returned" },
         { status: 400 },
       );
     }
 
-    // Log customer email for debugging
-    console.log("🔍 Session customer email:", session.customer_details?.email);
-
     // Check if payment was successful
-    if (session.payment_status !== "paid") {
+    if (data.session.payment_status !== "paid") {
       return NextResponse.json(
         {
           error: "Payment not completed",
-          status: session.payment_status,
+          status: data.session.payment_status,
         },
         { status: 400 },
       );
     }
 
     // Return the session data
-    return NextResponse.json(session);
+    return NextResponse.json(data.session);
   } catch (error: any) {
-    console.error("Error verifying payment:", error?.message, error?.stack);
+    console.error("Error verifying payment:", error);
     return NextResponse.json(
-      { error: "Failed to verify payment", details: error.message },
+      { error: "Failed to verify payment" },
       { status: 500 },
     );
   }
