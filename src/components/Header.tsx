@@ -5,20 +5,20 @@ import Link from "next/link";
 import { Button } from "./ui/button";
 import { ThemeSwitcher } from "./theme-switcher";
 import { Menu as MenuIcon, X as CloseIcon } from "lucide-react";
-import { usePathname } from "next/navigation";
 
 export default function Header() {
   const [isMobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const pathname = usePathname();
+  const [pathname, setPathname] = useState("");
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setPathname(window.location.pathname);
+    }
+  }, []);
   const isLandingPage = pathname === "/";
 
-  // Close mobile menu when pathname changes
-  useEffect(() => {
-    setMobileMenuOpen(false);
-  }, [pathname]);
-
   return (
-    <header className="border-b sticky top-0 z-[100] bg-background">
+    <header className="border-b sticky top-0 z-50 bg-background">
       <div className="container mx-auto py-4 px-4 flex justify-between items-center">
         <div className="flex items-center gap-4">
           <Link href="/" className="flex items-center gap-2">

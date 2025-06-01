@@ -264,9 +264,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      <div className="z-[90]">
-        <MobileAppBanner />
-      </div>
+      <MobileAppBanner />
       {/* Header - Using the responsive Header component */}
       <Header />
 
