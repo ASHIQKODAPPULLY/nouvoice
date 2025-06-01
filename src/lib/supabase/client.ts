@@ -18,7 +18,7 @@ export const supabase = createBrowserClient(
     cookies: {
       name: `sb-${projectRef}-auth-token`,
       lifetime: 60 * 60 * 24 * 7, // 1 week
-      domain: "", // Will use the current domain
+      domain: ".nouvoice.com.au", // Set to your production domain
       path: "/",
       sameSite: "lax",
       secure: process.env.NODE_ENV === "production",
