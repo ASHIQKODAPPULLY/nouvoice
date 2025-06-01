@@ -269,12 +269,10 @@ export default function PricingPage() {
                 <Button
                   className="w-full py-2 md:py-2.5 text-sm md:text-base"
                   variant="outline"
-                  onClick={() =>
-                    handleSubscribe("price_1RPFsuBHa6CDK7TJfVmF8ld6")
-                  }
-                  disabled={loadingPriceId === "price_1RPFsuBHa6CDK7TJfVmF8ld6"}
+                  onClick={() => handleSubscribe(priceIds.free)}
+                  disabled={loadingPriceId === priceIds.free}
                 >
-                  {loadingPriceId === "price_1RPFsuBHa6CDK7TJfVmF8ld6"
+                  {loadingPriceId === priceIds.free
                     ? "Processing..."
                     : "Get Started"}{" "}
                   <ArrowRight className="ml-2 h-4 w-4" />
@@ -350,10 +348,8 @@ export default function PricingPage() {
               <CardFooter>
                 <Button
                   className="w-full bg-gradient-to-r from-gradient-pink to-gradient-purple hover:opacity-90"
-                  onClick={() =>
-                    handleSubscribe("price_1RPFsuBHa6CDK7TJfVmF8ld6")
-                  }
-                  disabled={loadingPriceId === "price_1RPFsuBHa6CDK7TJfVmF8ld6"}
+                  onClick={() => handleSubscribe(priceIds.annual)}
+                  disabled={loadingPriceId === priceIds.annual}
                 >
                   {loadingPriceId === priceIds.annual
                     ? "Processing..."
@@ -425,10 +421,8 @@ export default function PricingPage() {
                 <Button
                   className="w-full"
                   variant="outline"
-                  onClick={() =>
-                    handleSubscribe("price_1RPFsuBHa6CDK7TJfVmF8ld6")
-                  }
-                  disabled={loadingPriceId === "price_1RPFsuBHa6CDK7TJfVmF8ld6"}
+                  onClick={() => handleSubscribe(priceIds.pro)}
+                  disabled={loadingPriceId === priceIds.pro}
                 >
                   {loadingPriceId === priceIds.pro
                     ? "Processing..."
