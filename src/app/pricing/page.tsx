@@ -267,10 +267,12 @@ export default function PricingPage() {
               <CardFooter>
                 <Button
                   className="w-full bg-gradient-to-r from-gradient-pink to-gradient-purple hover:opacity-90"
-                  onClick={() => handleSubscribe("price_annual_discount_50")}
-                  disabled={loadingPriceId === "price_annual_discount_50"}
+                  onClick={() =>
+                    handleSubscribe("price_1RPFsuBHa6CDK7TJfVmF8ld6")
+                  }
+                  disabled={loadingPriceId === "price_1RPFsuBHa6CDK7TJfVmF8ld6"}
                 >
-                  {loadingPriceId === "price_annual_discount_50"
+                  {loadingPriceId === "price_1RPFsuBHa6CDK7TJfVmF8ld6"
                     ? "Processing..."
                     : "Get Annual Access"}{" "}
                   <Sparkles className="ml-2 h-4 w-4" />
@@ -329,10 +331,12 @@ export default function PricingPage() {
                 <Button
                   className="w-full"
                   variant="outline"
-                  onClick={() => handleSubscribe("price_monthly_pro")}
-                  disabled={loadingPriceId === "price_monthly_pro"}
+                  onClick={() =>
+                    handleSubscribe("price_1RPFsuBHa6CDK7TJfVmF8ld6")
+                  }
+                  disabled={loadingPriceId === "price_1RPFsuBHa6CDK7TJfVmF8ld6"}
                 >
-                  {loadingPriceId === "price_monthly_pro"
+                  {loadingPriceId === "price_1RPFsuBHa6CDK7TJfVmF8ld6"
                     ? "Processing..."
                     : "Upgrade to Pro"}{" "}
                   <Sparkles className="ml-2 h-4 w-4" />
@@ -447,7 +451,7 @@ export default function PricingPage() {
                   variant="outline"
                   onClick={() =>
                     (window.location.href =
-                      "mailto:sales@nouvoice.com?subject=Enterprise%20Plan%20Inquiry")
+                      "mailto:contact@nouvoice.com.au?subject=Enterprise%20Plan%20Inquiry")
                   }
                 >
                   Contact Sales <ArrowRight className="ml-2 h-4 w-4" />
