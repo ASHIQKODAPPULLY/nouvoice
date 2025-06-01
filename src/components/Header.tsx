@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import { Button } from "./ui/button";
 import { ThemeSwitcher } from "./theme-switcher";
@@ -8,17 +8,12 @@ import { Menu as MenuIcon, X as CloseIcon } from "lucide-react";
 
 export default function Header() {
   const [isMobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [pathname, setPathname] = useState("");
-
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      setPathname(window.location.pathname);
-    }
-  }, []);
+  const pathname =
+    typeof window !== "undefined" ? window.location.pathname : "";
   const isLandingPage = pathname === "/";
 
   return (
-    <header className="border-b sticky top-0 z-50 bg-background">
+    <header className="border-b sticky top-0 z-10 bg-background">
       <div className="container mx-auto py-4 px-4 flex justify-between items-center">
         <div className="flex items-center gap-4">
           <Link href="/" className="flex items-center gap-2">
