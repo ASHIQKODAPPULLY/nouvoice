@@ -29,6 +29,21 @@ export async function middleware(request: NextRequest) {
       session ? "Session found" : "No session",
     );
 
+    // Log cookie headers for debugging
+    if (session) {
+      console.log("Middleware: Session cookies should be set in the response");
+
+      // Force a session refresh to ensure cookies are properly set
+      if (pathname.startsWith("/api/") || pathname === "/pricing") {
+        console.log(
+          "Middleware: Critical path detected, forcing session refresh",
+        );
+        await supabase.auth.refreshSession();
+      }
+    } else {
+      console.log("Middleware: No session found, no auth cookies will be set");
+    }
+
     // For debugging - log the URL being accessed
     console.log(`Middleware processing: ${pathname}`);
 

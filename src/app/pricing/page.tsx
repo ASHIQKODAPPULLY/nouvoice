@@ -38,6 +38,19 @@ export default function PricingPage() {
         return;
       }
 
+      // Force a session refresh before making the API call to ensure fresh tokens
+      console.log("Refreshing session before API call...");
+      const { data: refreshData, error: refreshError } =
+        await supabase.auth.refreshSession();
+      if (refreshError) {
+        console.error("Session refresh error:", refreshError);
+        throw new Error("Failed to refresh authentication session");
+      }
+      console.log(
+        "Session refreshed successfully:",
+        refreshData.session ? "Valid session" : "No session after refresh",
+      );
+
       // Validate price ID format client-side
       if (!priceId.startsWith("price_")) {
         throw new Error("Invalid price ID format");
@@ -45,6 +58,12 @@ export default function PricingPage() {
 
       setLoadingPriceId(priceId);
       console.log("Creating checkout session...");
+
+      // Log cookies for debugging
+      console.log(
+        "Cookie header will be automatically included with credentials: include",
+      );
+
       const response = await fetch("/api/create-checkout-session", {
         method: "POST",
         headers: {

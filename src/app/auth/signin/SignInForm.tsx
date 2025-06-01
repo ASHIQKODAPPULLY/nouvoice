@@ -61,6 +61,25 @@ export default function SignInForm() {
 
       console.log("Sign in successful:", data);
 
+      // Explicitly verify session after login
+      const { data: sessionData } = await supabase.auth.getSession();
+      console.log(
+        "Session after sign in:",
+        sessionData.session ? "Session established" : "No session",
+      );
+
+      // Force a session refresh to ensure cookies are set properly
+      const { data: refreshData, error: refreshError } =
+        await supabase.auth.refreshSession();
+      if (refreshError) {
+        console.error("Session refresh error:", refreshError);
+      } else {
+        console.log(
+          "Session refreshed successfully:",
+          refreshData.session ? "Valid session" : "No session after refresh",
+        );
+      }
+
       // Redirect to the requested page or dashboard on successful login
       router.push(redirect);
       router.refresh();

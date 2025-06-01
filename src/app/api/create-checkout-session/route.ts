@@ -10,8 +10,29 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "", {
 
 export async function POST(request: Request) {
   try {
+    console.log("🔍 API route /api/create-checkout-session called");
+
     const cookieStore = cookies();
+    console.log("🍪 Cookie store initialized");
+
+    // Log available cookies for debugging (without exposing values)
+    const cookieNames = cookieStore.getAll().map((cookie) => cookie.name);
+    console.log("🍪 Available cookies:", cookieNames);
+
     const supabase = createRouteHandlerClient({ cookies: () => cookieStore });
+    console.log("🔌 Supabase client created in API route");
+
+    // Get the session first to check authentication status
+    const { data: sessionData, error: sessionCheckError } =
+      await supabase.auth.getSession();
+    console.log(
+      "🔑 Session check in API route:",
+      sessionData.session ? "Session found" : "No session found",
+    );
+
+    if (sessionCheckError) {
+      console.error("❌ Session check error:", sessionCheckError);
+    }
 
     // Get the current user
     const {
