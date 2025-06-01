@@ -50,6 +50,7 @@ export default function PricingPage() {
         headers: {
           "Content-Type": "application/json",
         },
+        credentials: "include", // Send cookies with the request
         body: JSON.stringify({
           priceId,
           returnUrl: window.location.origin,
