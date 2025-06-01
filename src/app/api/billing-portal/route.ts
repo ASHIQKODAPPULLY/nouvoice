@@ -1,4 +1,5 @@
-import { createClient } from "@/lib/supabase/server";
+import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs";
+import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
 
@@ -9,7 +10,8 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "", {
 
 export async function POST(request: Request) {
   try {
-    const supabase = createClient();
+    // Use route handler client to ensure session is tied to cookies
+    const supabase = createRouteHandlerClient({ cookies: () => cookies() });
 
     // Get the current user
     const {
@@ -18,6 +20,7 @@ export async function POST(request: Request) {
     } = await supabase.auth.getUser();
 
     if (userError || !user) {
+      console.error("Authentication error:", userError);
       return NextResponse.json(
         { error: "Authentication required" },
         { status: 401 },
@@ -54,7 +57,7 @@ export async function POST(request: Request) {
       console.error(error.stack);
     }
     return NextResponse.json(
-      { error: "An unexpected error occurred" },
+      { error: "An unexpected error occurred", message: error.message },
       { status: 500 },
     );
   }
