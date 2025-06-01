@@ -23,8 +23,8 @@ export default function PricingPage() {
   // Define price IDs - each must be unique and correspond to actual Stripe products
   const priceIds = {
     free: "price_1RPFsuBHa6CDK7TJfVmF8ld6", // Free tier price ID
-    annual: "price_1RPFsuBHa6CDK7TJfVmF8ld6_annual", // Annual access price ID
-    pro: "price_1RPFsuBHa6CDK7TJfVmF8ld6_pro", // Pro plan price ID
+    annual: "price_1RPFsuBHa6CDK7TJfVmF8ld6", // Annual access price ID
+    pro: "price_1RPFsuBHa6CDK7TJfVmF8ld6", // Pro plan price ID
     team: "price_1RPG53BHa6CDK7TJGyBiQwM2", // Team plan price ID
   };
 
