@@ -4,26 +4,55 @@ import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {
   try {
+    // Log the incoming request headers for debugging
+    console.log(
+      "Incoming request headers:",
+      Object.fromEntries(request.headers),
+    );
+
     const cookieStore = cookies();
+    // Log all cookies for debugging
+    console.log(
+      "Available cookies:",
+      cookieStore.getAll().map((c) => c.name),
+    );
+
     const supabase = createRouteHandlerClient({ cookies: () => cookieStore });
 
-    // Get the current user
+    // Get the current user session
     const {
       data: { session },
     } = await supabase.auth.getSession();
 
+    // Log detailed session information
+    console.log(
+      "Session check in API route:",
+      session ? "Found session" : "No session found",
+    );
+
     if (!session) {
       console.error("No session found in create-checkout-session");
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json(
+        { error: "Unauthorized - No session" },
+        { status: 401 },
+      );
     }
 
+    // Only try to get user if we have a session
     const {
       data: { user },
     } = await supabase.auth.getUser();
 
     if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      console.error("Session found but no user data");
+      return NextResponse.json(
+        { error: "Unauthorized - No user" },
+        { status: 401 },
+      );
     }
+
+    // Log user ID for debugging
+    console.log("User authenticated:", user.id);
 
     const { priceId, returnUrl } = await request.json();
 
@@ -48,6 +77,7 @@ export async function POST(request: Request) {
     formBody.append("client_reference_id", user.id);
 
     // Call Pica API to create checkout session
+    console.log("Calling Pica API with price ID:", priceId);
     const response = await fetch(
       "https://api.picaos.com/v1/passthrough/v1/checkout/sessions",
       {
@@ -58,7 +88,8 @@ export async function POST(request: Request) {
           "x-pica-connection-key": process.env.PICA_STRIPE_CONNECTION_KEY || "",
           "x-pica-action-id": process.env.PICA_STRIPE_ACTION_ID || "",
         },
-        credentials: "include", // Ensure cookies are sent with the request
+        // Remove credentials: "include" as it's not needed for server-to-server calls
+        // and could cause issues with CORS
         body: formBody.toString(),
       },
     );

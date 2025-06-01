@@ -45,12 +45,23 @@ export default function PricingPage() {
 
       setIsLoading(true);
       console.log("Creating checkout session...");
+      // Get the auth token to include in the request
+      const { data: sessionData } = await supabase.auth.getSession();
+      console.log(
+        "Session before API call:",
+        sessionData ? "Valid session" : "No session",
+      );
+
       const response = await fetch("/api/create-checkout-session", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          // Include the auth token in the Authorization header
+          ...(sessionData?.session?.access_token && {
+            Authorization: `Bearer ${sessionData.session.access_token}`,
+          }),
         },
-        credentials: "include",
+        credentials: "include", // Important: include cookies with the request
         body: JSON.stringify({
           priceId,
           returnUrl: window.location.origin,

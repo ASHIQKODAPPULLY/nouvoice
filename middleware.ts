@@ -11,10 +11,18 @@ export async function middleware(request: NextRequest) {
   const {
     data: { session },
   } = await supabase.auth.getSession();
+
+  // Log session details for debugging
   console.log(
     "✅ Middleware session check:",
     session ? "Session found" : "No session found",
   );
+
+  if (session) {
+    // Explicitly refresh the session to ensure the cookie is properly set
+    await supabase.auth.refreshSession();
+    console.log("✅ Session refreshed in middleware");
+  }
 
   return response;
 }
