@@ -49,6 +49,7 @@ export async function POST(request: Request) {
           "x-pica-connection-key": process.env.PICA_STRIPE_CONNECTION_KEY || "",
           "x-pica-action-id": process.env.PICA_STRIPE_ACTION_ID || "",
         },
+        credentials: "include", // Ensure cookies are sent with the request
         body: formBody.toString(),
       },
     );

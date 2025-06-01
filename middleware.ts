@@ -1,28 +1,15 @@
+import { createMiddlewareClient } from "@supabase/auth-helpers-nextjs";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-export function middleware(request: NextRequest) {
-  // Get the pathname from the URL
-  const { pathname } = request.nextUrl;
-
-  // Allow Supabase auth callback to proceed without redirection
-  if (pathname.startsWith("/auth/callback")) {
-    console.log("Middleware: allowing auth callback to proceed");
-    return NextResponse.next();
-  }
-
-  return NextResponse.next();
+export async function middleware(request: NextRequest) {
+  console.log("✅ Middleware running");
+  const response = NextResponse.next();
+  const supabase = createMiddlewareClient({ req: request, res: response });
+  await supabase.auth.getSession(); // Ensures the session cookie is set
+  return response;
 }
 
 export const config = {
-  matcher: [
-    /*
-     * Match all request paths except for the ones starting with:
-     * - api (API routes)
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     */
-    "/((?!api|_next/static|_next/image|favicon.ico).*)",
-  ],
+  matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
 };
