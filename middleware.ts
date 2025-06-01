@@ -20,8 +20,11 @@ export async function middleware(request: NextRequest) {
 
   if (session) {
     // Explicitly refresh the session to ensure the cookie is properly set
-    await supabase.auth.refreshSession();
-    console.log("✅ Session refreshed in middleware");
+    const refreshResult = await supabase.auth.refreshSession();
+    console.log(
+      "✅ Session refreshed in middleware:",
+      refreshResult.data.session ? "Success" : "Failed",
+    );
   }
 
   return response;

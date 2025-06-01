@@ -52,11 +52,20 @@ export default function PricingPage() {
         sessionData ? "Valid session" : "No session",
       );
 
+      // Log the access token (partial) for debugging
+      if (sessionData?.session?.access_token) {
+        const token = sessionData.session.access_token;
+        console.log(
+          "Access token available (first 10 chars):",
+          token.substring(0, 10) + "...",
+        );
+      }
+
       const response = await fetch("/api/create-checkout-session", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          // Include the auth token in the Authorization header
+          // Always include the auth token in the Authorization header when available
           ...(sessionData?.session?.access_token && {
             Authorization: `Bearer ${sessionData.session.access_token}`,
           }),
