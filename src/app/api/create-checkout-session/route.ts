@@ -9,6 +9,15 @@ export async function POST(request: Request) {
 
     // Get the current user
     const {
+      data: { session },
+    } = await supabase.auth.getSession();
+
+    if (!session) {
+      console.error("No session found in create-checkout-session");
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const {
       data: { user },
     } = await supabase.auth.getUser();
 

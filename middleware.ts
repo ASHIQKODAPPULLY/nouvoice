@@ -6,7 +6,16 @@ export async function middleware(request: NextRequest) {
   console.log("✅ Middleware running");
   const response = NextResponse.next();
   const supabase = createMiddlewareClient({ req: request, res: response });
-  await supabase.auth.getSession(); // Ensures the session cookie is set
+
+  // Get and set the session - this ensures the session cookie is properly set
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+  console.log(
+    "✅ Middleware session check:",
+    session ? "Session found" : "No session found",
+  );
+
   return response;
 }
 
