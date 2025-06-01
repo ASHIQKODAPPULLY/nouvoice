@@ -41,7 +41,16 @@ export async function middleware(request: NextRequest) {
         console.log(
           "Middleware: Critical path detected, forcing session refresh",
         );
-        await supabase.auth.refreshSession();
+        const { data: refreshData, error: refreshError } =
+          await supabase.auth.refreshSession();
+        if (refreshError) {
+          console.error("Middleware: Session refresh error:", refreshError);
+        } else {
+          console.log(
+            "Middleware: Session refreshed successfully:",
+            refreshData.session ? "Valid session" : "No session after refresh",
+          );
+        }
       }
     } else {
       console.log("Middleware: No session found, no auth cookies will be set");

@@ -51,6 +51,13 @@ export default function PricingPage() {
         refreshData.session ? "Valid session" : "No session after refresh",
       );
 
+      // Get session again to ensure cookies are properly set
+      const { data: finalSessionCheck } = await supabase.auth.getSession();
+      console.log(
+        "Final session check before API call:",
+        finalSessionCheck.session ? "Session confirmed" : "Still no session",
+      );
+
       // Validate price ID format client-side
       if (!priceId.startsWith("price_")) {
         throw new Error("Invalid price ID format");

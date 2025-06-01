@@ -102,6 +102,16 @@ export default function SignInForm() {
       // Log cookie status - can't see HTTP-only cookies but can confirm the call was made
       console.log("Cookie write operations should be complete now");
 
+      // Force another getSession call to ensure cookies are written
+      const { data: finalSessionCheckAgain } = await supabase.auth.getSession();
+      console.log(
+        "Final session check before redirect:",
+        finalSessionCheck.session ? "Session confirmed" : "Still no session",
+      );
+
+      // Log cookie status - can't see HTTP-only cookies but can confirm the call was made
+      console.log("Cookie write operations should be complete now");
+
       // Redirect to the requested page or dashboard on successful login
       router.push(redirect);
       router.refresh();

@@ -35,7 +35,6 @@ export async function POST(request: Request) {
     }
 
     // Log available cookies for detailed debugging (without exposing values)
-    // Using the cookieNames variable already defined above
     console.log("🍪 Available cookies (detailed):", cookieNames);
 
     // Get the full cookie objects for debugging (without exposing values)
