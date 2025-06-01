@@ -52,6 +52,14 @@ export async function middleware(request: NextRequest) {
           );
         }
       }
+
+      // Log the cookie names that will be set
+      const cookieHeader = response.headers.get("set-cookie");
+      if (cookieHeader) {
+        console.log("Middleware: Setting cookies in response header");
+      } else {
+        console.warn("Middleware: No cookies found in response header");
+      }
     } else {
       console.log("Middleware: No session found, no auth cookies will be set");
     }

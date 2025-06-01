@@ -1,4 +1,4 @@
-import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs";
+import { createClient } from "@/lib/supabase/server";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
@@ -19,7 +19,8 @@ export async function POST(request: Request) {
     const cookieNames = cookieStore.getAll().map((cookie) => cookie.name);
     console.log("🍪 Available cookies:", cookieNames);
 
-    const supabase = createRouteHandlerClient({ cookies: () => cookieStore });
+    // Use the server client instead of createRouteHandlerClient
+    const supabase = createClient();
     console.log("🔌 Supabase client created in API route");
 
     // Get the session first to check authentication status
