@@ -1,5 +1,6 @@
 "use client";
 
+// Header component for navigation and authentication
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { Button } from "./ui/button";
