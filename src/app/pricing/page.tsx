@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Card,
   CardContent,
@@ -9,12 +9,75 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Check, ArrowRight, Sparkles, Users } from "lucide-react";
+import { Check, ArrowRight, Sparkles, Users, Loader2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 
 export default function PricingPage() {
   const [loadingPriceId, setLoadingPriceId] = useState<string | null>(null);
+  const [priceData, setPriceData] = useState<{
+    [key: string]: { formattedPrice: string; interval?: string };
+  }>({});
+  const [loadingPrices, setLoadingPrices] = useState(true);
+
+  // Define price IDs
+  const priceIds = {
+    free: "price_1RPFsuBHa6CDK7TJfVmF8ld6", // Free tier price ID
+    annual: "price_1RPFsuBHa6CDK7TJfVmF8ld6", // Annual access price ID
+    pro: "price_1RPFsuBHa6CDK7TJfVmF8ld6", // Pro plan price ID
+    team: "price_1RPG53BHa6CDK7TJGyBiQwM2", // Team plan price ID
+  };
+
+  // Fetch price data from Stripe
+  useEffect(() => {
+    const fetchPrices = async () => {
+      setLoadingPrices(true);
+      try {
+        const { createClient } = await import("@/lib/supabase/client");
+        const supabase = createClient();
+
+        // Fetch prices for each plan
+        const pricePromises = Object.entries(priceIds).map(
+          async ([plan, priceId]) => {
+            try {
+              const { data, error } = await supabase.functions.invoke(
+                "supabase-functions-get-stripe-prices",
+                {
+                  body: { priceId },
+                },
+              );
+
+              if (error) {
+                console.error(`Error fetching price for ${plan}:`, error);
+                return [plan, { formattedPrice: "$0" }];
+              }
+
+              return [
+                plan,
+                {
+                  formattedPrice: data.formattedPrice,
+                  interval: data.recurring?.interval,
+                },
+              ];
+            } catch (err) {
+              console.error(`Error processing price for ${plan}:`, err);
+              return [plan, { formattedPrice: "$0" }];
+            }
+          },
+        );
+
+        const results = await Promise.all(pricePromises);
+        const priceDataObj = Object.fromEntries(results);
+        setPriceData(priceDataObj);
+      } catch (error) {
+        console.error("Error fetching prices:", error);
+      } finally {
+        setLoadingPrices(false);
+      }
+    };
+
+    fetchPrices();
+  }, []);
 
   const handleSubscribe = async (priceId: string) => {
     try {
@@ -164,10 +227,19 @@ export default function PricingPage() {
                   </Badge>
                 </CardTitle>
                 <div className="mt-3 md:mt-4">
-                  <span className="text-3xl md:text-4xl font-bold">$0</span>
-                  <span className="text-muted-foreground ml-2 text-sm md:text-base">
-                    /month
-                  </span>
+                  {loadingPrices ? (
+                    <div className="flex items-center">
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      <span>Loading...</span>
+                    </div>
+                  ) : (
+                    <>
+                      <span className="text-3xl md:text-4xl font-bold">$0</span>
+                      <span className="text-muted-foreground ml-2 text-sm md:text-base">
+                        /month
+                      </span>
+                    </>
+                  )}
                 </div>
                 <p className="text-muted-foreground mt-2 text-sm md:text-base">
                   Perfect for individuals just getting started
@@ -225,8 +297,19 @@ export default function PricingPage() {
                   </Badge>
                 </CardTitle>
                 <div className="mt-4">
-                  <span className="text-4xl font-bold">$50</span>
-                  <span className="text-muted-foreground ml-2">/year</span>
+                  {loadingPrices ? (
+                    <div className="flex items-center">
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      <span>Loading...</span>
+                    </div>
+                  ) : (
+                    <>
+                      <span className="text-4xl font-bold">
+                        {priceData.annual?.formattedPrice || "$50"}
+                      </span>
+                      <span className="text-muted-foreground ml-2">/year</span>
+                    </>
+                  )}
                 </div>
                 <p className="text-muted-foreground mt-2">
                   Full access for an entire year at a discounted flat rate
@@ -272,7 +355,7 @@ export default function PricingPage() {
                   }
                   disabled={loadingPriceId === "price_1RPFsuBHa6CDK7TJfVmF8ld6"}
                 >
-                  {loadingPriceId === "price_1RPFsuBHa6CDK7TJfVmF8ld6"
+                  {loadingPriceId === priceIds.annual
                     ? "Processing..."
                     : "Get Annual Access"}{" "}
                   <Sparkles className="ml-2 h-4 w-4" />
@@ -288,8 +371,19 @@ export default function PricingPage() {
                   <Badge variant="outline">Monthly</Badge>
                 </CardTitle>
                 <div className="mt-4">
-                  <span className="text-4xl font-bold">$19</span>
-                  <span className="text-muted-foreground ml-2">/month</span>
+                  {loadingPrices ? (
+                    <div className="flex items-center">
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      <span>Loading...</span>
+                    </div>
+                  ) : (
+                    <>
+                      <span className="text-4xl font-bold">
+                        {priceData.pro?.formattedPrice || "$19"}
+                      </span>
+                      <span className="text-muted-foreground ml-2">/month</span>
+                    </>
+                  )}
                 </div>
                 <p className="text-muted-foreground mt-2">
                   For growing businesses and professionals
@@ -336,7 +430,7 @@ export default function PricingPage() {
                   }
                   disabled={loadingPriceId === "price_1RPFsuBHa6CDK7TJfVmF8ld6"}
                 >
-                  {loadingPriceId === "price_1RPFsuBHa6CDK7TJfVmF8ld6"
+                  {loadingPriceId === priceIds.pro
                     ? "Processing..."
                     : "Upgrade to Pro"}{" "}
                   <Sparkles className="ml-2 h-4 w-4" />
@@ -354,8 +448,19 @@ export default function PricingPage() {
                   </Badge>
                 </CardTitle>
                 <div className="mt-4">
-                  <span className="text-4xl font-bold">$49</span>
-                  <span className="text-muted-foreground ml-2">/month</span>
+                  {loadingPrices ? (
+                    <div className="flex items-center">
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      <span>Loading...</span>
+                    </div>
+                  ) : (
+                    <>
+                      <span className="text-4xl font-bold">
+                        {priceData.team?.formattedPrice || "$49"}
+                      </span>
+                      <span className="text-muted-foreground ml-2">/month</span>
+                    </>
+                  )}
                 </div>
                 <p className="text-muted-foreground mt-2">
                   For teams that need to collaborate efficiently
@@ -394,12 +499,10 @@ export default function PricingPage() {
               <CardFooter>
                 <Button
                   className="w-full bg-blue-600 hover:bg-blue-700 text-white"
-                  onClick={() =>
-                    handleSubscribe("price_1OvQYYBHa6CDK7TJgIRB5mJO")
-                  }
-                  disabled={loadingPriceId === "price_1OvQYYBHa6CDK7TJgIRB5mJO"}
+                  onClick={() => handleSubscribe(priceIds.team)}
+                  disabled={loadingPriceId === priceIds.team || loadingPrices}
                 >
-                  {loadingPriceId === "price_1RPG53BHa6CDK7TJGyBiQwM2"
+                  {loadingPriceId === priceIds.team
                     ? "Processing..."
                     : "Upgrade to Team"}{" "}
                   <Users className="ml-2 h-4 w-4" />
@@ -449,10 +552,10 @@ export default function PricingPage() {
                 <Button
                   className="w-full"
                   variant="outline"
-                  onClick={() =>
-                    (window.location.href =
-                      "mailto:contact@nouvoice.com.au?subject=Enterprise%20Plan%20Inquiry")
-                  }
+                  onClick={() => {
+                    window.location.href =
+                      "mailto:contact@nouvoice.com.au?subject=Enterprise%20Plan%20Inquiry";
+                  }}
                 >
                   Contact Sales <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
