@@ -6,6 +6,9 @@ export async function middleware(request: NextRequest) {
   // Get the pathname from the URL
   const { pathname } = request.nextUrl;
 
+  // Add debugging log to verify middleware execution
+  console.log("✅ Middleware executed for", pathname);
+
   // Allow Supabase auth callback to proceed without redirection
   if (pathname.startsWith("/auth/callback")) {
     console.log("Middleware: allowing auth callback to proceed");

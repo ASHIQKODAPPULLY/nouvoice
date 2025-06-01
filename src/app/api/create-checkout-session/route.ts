@@ -34,27 +34,55 @@ export async function POST(request: Request) {
       console.error("❌ Session check error:", sessionCheckError);
     }
 
-    // Get the current user
+    // Log available cookies for detailed debugging (without exposing values)
+    const cookieNames = cookieStore.getAll().map((cookie) => cookie.name);
+    console.log("🍪 Available cookies:", cookieNames);
+
+    // Get the full cookie objects for debugging (without exposing values)
+    const allCookies = cookieStore.getAll();
+    console.log(
+      "🍪 Cookie details:",
+      allCookies.map((c) => ({
+        name: c.name,
+        path: c.path,
+        secure: c.secure,
+        sameSite: c.sameSite,
+        httpOnly: c.httpOnly !== false,
+      })),
+    );
+
+    // Get the session directly to check authentication status
     const {
-      data: { user },
+      data: { session },
       error: sessionError,
-    } = await supabase.auth.getUser();
+    } = await supabase.auth.getSession();
+    console.log(
+      "🔑 Session check in API route:",
+      session ? "Session found" : "No session found",
+    );
+    console.log(
+      "🔑 Session user:",
+      session?.user ? "User found" : "No user in session",
+    );
 
     if (sessionError) {
-      console.error("Auth error:", sessionError);
+      console.error("❌ Auth error:", sessionError);
       return NextResponse.json(
         { error: "Authentication error", details: sessionError.message },
         { status: 401 },
       );
     }
 
-    if (!user) {
-      console.error("No user found in session");
+    if (!session?.user) {
+      console.error("❌ No user found in session");
       return NextResponse.json(
         { error: "Unauthorized - No user found in session" },
         { status: 401 },
       );
     }
+
+    // Use the user from the session
+    const user = session.user;
 
     const { priceId, returnUrl } = await request.json();
 

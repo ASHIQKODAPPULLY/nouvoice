@@ -68,6 +68,18 @@ export default function SignInForm() {
         sessionData.session ? "Session established" : "No session",
       );
 
+      // Log session user details for debugging
+      console.log(
+        "Session user after sign in:",
+        sessionData.session?.user
+          ? {
+              id: sessionData.session.user.id,
+              email: sessionData.session.user.email,
+              hasAuthCookies: "Checking in browser dev tools required",
+            }
+          : "No user in session",
+      );
+
       // Force a session refresh to ensure cookies are set properly
       const { data: refreshData, error: refreshError } =
         await supabase.auth.refreshSession();
@@ -79,6 +91,16 @@ export default function SignInForm() {
           refreshData.session ? "Valid session" : "No session after refresh",
         );
       }
+
+      // Force another getSession call to ensure cookies are written
+      const { data: finalSessionCheck } = await supabase.auth.getSession();
+      console.log(
+        "Final session check before redirect:",
+        finalSessionCheck.session ? "Session confirmed" : "Still no session",
+      );
+
+      // Log cookie status - can't see HTTP-only cookies but can confirm the call was made
+      console.log("Cookie write operations should be complete now");
 
       // Redirect to the requested page or dashboard on successful login
       router.push(redirect);
