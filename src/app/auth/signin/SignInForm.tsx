@@ -41,13 +41,10 @@ export default function SignInForm() {
         hasKey: !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
       });
 
-      // Explicitly set cookie mode to ensure cookies are used
+      // Sign in with password - no need to override cookie options here as they're set in the client
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
-        options: {
-          persistSession: true,
-        },
       });
 
       if (error) {

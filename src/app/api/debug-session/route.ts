@@ -25,8 +25,26 @@ export async function GET() {
       (c) =>
         c.name.includes("supabase") ||
         c.name.includes("sb-") ||
+        c.name.includes("auth") ||
+        c.name === "sb-auth-token",
+    );
+
+    // Log specific cookie details for debugging
+    const authCookies = allCookies.filter(
+      (c) =>
+        c.name.includes("supabase") ||
+        c.name.includes("sb-") ||
         c.name.includes("auth"),
     );
+
+    if (authCookies.length > 0) {
+      console.log(
+        "🔑 Auth cookies found:",
+        authCookies.map((c) => c.name),
+      );
+    } else {
+      console.log("⚠️ No auth cookies found");
+    }
 
     // Get the session directly to check authentication status
     const {
