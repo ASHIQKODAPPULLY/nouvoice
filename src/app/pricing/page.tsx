@@ -395,9 +395,9 @@ export default function PricingPage() {
                 <Button
                   className="w-full bg-blue-600 hover:bg-blue-700 text-white"
                   onClick={() =>
-                    handleSubscribe("price_1RPG53BHa6CDK7TJGyBiQwM2")
+                    handleSubscribe("price_1OvQYYBHa6CDK7TJgIRB5mJO")
                   }
-                  disabled={loadingPriceId === "price_1RPG53BHa6CDK7TJGyBiQwM2"}
+                  disabled={loadingPriceId === "price_1OvQYYBHa6CDK7TJgIRB5mJO"}
                 >
                   {loadingPriceId === "price_1RPG53BHa6CDK7TJGyBiQwM2"
                     ? "Processing..."
