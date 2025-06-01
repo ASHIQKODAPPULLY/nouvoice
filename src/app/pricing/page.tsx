@@ -14,7 +14,7 @@ import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 
 export default function PricingPage() {
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [loadingPriceId, setLoadingPriceId] = useState<string | null>(null);
 
   const handleSubscribe = async (priceId: string) => {
     try {
@@ -43,7 +43,7 @@ export default function PricingPage() {
         throw new Error("Invalid price ID format");
       }
 
-      setIsLoading(true);
+      setLoadingPriceId(priceId);
       console.log("Creating checkout session...");
       const response = await fetch("/api/create-checkout-session", {
         method: "POST",
@@ -74,7 +74,7 @@ export default function PricingPage() {
       // Use a more user-friendly error message
       alert("Unable to process your request. Please try again later.");
     } finally {
-      setIsLoading(false);
+      setLoadingPriceId(null);
     }
   };
   return (
@@ -174,9 +174,12 @@ export default function PricingPage() {
                   onClick={() =>
                     handleSubscribe("price_1RPFsuBHa6CDK7TJfVmF8ld6")
                   }
-                  disabled={isLoading}
+                  disabled={loadingPriceId === "price_1RPFsuBHa6CDK7TJfVmF8ld6"}
                 >
-                  Get Started <ArrowRight className="ml-2 h-4 w-4" />
+                  {loadingPriceId === "price_1RPFsuBHa6CDK7TJfVmF8ld6"
+                    ? "Processing..."
+                    : "Get Started"}{" "}
+                  <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
               </CardFooter>
             </Card>
@@ -239,9 +242,11 @@ export default function PricingPage() {
                 <Button
                   className="w-full bg-gradient-to-r from-gradient-pink to-gradient-purple hover:opacity-90"
                   onClick={() => handleSubscribe("price_annual_discount_50")}
-                  disabled={isLoading}
+                  disabled={loadingPriceId === "price_annual_discount_50"}
                 >
-                  {isLoading ? "Processing..." : "Get Annual Access"}{" "}
+                  {loadingPriceId === "price_annual_discount_50"
+                    ? "Processing..."
+                    : "Get Annual Access"}{" "}
                   <Sparkles className="ml-2 h-4 w-4" />
                 </Button>
               </CardFooter>
@@ -299,9 +304,11 @@ export default function PricingPage() {
                   className="w-full"
                   variant="outline"
                   onClick={() => handleSubscribe("price_monthly_pro")}
-                  disabled={isLoading}
+                  disabled={loadingPriceId === "price_monthly_pro"}
                 >
-                  {isLoading ? "Processing..." : "Upgrade to Pro"}{" "}
+                  {loadingPriceId === "price_monthly_pro"
+                    ? "Processing..."
+                    : "Upgrade to Pro"}{" "}
                   <Sparkles className="ml-2 h-4 w-4" />
                 </Button>
               </CardFooter>
@@ -360,9 +367,11 @@ export default function PricingPage() {
                   onClick={() =>
                     handleSubscribe("price_1RPG53BHa6CDK7TJGyBiQwM2")
                   }
-                  disabled={isLoading}
+                  disabled={loadingPriceId === "price_1RPG53BHa6CDK7TJGyBiQwM2"}
                 >
-                  {isLoading ? "Processing..." : "Upgrade to Team"}{" "}
+                  {loadingPriceId === "price_1RPG53BHa6CDK7TJGyBiQwM2"
+                    ? "Processing..."
+                    : "Upgrade to Team"}{" "}
                   <Users className="ml-2 h-4 w-4" />
                 </Button>
               </CardFooter>
