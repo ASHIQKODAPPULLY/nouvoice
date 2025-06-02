@@ -6,10 +6,14 @@ import { createClient } from "@supabase/supabase-js";
  * @returns The properly formatted slug for invoking the function
  */
 export function generateFunctionSlug(functionPath: string): string {
+  // Ensure we're using the correct format for the function slug
+  // This should match exactly what Supabase expects
   return functionPath
     .replace("/index.ts", "")
     .replace(/\//g, "-")
     .replace(/[^A-Za-z0-9_-]/g, "");
+
+  // Example: "supabase/functions/create-checkout-session/index.ts" becomes "supabase-functions-create-checkout-session"
 }
 
 /**
