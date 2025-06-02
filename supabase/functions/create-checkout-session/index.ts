@@ -14,7 +14,7 @@ Deno.serve(async (req) => {
   try {
     if (req.method !== "POST") {
       return new Response(JSON.stringify({ error: "Method not allowed" }), {
-        status: 405,
+        status: 200, // Return 200 even for errors to prevent Edge Function errors
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
@@ -32,7 +32,7 @@ Deno.serve(async (req) => {
     if (!priceId || typeof priceId !== "string") {
       console.error("Invalid price ID:", priceId);
       return new Response(JSON.stringify({ error: "Invalid price ID" }), {
-        status: 400,
+        status: 200, // Return 200 even for errors
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
@@ -61,7 +61,7 @@ Deno.serve(async (req) => {
           details: "PICA_SECRET_KEY is missing or empty",
         }),
         {
-          status: 500,
+          status: 200, // Return 200 even for errors
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         },
       );
@@ -75,7 +75,7 @@ Deno.serve(async (req) => {
           details: "PICA_STRIPE_CONNECTION_KEY is missing or empty",
         }),
         {
-          status: 500,
+          status: 200, // Return 200 even for errors
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         },
       );

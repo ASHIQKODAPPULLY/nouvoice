@@ -195,6 +195,8 @@ async function processCheckoutSession(
 
   // Always use the exact action ID from the documentation
   const actionId = "conn_mod_def::GCmLNSLWawg::Pj6pgAmnQhuqMPzB8fquRg";
+  // Verify the action ID is correctly formatted
+  console.log("Verifying action ID format:", actionId);
   console.log("Using action ID:", actionId);
 
   // Log the full request details for debugging
@@ -208,9 +210,15 @@ async function processCheckoutSession(
   console.log("Request headers prepared:", {
     "Content-Type": headers["Content-Type"],
     "x-pica-secret": headers["x-pica-secret"] ? "present" : "missing",
+    "x-pica-secret-length": headers["x-pica-secret"]
+      ? headers["x-pica-secret"].length
+      : 0,
     "x-pica-connection-key": headers["x-pica-connection-key"]
       ? "present"
       : "missing",
+    "x-pica-connection-key-length": headers["x-pica-connection-key"]
+      ? headers["x-pica-connection-key"].length
+      : 0,
     "x-pica-action-id": headers["x-pica-action-id"],
   });
 

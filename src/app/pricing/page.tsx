@@ -100,6 +100,12 @@ export default function PricingPage() {
         // Check if data contains an error field (our custom error response with status 200)
         if (data?.error) {
           console.error("Edge function returned error with status 200:", data);
+
+          // Log more detailed error information if available
+          if (data.interpretation) {
+            console.error("Interpreted error:", data.interpretation);
+          }
+
           throw new Error(
             `Edge function error: ${data.error} - ${JSON.stringify(data.details || {})}`,
           );
