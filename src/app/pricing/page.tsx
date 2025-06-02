@@ -81,7 +81,7 @@ export default function PricingPage() {
         });
 
         const { data, error } = await invokeEdgeFunction(
-          "supabase-functions-create-checkout-session",
+          "supabase/functions/create-checkout-session/index.ts",
           {
             priceId,
             returnUrl: window.location.origin,
@@ -139,6 +139,9 @@ export default function PricingPage() {
         body: JSON.stringify({
           priceId,
           returnUrl: window.location.origin,
+          userId: session.user.id, // Make sure to include userId in the API route call too
+          // Allow anonymous checkout in development for testing
+          allowAnonymous: process.env.NODE_ENV === "development",
         }),
       });
 

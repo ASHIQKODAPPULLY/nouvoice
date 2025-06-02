@@ -107,6 +107,19 @@ export async function POST(request: Request) {
         );
       }
 
+      // If we're in development mode, proceed with a mock user for testing
+      if (process.env.NODE_ENV === "development") {
+        console.log(
+          "Development environment detected, proceeding with mock user",
+        );
+        const mockUser = { id: "dev-user-" + Date.now() };
+        return await processCheckoutSession(
+          requestBody.priceId,
+          requestBody.returnUrl,
+          mockUser,
+        );
+      }
+
       return NextResponse.json(
         { error: "Unauthorized - No session" },
         { status: 401 },
