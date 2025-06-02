@@ -31,18 +31,41 @@ export async function invokeEdgeFunction<T = any, P = any>(
   console.log(`Invoking edge function with slug: ${slug}`);
 
   try {
+    // Log the Supabase URL and function endpoint for debugging
+    console.log(
+      `Supabase URL: ${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/${slug}`,
+    );
+
     const { data, error } = await supabase.functions.invoke<T>(slug, {
       body: payload,
     });
 
     if (error) {
       console.error(`Error invoking edge function ${slug}:`, error);
+      console.error(`Error details:`, JSON.stringify(error, null, 2));
       throw error;
     }
+
+    // Log successful response
+    console.log(
+      `Edge function ${slug} response:`,
+      data ? "Data received" : "No data",
+    );
 
     return { data, error: null };
   } catch (error) {
     console.error(`Exception invoking edge function ${slug}:`, error);
-    return { data: null, error };
+
+    // Try to extract more detailed error information
+    let detailedError = error;
+    if (error instanceof Error) {
+      detailedError = {
+        message: error.message,
+        name: error.name,
+        stack: error.stack,
+      };
+    }
+
+    return { data: null, error: detailedError };
   }
 }

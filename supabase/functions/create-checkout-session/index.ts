@@ -1,9 +1,9 @@
-import { corsHeaders } from "@shared/cors.ts";
+import { corsHeaders } from "./_shared/cors.ts";
 import {
   verifyKeyFormat,
   getKeyType,
   interpretStripeError,
-} from "@shared/stripe-diagnostics.ts";
+} from "./_shared/stripe-diagnostics.ts";
 
 Deno.serve(async (req) => {
   // Handle CORS preflight requests
@@ -38,26 +38,44 @@ Deno.serve(async (req) => {
     }
 
     // Check environment variables
-    const picaSecretKey = Deno.env.get("PICA_SECRET_KEY") || "";
-    const picaConnectionKey = Deno.env.get("PICA_STRIPE_CONNECTION_KEY") || "";
+    const picaSecretKey = Deno.env.get("PICA_SECRET_KEY");
+    const picaConnectionKey = Deno.env.get("PICA_STRIPE_CONNECTION_KEY");
     const picaActionId =
       Deno.env.get("PICA_STRIPE_ACTION_ID") ||
       "conn_mod_def::GCmLNSLWawg::Pj6pgAmnQhuqMPzB8fquRg";
 
     console.log("Environment variables check:", {
       PICA_SECRET_KEY: picaSecretKey ? "present" : "missing",
+      PICA_SECRET_KEY_LENGTH: picaSecretKey ? picaSecretKey.length : 0,
       PICA_STRIPE_CONNECTION_KEY: picaConnectionKey ? "present" : "missing",
+      PICA_STRIPE_CONNECTION_KEY_LENGTH: picaConnectionKey
+        ? picaConnectionKey.length
+        : 0,
       PICA_STRIPE_ACTION_ID: picaActionId || "missing",
     });
 
     // Validate API keys if available
-    if (picaSecretKey && !picaSecretKey.startsWith("pica_")) {
-      console.error("PICA_SECRET_KEY format appears invalid");
+    if (!picaSecretKey || picaSecretKey.trim() === "") {
+      console.error("PICA_SECRET_KEY is missing or empty");
+      return new Response(
+        JSON.stringify({
+          error: "Missing required API credentials",
+          details: "PICA_SECRET_KEY is missing or empty",
+        }),
+        {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        },
+      );
     }
 
-    if (!picaSecretKey || !picaConnectionKey) {
+    if (!picaConnectionKey || picaConnectionKey.trim() === "") {
+      console.error("PICA_STRIPE_CONNECTION_KEY is missing or empty");
       return new Response(
-        JSON.stringify({ error: "Missing required API credentials" }),
+        JSON.stringify({
+          error: "Missing required API credentials",
+          details: "PICA_STRIPE_CONNECTION_KEY is missing or empty",
+        }),
         {
           status: 500,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -90,16 +108,29 @@ Deno.serve(async (req) => {
 
     // Call Pica API to create checkout session
     console.log("Calling Pica API to create checkout session");
+
+    // Prepare headers with explicit values for debugging
+    const headers = {
+      "Content-Type": "application/x-www-form-urlencoded",
+      "x-pica-secret": picaSecretKey,
+      "x-pica-connection-key": picaConnectionKey,
+      "x-pica-action-id": picaActionId,
+    };
+
+    console.log("Request headers prepared:", {
+      "Content-Type": headers["Content-Type"],
+      "x-pica-secret": headers["x-pica-secret"] ? "present" : "missing",
+      "x-pica-connection-key": headers["x-pica-connection-key"]
+        ? "present"
+        : "missing",
+      "x-pica-action-id": headers["x-pica-action-id"],
+    });
+
     const response = await fetch(
       "https://api.picaos.com/v1/passthrough/v1/checkout/sessions",
       {
         method: "POST",
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-          "x-pica-secret": picaSecretKey,
-          "x-pica-connection-key": picaConnectionKey,
-          "x-pica-action-id": picaActionId,
-        },
+        headers: headers,
         body: formBody.toString(),
       },
     );
@@ -114,9 +145,14 @@ Deno.serve(async (req) => {
           JSON.stringify(errorData),
         );
       } catch (e) {
-        errorText = await response.text();
-        console.error("Pica API error response text:", errorText);
-        errorData = { message: errorText };
+        try {
+          errorText = await response.text();
+          console.error("Pica API error response text:", errorText);
+          errorData = { message: errorText };
+        } catch (textError) {
+          console.error("Failed to read error response:", textError);
+          errorData = { message: "Failed to read error response" };
+        }
       }
 
       // Log detailed error information

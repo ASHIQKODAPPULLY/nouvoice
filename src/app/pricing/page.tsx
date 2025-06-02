@@ -73,6 +73,13 @@ export default function PricingPage() {
         );
         console.log("Attempting to use Edge Function directly");
 
+        // Log the parameters being sent to the edge function
+        console.log("Edge function parameters:", {
+          priceId,
+          returnUrl: window.location.origin,
+          userId: session.user.id,
+        });
+
         const { data, error } = await invokeEdgeFunction(
           "supabase-functions-create-checkout-session",
           {
@@ -95,7 +102,8 @@ export default function PricingPage() {
           window.location.href = data.url;
           return;
         } else {
-          console.error("No URL returned from edge function");
+          console.error("No URL returned from edge function", data);
+          throw new Error("No checkout URL returned from edge function");
         }
       } catch (edgeFunctionError) {
         console.error("Error using edge function:", edgeFunctionError);
