@@ -241,7 +241,12 @@ Deno.serve(async (req) => {
       }
 
       return new Response(JSON.stringify({ url: sessionData.url }), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        headers: {
+          ...corsHeaders,
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Methods": "POST, OPTIONS",
+          "Access-Control-Allow-Headers": "Content-Type, Authorization",
+        },
         status: 200,
       });
     } catch (fetchError) {
