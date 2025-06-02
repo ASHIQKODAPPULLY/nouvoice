@@ -18,151 +18,70 @@ export default function PricingPage() {
 
   const handleSubscribe = async (priceId: string) => {
     try {
-      console.log("Attempting to subscribe with price ID:", priceId);
       setLoadingPriceId(priceId);
 
-      // Check if user is authenticated first
       const { createClient } = await import("@/lib/supabase/client");
       const supabase = createClient();
       const {
         data: { session },
       } = await supabase.auth.getSession();
 
-      console.log(
-        "Authentication check result:",
-        session ? "Authenticated" : "Not authenticated",
-      );
-
       if (!session) {
-        // Redirect to sign in if not authenticated
-        console.log("User not authenticated, redirecting to sign in");
         window.location.href = `/auth/signin?redirect=${encodeURIComponent("/pricing")}`;
         return;
       }
 
-      // Validate price ID format client-side
-      if (
-        !priceId.startsWith("price_") &&
-        !priceId.includes("annual_discount") &&
-        !priceId.includes("monthly_pro")
-      ) {
-        throw new Error("Invalid price ID format");
-      }
-
-      console.log("Creating checkout session...");
-      // Get the auth token to include in the request
       const { data: sessionData } = await supabase.auth.getSession();
-      console.log(
-        "Session before API call:",
-        sessionData ? "Valid session" : "No session",
+      const token = sessionData?.session?.access_token;
+
+      // ✅ FIXED EDGE FUNCTION NAME HERE
+      const { invokeEdgeFunction } = await import(
+        "@/lib/supabase/edge-functions"
       );
-
-      // Log the access token (partial) for debugging
-      if (sessionData?.session?.access_token) {
-        const token = sessionData.session.access_token;
-        console.log(
-          "Access token available (first 10 chars):",
-          token.substring(0, 10) + "...",
-        );
-      }
-
-      // Try using the Edge Function directly if available
-      try {
-        const { invokeEdgeFunction } = await import(
-          "@/lib/supabase/edge-functions"
-        );
-        console.log("Attempting to use Edge Function directly");
-
-        // Log the parameters being sent to the edge function
-        console.log("Edge function parameters:", {
+      const { data, error } = await invokeEdgeFunction(
+        "create-checkout-session",
+        {
           priceId,
           returnUrl: window.location.origin,
           userId: session.user.id,
-        });
+        },
+      );
 
-        const { data, error } = await invokeEdgeFunction(
-          "create-checkout-session",
-          {
-            priceId,
-            returnUrl: window.location.origin,
-            userId: session.user.id,
-          },
-        );
-
-        if (error) {
-          console.error("Edge function error:", error);
-          console.error("Error details:", JSON.stringify(error, null, 2));
-          throw new Error(
-            `Failed to create checkout session via edge function: ${error.message || JSON.stringify(error)}`,
-          );
-        }
-
-        // Check if data contains an error field (our custom error response with status 200)
-        if (data?.error) {
-          console.error("Edge function returned error with status 200:", data);
-
-          // Log more detailed error information if available
-          if (data.interpretation) {
-            console.error("Interpreted error:", data.interpretation);
-          }
-
-          throw new Error(
-            `Edge function error: ${data.error} - ${JSON.stringify(data.details || {})}`,
-          );
-        }
-
-        if (data?.url) {
-          console.log("Successfully got checkout URL from edge function");
-          window.location.href = data.url;
-          return;
-        } else {
-          console.error("No URL returned from edge function", data);
-          throw new Error("No checkout URL returned from edge function");
-        }
-      } catch (edgeFunctionError) {
-        console.error("Error using edge function:", edgeFunctionError);
-        console.log("Falling back to API route");
+      if (error) {
+        console.error("Edge function error:", error);
+        throw new Error("Failed to create checkout session via edge function");
       }
 
-      // Fall back to API route
-      console.log("Using API route for checkout session");
+      if (data?.url) {
+        window.location.href = data.url;
+        return;
+      }
+
+      // Optional: fallback
       const response = await fetch("/api/create-checkout-session", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          // Always include the auth token in the Authorization header when available
-          ...(sessionData?.session?.access_token && {
-            Authorization: `Bearer ${sessionData.session.access_token}`,
+          ...(token && {
+            Authorization: `Bearer ${token}`,
           }),
         },
-        credentials: "include", // Important: include cookies with the request
+        credentials: "include",
         body: JSON.stringify({
           priceId,
           returnUrl: window.location.origin,
-          userId: session.user.id, // Make sure to include userId in the API route call too
-          // Allow anonymous checkout in development for testing
-          allowAnonymous: process.env.NODE_ENV === "development",
         }),
       });
 
-      const data = await response.json();
-      console.log("API response:", data);
+      const result = await response.json();
 
-      if (!response.ok) {
-        console.error("API error:", data);
-        throw new Error(data.error || "Failed to create checkout session");
+      if (!response.ok || !result.url) {
+        throw new Error(result.error || "Failed to create checkout session");
       }
 
-      if (data.url) {
-        // Redirect to Stripe Checkout
-        console.log("Redirecting to checkout URL:", data.url);
-        window.location.href = data.url;
-      } else {
-        throw new Error("No checkout URL returned");
-      }
+      window.location.href = result.url;
     } catch (error: any) {
       console.error("Checkout error:", error);
-      // Use a more user-friendly error message
       alert("Unable to process your request. Please try again later.");
     } finally {
       setLoadingPriceId(null);
