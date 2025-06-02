@@ -19,6 +19,8 @@ export default function PricingPage() {
   const handleSubscribe = async (priceId: string) => {
     try {
       console.log("Attempting to subscribe with price ID:", priceId);
+      setLoadingPriceId(priceId);
+
       // Check if user is authenticated first
       const { createClient } = await import("@/lib/supabase/client");
       const supabase = createClient();
@@ -43,7 +45,6 @@ export default function PricingPage() {
         throw new Error("Invalid price ID format");
       }
 
-      setLoadingPriceId(priceId);
       console.log("Creating checkout session...");
       // Get the auth token to include in the request
       const { data: sessionData } = await supabase.auth.getSession();
@@ -61,6 +62,43 @@ export default function PricingPage() {
         );
       }
 
+      // Try using the Edge Function directly if available
+      try {
+        const { invokeEdgeFunction } = await import(
+          "@/lib/supabase/edge-functions"
+        );
+        console.log("Attempting to use Edge Function directly");
+
+        const { data, error } = await invokeEdgeFunction(
+          "supabase/functions/create-checkout-session/index.ts",
+          {
+            priceId,
+            returnUrl: window.location.origin,
+            userId: session.user.id,
+          },
+        );
+
+        if (error) {
+          console.error("Edge function error:", error);
+          throw new Error(
+            "Failed to create checkout session via edge function",
+          );
+        }
+
+        if (data?.url) {
+          console.log("Successfully got checkout URL from edge function");
+          window.location.href = data.url;
+          return;
+        } else {
+          console.error("No URL returned from edge function");
+        }
+      } catch (edgeFunctionError) {
+        console.error("Error using edge function:", edgeFunctionError);
+        console.log("Falling back to API route");
+      }
+
+      // Fall back to API route
+      console.log("Using API route for checkout session");
       const response = await fetch("/api/create-checkout-session", {
         method: "POST",
         headers: {
@@ -78,13 +116,16 @@ export default function PricingPage() {
       });
 
       const data = await response.json();
+      console.log("API response:", data);
 
       if (!response.ok) {
+        console.error("API error:", data);
         throw new Error(data.error || "Failed to create checkout session");
       }
 
       if (data.url) {
         // Redirect to Stripe Checkout
+        console.log("Redirecting to checkout URL:", data.url);
         window.location.href = data.url;
       } else {
         throw new Error("No checkout URL returned");
@@ -196,7 +237,10 @@ export default function PricingPage() {
                   }
                   disabled={loadingPriceId === "price_1RPFsuBHa6CDK7TJfVmF8ld6"}
                 >
-                  Get Started <ArrowRight className="ml-2 h-4 w-4" />
+                  {loadingPriceId === "price_1RPFsuBHa6CDK7TJfVmF8ld6"
+                    ? "Processing..."
+                    : "Get Started"}{" "}
+                  <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
               </CardFooter>
             </Card>

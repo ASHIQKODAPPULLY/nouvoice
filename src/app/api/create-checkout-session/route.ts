@@ -141,6 +141,17 @@ async function processCheckoutSession(
 
   // Call Pica API to create checkout session
   console.log("Calling Pica API with price ID:", priceId);
+  console.log("Form body:", formBody.toString());
+  console.log("PICA_SECRET_KEY exists:", !!process.env.PICA_SECRET_KEY);
+  console.log(
+    "PICA_STRIPE_CONNECTION_KEY exists:",
+    !!process.env.PICA_STRIPE_CONNECTION_KEY,
+  );
+  console.log(
+    "PICA_STRIPE_ACTION_ID exists:",
+    !!process.env.PICA_STRIPE_ACTION_ID,
+  );
+
   const response = await fetch(
     "https://api.picaos.com/v1/passthrough/v1/checkout/sessions",
     {
@@ -158,10 +169,15 @@ async function processCheckoutSession(
   );
 
   if (!response.ok) {
-    const errorData = await response.json();
+    let errorData;
+    try {
+      errorData = await response.json();
+    } catch (e) {
+      errorData = { message: await response.text() };
+    }
     console.error("Checkout session creation failed:", errorData);
     return NextResponse.json(
-      { error: "Failed to create checkout session" },
+      { error: "Failed to create checkout session", details: errorData },
       { status: response.status },
     );
   }
