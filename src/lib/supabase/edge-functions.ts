@@ -28,6 +28,7 @@ export async function invokeEdgeFunction<T = any, P = any>(
   );
 
   const slug = generateFunctionSlug(functionPath);
+  console.log(`Invoking edge function with slug: ${slug}`);
 
   try {
     const { data, error } = await supabase.functions.invoke<T>(slug, {

@@ -14,6 +14,24 @@ export async function POST(request: Request) {
       Object.fromEntries(request.headers),
     );
 
+    // Parse request body early to avoid parsing it multiple times
+    let requestBody;
+    try {
+      requestBody = await request.json();
+      console.log("Request body parsed successfully:", {
+        priceId: requestBody.priceId
+          ? `${requestBody.priceId.substring(0, 10)}...`
+          : "undefined",
+        returnUrl: requestBody.returnUrl || "undefined",
+      });
+    } catch (parseError) {
+      console.error("Error parsing request body:", parseError);
+      return NextResponse.json(
+        { error: "Invalid request body" },
+        { status: 400 },
+      );
+    }
+
     const cookieStore = cookies();
     // Log all cookies for debugging
     const allCookies = cookieStore.getAll();
@@ -66,7 +84,7 @@ export async function POST(request: Request) {
           const { data, error } = await supabase.auth.getUser(token);
           if (data.user && !error) {
             console.log("Successfully authenticated with provided token");
-            const { priceId, returnUrl } = await request.json();
+            const { priceId, returnUrl } = requestBody;
             return await processCheckoutSession(priceId, returnUrl, data.user);
           } else {
             console.error("Token authentication failed:", error);
@@ -74,6 +92,19 @@ export async function POST(request: Request) {
         } catch (tokenError) {
           console.error("Error using provided token:", tokenError);
         }
+      }
+
+      // For development/testing purposes, allow anonymous checkout if explicitly requested
+      if (requestBody.allowAnonymous === true) {
+        console.log(
+          "Anonymous checkout requested, proceeding without authentication",
+        );
+        const mockUser = { id: "anonymous-user-" + Date.now() };
+        return await processCheckoutSession(
+          requestBody.priceId,
+          requestBody.returnUrl,
+          mockUser,
+        );
       }
 
       return NextResponse.json(
@@ -103,12 +134,12 @@ export async function POST(request: Request) {
     // Log user ID for debugging
     console.log("User authenticated:", user.id);
 
-    const { priceId, returnUrl } = await request.json();
+    const { priceId, returnUrl } = requestBody;
     return await processCheckoutSession(priceId, returnUrl, user);
   } catch (error) {
     console.error("Error creating checkout session:", error);
     return NextResponse.json(
-      { error: "Internal server error" },
+      { error: "Internal server error", details: error.message },
       { status: 500 },
     );
   }
@@ -123,19 +154,33 @@ async function processCheckoutSession(
     return NextResponse.json({ error: "Invalid price ID" }, { status: 400 });
   }
 
+  // Validate price ID format
+  if (
+    !priceId.startsWith("price_") &&
+    !priceId.includes("annual_discount") &&
+    !priceId.includes("monthly_pro")
+  ) {
+    console.error("Invalid price ID format:", priceId);
+    return NextResponse.json(
+      { error: "Invalid price ID format" },
+      { status: 400 },
+    );
+  }
+
   // Create form body for Pica API
   const formBody = new URLSearchParams();
   formBody.append("mode", "subscription");
   formBody.append("line_items[0][price]", priceId);
   formBody.append("line_items[0][quantity]", "1");
+
+  // Use absolute URLs for success and cancel URLs
+  const siteUrl =
+    returnUrl || process.env.NEXT_PUBLIC_SITE_URL || "https://nouvoice.com.au";
   formBody.append(
     "success_url",
-    `${returnUrl || process.env.NEXT_PUBLIC_SITE_URL}/payment-success`,
+    `${siteUrl}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
   );
-  formBody.append(
-    "cancel_url",
-    `${returnUrl || process.env.NEXT_PUBLIC_SITE_URL}/pricing`,
-  );
+  formBody.append("cancel_url", `${siteUrl}/pricing`);
   formBody.append("automatic_tax[enabled]", "true");
   formBody.append("client_reference_id", user.id);
 
@@ -152,6 +197,11 @@ async function processCheckoutSession(
     !!process.env.PICA_STRIPE_ACTION_ID,
   );
 
+  // Use default action ID if not provided
+  const actionId =
+    process.env.PICA_STRIPE_ACTION_ID ||
+    "conn_mod_def::GCmLNSLWawg::Pj6pgAmnQhuqMPzB8fquRg";
+
   const response = await fetch(
     "https://api.picaos.com/v1/passthrough/v1/checkout/sessions",
     {
@@ -160,7 +210,7 @@ async function processCheckoutSession(
         "Content-Type": "application/x-www-form-urlencoded",
         "x-pica-secret": process.env.PICA_SECRET_KEY || "",
         "x-pica-connection-key": process.env.PICA_STRIPE_CONNECTION_KEY || "",
-        "x-pica-action-id": process.env.PICA_STRIPE_ACTION_ID || "",
+        "x-pica-action-id": actionId,
       },
       // Remove credentials: "include" as it's not needed for server-to-server calls
       // and could cause issues with CORS
@@ -175,13 +225,23 @@ async function processCheckoutSession(
     } catch (e) {
       errorData = { message: await response.text() };
     }
-    console.error("Checkout session creation failed:", errorData);
+    console.error("Checkout session creation failed:", {
+      status: response.status,
+      statusText: response.statusText,
+      error: errorData,
+    });
     return NextResponse.json(
-      { error: "Failed to create checkout session", details: errorData },
+      {
+        error: "Failed to create checkout session",
+        details: errorData,
+        status: response.status,
+        statusText: response.statusText,
+      },
       { status: response.status },
     );
   }
 
   const sessionData = await response.json();
+  console.log("Checkout session created successfully");
   return NextResponse.json({ url: sessionData.url });
 }

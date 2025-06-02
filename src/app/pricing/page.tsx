@@ -41,7 +41,11 @@ export default function PricingPage() {
       }
 
       // Validate price ID format client-side
-      if (!priceId.startsWith("price_")) {
+      if (
+        !priceId.startsWith("price_") &&
+        !priceId.includes("annual_discount") &&
+        !priceId.includes("monthly_pro")
+      ) {
         throw new Error("Invalid price ID format");
       }
 
@@ -70,7 +74,7 @@ export default function PricingPage() {
         console.log("Attempting to use Edge Function directly");
 
         const { data, error } = await invokeEdgeFunction(
-          "supabase/functions/create-checkout-session/index.ts",
+          "supabase-functions-create-checkout-session",
           {
             priceId,
             returnUrl: window.location.origin,
@@ -80,8 +84,9 @@ export default function PricingPage() {
 
         if (error) {
           console.error("Edge function error:", error);
+          console.error("Error details:", JSON.stringify(error, null, 2));
           throw new Error(
-            "Failed to create checkout session via edge function",
+            `Failed to create checkout session via edge function: ${error.message || JSON.stringify(error)}`,
           );
         }
 
