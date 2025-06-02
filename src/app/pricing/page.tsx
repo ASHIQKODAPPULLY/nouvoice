@@ -97,6 +97,14 @@ export default function PricingPage() {
           );
         }
 
+        // Check if data contains an error field (our custom error response with status 200)
+        if (data?.error) {
+          console.error("Edge function returned error with status 200:", data);
+          throw new Error(
+            `Edge function error: ${data.error} - ${JSON.stringify(data.details || {})}`,
+          );
+        }
+
         if (data?.url) {
           console.log("Successfully got checkout URL from edge function");
           window.location.href = data.url;

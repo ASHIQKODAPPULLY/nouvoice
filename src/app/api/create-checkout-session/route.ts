@@ -192,26 +192,33 @@ async function processCheckoutSession(
     "PICA_STRIPE_CONNECTION_KEY exists:",
     !!process.env.PICA_STRIPE_CONNECTION_KEY,
   );
-  console.log(
-    "PICA_STRIPE_ACTION_ID exists:",
-    !!process.env.PICA_STRIPE_ACTION_ID,
-  );
 
-  // Use default action ID if not provided
-  const actionId =
-    process.env.PICA_STRIPE_ACTION_ID ||
-    "conn_mod_def::GCmLNSLWawg::Pj6pgAmnQhuqMPzB8fquRg";
+  // Always use the exact action ID from the documentation
+  const actionId = "conn_mod_def::GCmLNSLWawg::Pj6pgAmnQhuqMPzB8fquRg";
+  console.log("Using action ID:", actionId);
+
+  // Log the full request details for debugging
+  const headers = {
+    "Content-Type": "application/x-www-form-urlencoded",
+    "x-pica-secret": process.env.PICA_SECRET_KEY || "",
+    "x-pica-connection-key": process.env.PICA_STRIPE_CONNECTION_KEY || "",
+    "x-pica-action-id": actionId,
+  };
+
+  console.log("Request headers prepared:", {
+    "Content-Type": headers["Content-Type"],
+    "x-pica-secret": headers["x-pica-secret"] ? "present" : "missing",
+    "x-pica-connection-key": headers["x-pica-connection-key"]
+      ? "present"
+      : "missing",
+    "x-pica-action-id": headers["x-pica-action-id"],
+  });
 
   const response = await fetch(
     "https://api.picaos.com/v1/passthrough/v1/checkout/sessions",
     {
       method: "POST",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-        "x-pica-secret": process.env.PICA_SECRET_KEY || "",
-        "x-pica-connection-key": process.env.PICA_STRIPE_CONNECTION_KEY || "",
-        "x-pica-action-id": actionId,
-      },
+      headers: headers,
       // Remove credentials: "include" as it's not needed for server-to-server calls
       // and could cause issues with CORS
       body: formBody.toString(),

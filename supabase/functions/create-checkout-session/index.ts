@@ -1,9 +1,9 @@
-import { corsHeaders } from "./_shared/cors.ts";
+import { corsHeaders } from "@shared/cors.ts";
 import {
   verifyKeyFormat,
   getKeyType,
   interpretStripeError,
-} from "./_shared/stripe-diagnostics.ts";
+} from "@shared/stripe-diagnostics.ts";
 
 Deno.serve(async (req) => {
   // Handle CORS preflight requests
@@ -40,9 +40,7 @@ Deno.serve(async (req) => {
     // Check environment variables
     const picaSecretKey = Deno.env.get("PICA_SECRET_KEY");
     const picaConnectionKey = Deno.env.get("PICA_STRIPE_CONNECTION_KEY");
-    const picaActionId =
-      Deno.env.get("PICA_STRIPE_ACTION_ID") ||
-      "conn_mod_def::GCmLNSLWawg::Pj6pgAmnQhuqMPzB8fquRg";
+    const picaActionId = "conn_mod_def::GCmLNSLWawg::Pj6pgAmnQhuqMPzB8fquRg";
 
     console.log("Environment variables check:", {
       PICA_SECRET_KEY: picaSecretKey ? "present" : "missing",
@@ -51,7 +49,7 @@ Deno.serve(async (req) => {
       PICA_STRIPE_CONNECTION_KEY_LENGTH: picaConnectionKey
         ? picaConnectionKey.length
         : 0,
-      PICA_STRIPE_ACTION_ID: picaActionId || "missing",
+      PICA_STRIPE_ACTION_ID: picaActionId,
     });
 
     // Validate API keys if available
@@ -126,78 +124,116 @@ Deno.serve(async (req) => {
       "x-pica-action-id": headers["x-pica-action-id"],
     });
 
-    const response = await fetch(
+    // Log the full URL and request details for debugging
+    console.log(
+      "Making request to:",
       "https://api.picaos.com/v1/passthrough/v1/checkout/sessions",
-      {
-        method: "POST",
-        headers: headers,
-        body: formBody.toString(),
-      },
     );
 
-    if (!response.ok) {
-      let errorData;
-      let errorText;
-      try {
-        errorData = await response.json();
-        console.error(
-          "Pica API error response JSON:",
-          JSON.stringify(errorData),
-        );
-      } catch (e) {
-        try {
-          errorText = await response.text();
-          console.error("Pica API error response text:", errorText);
-          errorData = { message: errorText };
-        } catch (textError) {
-          console.error("Failed to read error response:", textError);
-          errorData = { message: "Failed to read error response" };
-        }
+    try {
+      const response = await fetch(
+        "https://api.picaos.com/v1/passthrough/v1/checkout/sessions",
+        {
+          method: "POST",
+          headers: headers,
+          body: formBody.toString(),
+        },
+      );
+
+      console.log("Response status:", response.status);
+      console.log("Response status text:", response.statusText);
+
+      // Log response headers for debugging
+      const responseHeaders = {};
+      for (const [key, value] of response.headers.entries()) {
+        responseHeaders[key] = value;
       }
+      console.log("Response headers:", responseHeaders);
 
-      // Log detailed error information
-      console.error("Checkout session creation failed:", {
-        status: response.status,
-        statusText: response.statusText,
-        headers: Object.fromEntries(response.headers.entries()),
-        error: errorData,
-      });
+      if (!response.ok) {
+        let errorData;
+        let errorText;
+        try {
+          errorData = await response.json();
+          console.error(
+            "Pica API error response JSON:",
+            JSON.stringify(errorData),
+          );
+        } catch (e) {
+          try {
+            errorText = await response.text();
+            console.error("Pica API error response text:", errorText);
+            errorData = { message: errorText };
+          } catch (textError) {
+            console.error("Failed to read error response:", textError);
+            errorData = { message: "Failed to read error response" };
+          }
+        }
 
-      // Try to interpret Stripe errors
-      const interpretedError = interpretStripeError(errorData);
-      console.log("Interpreted error:", interpretedError);
-
-      return new Response(
-        JSON.stringify({
-          error: "Failed to create checkout session",
-          details: errorData,
-          interpretation: interpretedError,
+        // Log detailed error information
+        console.error("Checkout session creation failed:", {
           status: response.status,
           statusText: response.statusText,
-          formData: formBody.toString().substring(0, 100) + "...", // Log partial form data for debugging
+          headers: responseHeaders,
+          error: errorData,
+        });
+
+        // Try to interpret Stripe errors
+        const interpretedError = interpretStripeError(errorData);
+        console.log("Interpreted error:", interpretedError);
+
+        // Return a 200 response with error details instead of forwarding the error status
+        // This prevents the Edge Function from returning a non-2xx status code
+        return new Response(
+          JSON.stringify({
+            error: "Failed to create checkout session",
+            details: errorData,
+            interpretation: interpretedError,
+            status: response.status,
+            statusText: response.statusText,
+            formData: formBody.toString().substring(0, 100) + "...", // Log partial form data for debugging
+          }),
+          {
+            status: 200, // Return 200 OK even though there was an error
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          },
+        );
+      }
+
+      const sessionData = await response.json();
+      console.log("Checkout session created successfully");
+
+      return new Response(JSON.stringify({ url: sessionData.url }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    } catch (fetchError) {
+      console.error("Fetch error:", fetchError);
+
+      // Return a 200 response with error details
+      return new Response(
+        JSON.stringify({
+          error: "Error making request to Pica API",
+          details: fetchError.message,
+          stack: fetchError.stack,
         }),
         {
-          status: response.status,
+          status: 200, // Return 200 OK even though there was an error
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         },
       );
     }
-
-    const sessionData = await response.json();
-    console.log("Checkout session created successfully");
-
-    return new Response(JSON.stringify({ url: sessionData.url }), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
   } catch (error) {
     console.error("Error creating checkout session:", error);
+
+    // Return a 200 response with error details
     return new Response(
       JSON.stringify({
         error: "Internal server error",
         details: error.message,
+        stack: error.stack,
       }),
       {
-        status: 500,
+        status: 200, // Return 200 OK even though there was an error
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       },
     );
