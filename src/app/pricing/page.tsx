@@ -194,7 +194,7 @@ export default function PricingPage() {
                   onClick={() =>
                     handleSubscribe("price_1RPFsuBHa6CDK7TJfVmF8ld6")
                   }
-                  disabled={isLoading}
+                  disabled={loadingPriceId === "price_1RPFsuBHa6CDK7TJfVmF8ld6"}
                 >
                   Get Started <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>

@@ -28,7 +28,16 @@ export async function POST(request: Request) {
     );
     console.log("Supabase auth cookie found:", !!supabaseCookie);
 
+    // Log cookie values for debugging (redacted for security)
+    if (supabaseCookie) {
+      console.log(
+        "Auth cookie exists with length:",
+        supabaseCookie.value.length,
+      );
+    }
+
     const supabase = createRouteHandlerClient({ cookies: () => cookieStore });
+    console.log("Supabase client created with cookies");
 
     // Get the current user session
     const sessionResult = await supabase.auth.getSession();
