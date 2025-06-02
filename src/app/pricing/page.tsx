@@ -81,7 +81,7 @@ export default function PricingPage() {
         });
 
         const { data, error } = await invokeEdgeFunction(
-          "supabase/functions/create-checkout-session/index.ts",
+          "create-checkout-session",
           {
             priceId,
             returnUrl: window.location.origin,
