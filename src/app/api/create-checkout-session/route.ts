@@ -1,5 +1,4 @@
-import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs";
-import { cookies } from "next/headers";
+import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {
@@ -32,68 +31,56 @@ export async function POST(request: Request) {
       );
     }
 
-    const cookieStore = cookies();
-    // Log all cookies for debugging
-    const allCookies = cookieStore.getAll();
-    console.log(
-      "Available cookies:",
-      allCookies.map((c) => c.name),
-    );
+    // Create Supabase server client
+    const supabase = createClient();
+    console.log("Supabase server client created");
 
-    // Check specifically for Supabase auth cookie
-    const supabaseCookie = allCookies.find((c) =>
-      c.name.includes("-auth-token"),
-    );
-    console.log("Supabase auth cookie found:", !!supabaseCookie);
+    // Verify authentication - first try with the auth header token if present
+    let user = null;
+    if (authHeader && authHeader.startsWith("Bearer ")) {
+      const token = authHeader.substring(7);
+      console.log("Attempting to use provided access token");
 
-    // Log cookie values for debugging (redacted for security)
-    if (supabaseCookie) {
-      console.log(
-        "Auth cookie exists with length:",
-        supabaseCookie.value.length,
-      );
-    }
-
-    const supabase = createRouteHandlerClient({ cookies: () => cookieStore });
-    console.log("Supabase client created with cookies");
-
-    // Get the current user session
-    const sessionResult = await supabase.auth.getSession();
-    const session = sessionResult.data.session;
-    const sessionError = sessionResult.error;
-
-    // Log detailed session information
-    console.log(
-      "Session check in API route:",
-      session ? "Found session" : "No session found",
-    );
-
-    if (sessionError) {
-      console.error("Session error:", sessionError);
-    }
-
-    if (!session) {
-      console.error("No session found in create-checkout-session");
-
-      // If we have an auth header but no session, try to use the token directly
-      if (authHeader && authHeader.startsWith("Bearer ")) {
-        const token = authHeader.substring(7);
-        console.log("Attempting to use provided access token");
-
-        try {
-          const { data, error } = await supabase.auth.getUser(token);
-          if (data.user && !error) {
-            console.log("Successfully authenticated with provided token");
-            const { priceId, returnUrl } = requestBody;
-            return await processCheckoutSession(priceId, returnUrl, data.user);
-          } else {
-            console.error("Token authentication failed:", error);
-          }
-        } catch (tokenError) {
-          console.error("Error using provided token:", tokenError);
+      try {
+        const { data, error } = await supabase.auth.getUser(token);
+        if (data.user && !error) {
+          console.log("Successfully authenticated with provided token");
+          user = data.user;
+        } else {
+          console.error("Token authentication failed:", error);
         }
+      } catch (tokenError) {
+        console.error("Error using provided token:", tokenError);
+      }
+    }
+
+    // If token auth failed, try session-based auth
+    if (!user) {
+      const { data: sessionData, error: sessionError } =
+        await supabase.auth.getSession();
+
+      if (sessionError) {
+        console.error("Session error:", sessionError);
       }
 
+      if (sessionData?.session) {
+        console.log("Found session, getting user data");
+        const { data: userData, error: userError } =
+          await supabase.auth.getUser();
+
+        if (userError) {
+          console.error("Error getting user from session:", userError);
+        } else if (userData?.user) {
+          console.log("Successfully authenticated with session");
+          user = userData.user;
+        }
+      } else {
+        console.log("No session found");
+      }
+    }
+
+    // If still no authenticated user, check for development/testing options
+    if (!user) {
       // For development/testing purposes, allow anonymous checkout if explicitly requested
       if (requestBody.allowAnonymous === true) {
         console.log(
@@ -121,25 +108,7 @@ export async function POST(request: Request) {
       }
 
       return NextResponse.json(
-        { error: "Unauthorized - No session" },
-        { status: 401 },
-      );
-    }
-
-    // Only try to get user if we have a session
-    const {
-      data: { user },
-      error: userError,
-    } = await supabase.auth.getUser();
-
-    if (userError) {
-      console.error("Error getting user:", userError);
-    }
-
-    if (!user) {
-      console.error("Session found but no user data");
-      return NextResponse.json(
-        { error: "Unauthorized - No user" },
+        { error: "Unauthorized - Authentication required" },
         { status: 401 },
       );
     }
