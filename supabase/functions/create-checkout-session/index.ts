@@ -21,12 +21,28 @@ Deno.serve(async (req) => {
       status: 200,
     });
   }
+  // Handle CORS preflight requests
+  if (req.method === "OPTIONS") {
+    return new Response("ok", {
+      headers: {
+        ...corsHeaders,
+        "Access-Control-Allow-Methods": "POST, OPTIONS",
+        "Access-Control-Allow-Headers":
+          "Content-Type, Authorization, x-client-info, apikey",
+      },
+      status: 200,
+    });
+  }
 
   try {
     if (req.method !== "POST") {
       return new Response(JSON.stringify({ error: "Method not allowed" }), {
         status: 200, // Return 200 even for errors to prevent Edge Function errors
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        headers: {
+          ...corsHeaders,
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Methods": "POST, OPTIONS",
+        },
       });
     }
 
