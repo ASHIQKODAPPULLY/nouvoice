@@ -31,25 +31,21 @@ export default function PricingPage() {
         return;
       }
 
-      const { data: sessionData } = await supabase.auth.getSession();
-      const token = sessionData?.session?.access_token;
-
-      // Use the correct function name format
-      const { invokeEdgeFunction } = await import(
-        "@/lib/supabase/edge-functions"
-      );
-      const { data, error } = await invokeEdgeFunction(
-        "supabase/functions/create-checkout-session/index.ts",
+      // Call the Edge Function directly
+      const { data, error } = await supabase.functions.invoke(
+        "create-checkout-session",
         {
-          priceId,
-          returnUrl: window.location.origin,
-          userId: session.user.id,
+          body: {
+            priceId,
+            returnUrl: window.location.origin,
+            userId: session.user.id,
+          },
         },
       );
 
       if (error) {
         console.error("Edge function error:", error);
-        throw new Error("Failed to create checkout session via edge function");
+        throw new Error(error.message || "Failed to create checkout session");
       }
 
       if (data?.url) {
@@ -57,29 +53,7 @@ export default function PricingPage() {
         return;
       }
 
-      // Optional: fallback
-      const response = await fetch("/api/create-checkout-session", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          ...(token && {
-            Authorization: `Bearer ${token}`,
-          }),
-        },
-        credentials: "include",
-        body: JSON.stringify({
-          priceId,
-          returnUrl: window.location.origin,
-        }),
-      });
-
-      const result = await response.json();
-
-      if (!response.ok || !result.url) {
-        throw new Error(result.error || "Failed to create checkout session");
-      }
-
-      window.location.href = result.url;
+      throw new Error("No checkout URL returned");
     } catch (error: any) {
       console.error("Checkout error:", error);
       alert("Unable to process your request. Please try again later.");
