@@ -21,18 +21,6 @@ Deno.serve(async (req) => {
       status: 200,
     });
   }
-  // Handle CORS preflight requests
-  if (req.method === "OPTIONS") {
-    return new Response("ok", {
-      headers: {
-        ...corsHeaders,
-        "Access-Control-Allow-Methods": "POST, OPTIONS",
-        "Access-Control-Allow-Headers":
-          "Content-Type, Authorization, x-client-info, apikey",
-      },
-      status: 200,
-    });
-  }
 
   try {
     if (req.method !== "POST") {
