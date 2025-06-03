@@ -33,7 +33,7 @@ export default function PricingPage() {
 
       // Call the Edge Function directly
       const { data, error } = await supabase.functions.invoke(
-        "create-checkout-session",
+        "supabase-functions-create-checkout-session",
         {
           body: {
             priceId,

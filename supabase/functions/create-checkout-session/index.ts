@@ -9,7 +9,7 @@ Deno.serve(async (req) => {
         "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Methods": "POST, OPTIONS",
         "Access-Control-Allow-Headers":
-          "Content-Type, x-pica-secret, x-pica-connection-key, x-pica-action-id",
+          "Content-Type, authorization, x-client-info, apikey",
       },
       status: 200,
     });
@@ -32,7 +32,7 @@ Deno.serve(async (req) => {
       });
     }
 
-    const picaSecretKey = Deno.env.get("PICA_SECRET_KEY");
+    const picaSecretKey = Deno.env.get("STRIPE_SECRET_KEY");
     const picaConnectionKey = Deno.env.get("PICA_STRIPE_CONNECTION_KEY");
     const picaActionId = "conn_mod_def::GCmLNSLWawg::Pj6pgAmnQhuqMPzB8fquRg";
 
@@ -51,7 +51,8 @@ Deno.serve(async (req) => {
     formBody.append("line_items[0][price]", priceId);
     formBody.append("line_items[0][quantity]", "1");
 
-    const siteUrl = returnUrl || "https://nouvoice.com.au";
+    const siteUrl =
+      returnUrl || "https://serene-sutherland6-a496q.view-2.tempo-dev.app";
     formBody.append(
       "success_url",
       `${siteUrl}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
