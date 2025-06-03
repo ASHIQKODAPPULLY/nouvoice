@@ -34,12 +34,12 @@ export default function PricingPage() {
       const { data: sessionData } = await supabase.auth.getSession();
       const token = sessionData?.session?.access_token;
 
-      // ✅ FIXED EDGE FUNCTION NAME HERE
+      // Use the correct function name format
       const { invokeEdgeFunction } = await import(
         "@/lib/supabase/edge-functions"
       );
       const { data, error } = await invokeEdgeFunction(
-        "supabase/functions/create-checkout-session/index.ts",
+        "create-checkout-session",
         {
           priceId,
           returnUrl: window.location.origin,

@@ -6,7 +6,12 @@ import { createClient } from "@supabase/supabase-js";
  * @returns The properly formatted slug for invoking the function
  */
 export function generateFunctionSlug(functionPath: string): string {
-  // Ensure we're using the correct format for the function slug
+  // If the function name is already in the correct format (no slashes), return it as is
+  if (!functionPath.includes("/")) {
+    return functionPath;
+  }
+
+  // Otherwise, convert from path format to slug format
   // This should match exactly what Supabase expects
   return functionPath
     .replace("/index.ts", "")
@@ -26,13 +31,15 @@ export async function invokeEdgeFunction<T = any, P = any>(
   functionPath: string,
   payload?: P,
 ) {
+  console.log(`[invokeEdgeFunction] Starting with path: ${functionPath}`);
   const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
   );
 
   const slug = generateFunctionSlug(functionPath);
-  console.log(`Invoking edge function with slug: ${slug}`);
+  console.log(`[invokeEdgeFunction] Generated slug: ${slug}`);
+  console.log(`[invokeEdgeFunction] Invoking edge function with slug: ${slug}`);
 
   try {
     // Log the Supabase URL and function endpoint for debugging
@@ -52,9 +59,13 @@ export async function invokeEdgeFunction<T = any, P = any>(
       }
     }
 
+    console.log(
+      `[invokeEdgeFunction] About to call supabase.functions.invoke with slug: ${slug}`,
+    );
     const { data, error } = await supabase.functions.invoke<T>(slug, {
       body: payload,
     });
+    console.log(`[invokeEdgeFunction] supabase.functions.invoke completed`);
 
     if (error) {
       console.error(`Error invoking edge function ${slug}:`, error);

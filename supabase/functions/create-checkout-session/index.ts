@@ -5,11 +5,21 @@ import {
   interpretStripeError,
 } from "@shared/stripe-diagnostics.ts";
 
+console.log("Edge function loaded: create-checkout-session");
+
 // Direct implementation using Stripe API via Pica passthrough
 Deno.serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === "OPTIONS") {
-    return new Response("ok", { headers: corsHeaders, status: 200 });
+    return new Response("ok", {
+      headers: {
+        ...corsHeaders,
+        "Access-Control-Allow-Methods": "POST, OPTIONS",
+        "Access-Control-Allow-Headers":
+          "Content-Type, Authorization, x-client-info, apikey",
+      },
+      status: 200,
+    });
   }
 
   try {
@@ -39,9 +49,13 @@ Deno.serve(async (req) => {
     }
 
     // Check environment variables
+    console.log("Checking environment variables...");
     const picaSecretKey = Deno.env.get("PICA_SECRET_KEY");
     const picaConnectionKey = Deno.env.get("PICA_STRIPE_CONNECTION_KEY");
     const picaActionId = "conn_mod_def::GCmLNSLWawg::Pj6pgAmnQhuqMPzB8fquRg";
+
+    // Log environment variable status
+    console.log("Environment variables check complete");
 
     console.log("Environment variables check:", {
       PICA_SECRET_KEY: picaSecretKey ? "present" : "missing",
@@ -54,9 +68,11 @@ Deno.serve(async (req) => {
     });
 
     // For development testing, use mock keys if real ones aren't available
+    console.log("Setting up API keys (using mock keys if needed)...");
     const finalPicaSecretKey = picaSecretKey || "mock_pica_secret_key_for_dev";
     const finalPicaConnectionKey =
       picaConnectionKey || "mock_pica_connection_key_for_dev";
+    console.log("API keys prepared");
 
     // Create form body for Pica API
     const formBody = new URLSearchParams();
@@ -123,7 +139,9 @@ Deno.serve(async (req) => {
     );
 
     try {
+      console.log("Preparing to make API request to Pica...");
       // Make sure to convert formBody to string for the fetch request
+      console.log("Making fetch request to Pica API...");
       const response = await fetch(
         "https://api.picaos.com/v1/passthrough/v1/checkout/sessions",
         {
@@ -132,6 +150,7 @@ Deno.serve(async (req) => {
           body: formBody.toString(), // Convert URLSearchParams to string
         },
       );
+      console.log("Fetch request completed");
 
       console.log("Response status:", response.status);
       console.log("Response status text:", response.statusText);
