@@ -12,5 +12,8 @@ PICA_SECRET_KEY
 PICA_STRIPE_CONNECTION_KEY
 ```
 
+`NEXT_PUBLIC_SUPABASE_URL` must be the full URL of your Supabase project,
+for example `https://your-project.supabase.co`.
+
 The `.env.production` file contains the same placeholders for deployment.
 Replace them with your production credentials before deploying.
