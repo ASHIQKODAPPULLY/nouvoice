@@ -33,7 +33,7 @@ export default function PricingPage() {
 
       // Call the Edge Function directly
       const { data, error } = await supabase.functions.invoke(
-        "supabase-functions-create-checkout-session",
+        "create-checkout-session",
         {
           body: {
             priceId,
@@ -45,7 +45,6 @@ export default function PricingPage() {
 
       if (error) {
         console.error("Edge function error:", error);
-        throw new Error(error.message || "Failed to create checkout session");
       }
 
       if (data?.url) {
@@ -53,7 +52,31 @@ export default function PricingPage() {
         return;
       }
 
-      throw new Error("No checkout URL returned");
+      // If edge function fails, fallback to API route
+      const { data: sessionData } = await supabase.auth.getSession();
+      const token = sessionData?.session?.access_token;
+
+      const response = await fetch("/api/create-checkout-session", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(token && { Authorization: `Bearer ${token}` }),
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          priceId,
+          returnUrl: window.location.origin,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (response.ok && result.url) {
+        window.location.href = result.url;
+        return;
+      }
+
+      throw new Error(result.error || "Failed to create checkout session");
     } catch (error: any) {
       console.error("Checkout error:", error);
       alert("Unable to process your request. Please try again later.");
