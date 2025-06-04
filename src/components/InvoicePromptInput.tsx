@@ -371,7 +371,7 @@ export default function InvoicePromptInput({
     setShowSuggestions(false);
     setOpenDropdown(null);
 
-    const suggestion = `${product.name} for ${product.price}`;
+    const suggestion = `${product.name} for $${product.price}`;
     insertSuggestion(suggestion);
   };
 
@@ -384,7 +384,7 @@ export default function InvoicePromptInput({
     localStorage.setItem("savedProducts", JSON.stringify(updatedProducts));
 
     // Insert the new product into the prompt
-    const suggestion = `${name} for ${price}`;
+    const suggestion = `${name} for $${price}`;
     insertSuggestion(suggestion);
 
     // Close dropdown
