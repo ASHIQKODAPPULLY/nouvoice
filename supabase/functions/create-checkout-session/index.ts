@@ -3,46 +3,25 @@ import { corsHeaders } from "@shared/cors.ts";
 Deno.serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === "OPTIONS") {
-    return new Response("ok", {
-      headers: {
-        ...corsHeaders,
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "POST, OPTIONS",
-        "Access-Control-Allow-Headers":
-          "Content-Type, authorization, x-client-info, apikey",
-      },
-      status: 200,
-    });
-  }
-
-  if (req.method !== "POST") {
-    return new Response(JSON.stringify({ error: "Method not allowed" }), {
-      status: 405,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+    return new Response("ok", { headers: corsHeaders });
   }
 
   try {
     const { priceId, returnUrl, userId } = await req.json();
 
-    if (!priceId || typeof priceId !== "string") {
-      return new Response(JSON.stringify({ error: "Invalid price ID" }), {
+    if (!priceId) {
+      return new Response(JSON.stringify({ error: "Price ID is required" }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    const picaSecretKey = Deno.env.get("PICA_SECRET_KEY");
-    const picaConnectionKey = Deno.env.get("PICA_STRIPE_CONNECTION_KEY");
-    const picaActionId = "conn_mod_def::GCmLNSLWawg::Pj6pgAmnQhuqMPzB8fquRg";
-
-    if (!picaSecretKey || !picaConnectionKey) {
-      console.error("Missing environment variables:", {
-        picaSecretKey: !!picaSecretKey,
-        picaConnectionKey: !!picaConnectionKey,
-      });
+    // Get Stripe secret key from environment
+    const stripeSecretKey = Deno.env.get("STRIPE_SECRET_KEY");
+    if (!stripeSecretKey) {
+      console.error("STRIPE_SECRET_KEY not found in environment");
       return new Response(
-        JSON.stringify({ error: "Missing required environment variables" }),
+        JSON.stringify({ error: "Stripe configuration missing" }),
         {
           status: 500,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -50,107 +29,81 @@ Deno.serve(async (req) => {
       );
     }
 
-    const formBody = new URLSearchParams();
-    formBody.append("mode", "subscription");
-    formBody.append("line_items[0][price]", priceId);
-    formBody.append("line_items[0][quantity]", "1");
-
-    const siteUrl =
-      returnUrl || "https://serene-sutherland6-a496q.view-2.tempo-dev.app";
-    formBody.append(
-      "success_url",
-      `${siteUrl}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
-    );
-    formBody.append("cancel_url", `${siteUrl}/pricing`);
-    formBody.append("automatic_tax[enabled]", "true");
-
-    if (userId) {
-      formBody.append("client_reference_id", userId);
+    // Validate Stripe secret key format
+    if (!stripeSecretKey.startsWith("sk_")) {
+      console.error("Invalid Stripe secret key format");
+      return new Response(
+        JSON.stringify({ error: "Invalid Stripe configuration" }),
+        {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        },
+      );
     }
 
-    console.log("Request payload:", {
-      priceId,
-      siteUrl,
-      userId,
-      formBodySize: formBody.toString().length,
-    });
+    // Prepare form data for Stripe Checkout Session API
+    const formData = new URLSearchParams();
+    formData.append("mode", "subscription");
+    formData.append("line_items[0][price]", priceId);
+    formData.append("line_items[0][quantity]", "1");
+    formData.append("automatic_tax[enabled]", "true");
 
-    const response = await fetch(
-      "https://api.picaos.com/v1/passthrough/v1/checkout/sessions",
+    // Set success and cancel URLs
+    const baseUrl =
+      returnUrl || "https://serene-sutherland6-a496q.view-2.tempo-dev.app";
+    formData.append(
+      "success_url",
+      `${baseUrl}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
+    );
+    formData.append("cancel_url", `${baseUrl}/pricing`);
+
+    // Add client reference ID if provided
+    if (userId) {
+      formData.append("client_reference_id", userId);
+    }
+
+    console.log("Creating Stripe checkout session with price:", priceId);
+
+    // Make direct call to Stripe API
+    const stripeResponse = await fetch(
+      "https://api.stripe.com/v1/checkout/sessions",
       {
         method: "POST",
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
-          "x-pica-secret": picaSecretKey,
-          "x-pica-connection-key": picaConnectionKey,
-          "x-pica-action-id": picaActionId,
+          Authorization: `Bearer ${stripeSecretKey}`,
         },
-        body: formBody.toString(),
+        body: formData.toString(),
       },
     );
 
-    const responseText = await response.text();
-    console.log("Pica API response:", {
-      status: response.status,
-      statusText: response.statusText,
-      responseLength: responseText.length,
-      responsePreview: responseText.substring(0, 200),
-    });
+    const responseData = await stripeResponse.json();
 
-    let sessionData;
-    try {
-      sessionData = JSON.parse(responseText);
-    } catch (parseError) {
-      console.error("Failed to parse response:", parseError);
+    if (!stripeResponse.ok) {
+      console.error("Stripe API error:", responseData);
       return new Response(
         JSON.stringify({
-          error: "Invalid response from payment provider",
-          details: responseText.substring(0, 200),
+          error:
+            responseData.error?.message || "Failed to create checkout session",
+          details: responseData,
         }),
         {
-          status: 500,
+          status: stripeResponse.status,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         },
       );
     }
 
-    if (!response.ok) {
-      return new Response(
-        JSON.stringify({
-          error: "Failed to create checkout session",
-          details: sessionData,
-          status: response.status,
-        }),
-        {
-          status: response.status,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        },
-      );
-    }
-
-    if (!sessionData.url) {
-      return new Response(
-        JSON.stringify({
-          error: "Invalid checkout session response",
-          details: "Response did not contain a checkout URL",
-        }),
-        {
-          status: 500,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        },
-      );
-    }
-
-    return new Response(JSON.stringify({ url: sessionData.url }), {
+    console.log("Stripe checkout session created successfully");
+    return new Response(JSON.stringify({ url: responseData.url }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
-      status: 200,
     });
   } catch (error) {
     console.error("Edge function error:", error);
     return new Response(
       JSON.stringify({
         error: "Internal server error",
-        details: error.message,
+        message: error.message,
       }),
       {
         status: 500,
