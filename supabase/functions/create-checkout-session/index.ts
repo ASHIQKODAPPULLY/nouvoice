@@ -32,7 +32,8 @@ Deno.serve(async (req) => {
       });
     }
 
-    const picaSecretKey = Deno.env.get("STRIPE_SECRET_KEY");
+    // Use the same environment variable as the server API route
+    const picaSecretKey = Deno.env.get("PICA_SECRET_KEY");
     const picaConnectionKey = Deno.env.get("PICA_STRIPE_CONNECTION_KEY");
     const picaActionId = "conn_mod_def::GCmLNSLWawg::Pj6pgAmnQhuqMPzB8fquRg";
 
