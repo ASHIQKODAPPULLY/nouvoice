@@ -32,11 +32,15 @@ Deno.serve(async (req) => {
       });
     }
 
-    const picaSecretKey = Deno.env.get("STRIPE_SECRET_KEY");
+    const picaSecretKey = Deno.env.get("PICA_SECRET_KEY");
     const picaConnectionKey = Deno.env.get("PICA_STRIPE_CONNECTION_KEY");
     const picaActionId = "conn_mod_def::GCmLNSLWawg::Pj6pgAmnQhuqMPzB8fquRg";
 
     if (!picaSecretKey || !picaConnectionKey) {
+      console.error("Missing environment variables:", {
+        picaSecretKey: !!picaSecretKey,
+        picaConnectionKey: !!picaConnectionKey,
+      });
       return new Response(
         JSON.stringify({ error: "Missing required environment variables" }),
         {
@@ -64,6 +68,13 @@ Deno.serve(async (req) => {
       formBody.append("client_reference_id", userId);
     }
 
+    console.log("Request payload:", {
+      priceId,
+      siteUrl,
+      userId,
+      formBodySize: formBody.toString().length,
+    });
+
     const response = await fetch(
       "https://api.picaos.com/v1/passthrough/v1/checkout/sessions",
       {
@@ -79,10 +90,18 @@ Deno.serve(async (req) => {
     );
 
     const responseText = await response.text();
+    console.log("Pica API response:", {
+      status: response.status,
+      statusText: response.statusText,
+      responseLength: responseText.length,
+      responsePreview: responseText.substring(0, 200),
+    });
+
     let sessionData;
     try {
       sessionData = JSON.parse(responseText);
-    } catch {
+    } catch (parseError) {
+      console.error("Failed to parse response:", parseError);
       return new Response(
         JSON.stringify({
           error: "Invalid response from payment provider",
@@ -127,6 +146,7 @@ Deno.serve(async (req) => {
       status: 200,
     });
   } catch (error) {
+    console.error("Edge function error:", error);
     return new Response(
       JSON.stringify({
         error: "Internal server error",
