@@ -1,0 +1,19 @@
+## Environment Variables
+
+Copy `.env.example` to `.env` and replace the placeholder values with your
+project's actual credentials. The following keys are required for the
+application to function:
+
+```
+NEXT_PUBLIC_SUPABASE_URL
+NEXT_PUBLIC_SUPABASE_ANON_KEY
+SUPABASE_SERVICE_ROLE_KEY
+PICA_SECRET_KEY
+PICA_STRIPE_CONNECTION_KEY
+```
+
+`NEXT_PUBLIC_SUPABASE_URL` must be the full URL of your Supabase project,
+for example `https://your-project.supabase.co`.
+
+The `.env.production` file contains the same placeholders for deployment.
+Replace them with your production credentials before deploying.
