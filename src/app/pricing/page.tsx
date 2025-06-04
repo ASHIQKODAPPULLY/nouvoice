@@ -31,25 +31,21 @@ export default function PricingPage() {
         return;
       }
 
-      // Call the Next.js API route instead of Edge Function
-      const response = await fetch("/api/create-checkout-session", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${session.access_token}`,
+      // Call the Supabase Edge Function
+      const { data, error } = await supabase.functions.invoke(
+        "supabase-functions-create-checkout-session",
+        {
+          body: {
+            priceId,
+            returnUrl: window.location.origin,
+            userId: session.user.id,
+          },
         },
-        body: JSON.stringify({
-          priceId,
-          returnUrl: window.location.origin,
-          userId: session.user.id,
-        }),
-      });
+      );
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        console.error("API error:", data);
-        throw new Error(data.error || "Failed to create checkout session");
+      if (error) {
+        console.error("Edge function error:", error);
+        throw new Error(error.message || "Failed to create checkout session");
       }
 
       if (data?.url) {

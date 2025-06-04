@@ -8,6 +8,7 @@ Deno.serve(async (req) => {
 
   try {
     const { priceId, returnUrl, userId } = await req.json();
+    console.log("Received request:", { priceId, returnUrl, userId });
 
     if (!priceId) {
       return new Response(JSON.stringify({ error: "Price ID is required" }), {
@@ -16,32 +17,42 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Get Stripe secret key from environment
-    const stripeSecretKey = Deno.env.get("STRIPE_SECRET_KEY");
-    if (!stripeSecretKey) {
-      console.error("STRIPE_SECRET_KEY not found in environment");
+    // Validate price ID format
+    if (
+      !priceId.startsWith("price_") &&
+      !priceId.includes("annual_discount") &&
+      !priceId.includes("monthly_pro")
+    ) {
+      console.error("Invalid price ID format:", priceId);
       return new Response(
-        JSON.stringify({ error: "Stripe configuration missing" }),
+        JSON.stringify({ error: "Invalid price ID format" }),
         {
-          status: 500,
+          status: 400,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         },
       );
     }
 
-    // Validate Stripe secret key format
-    if (!stripeSecretKey.startsWith("sk_")) {
-      console.error("Invalid Stripe secret key format");
-      return new Response(
-        JSON.stringify({ error: "Invalid Stripe configuration" }),
-        {
-          status: 500,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        },
-      );
+    // Get environment variables for PICA API
+    const PICA_SECRET_KEY = Deno.env.get("PICA_SECRET_KEY");
+    const PICA_STRIPE_CONNECTION_KEY = Deno.env.get(
+      "PICA_STRIPE_CONNECTION_KEY",
+    );
+
+    if (!PICA_SECRET_KEY || !PICA_STRIPE_CONNECTION_KEY) {
+      console.error("Missing PICA environment variables");
+      return new Response(JSON.stringify({ error: "Configuration missing" }), {
+        status: 500,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
-    // Prepare form data for Stripe Checkout Session API
+    console.log("PICA keys available:", {
+      secret: !!PICA_SECRET_KEY,
+      connection: !!PICA_STRIPE_CONNECTION_KEY,
+    });
+
+    // Prepare form data for PICA API
     const formData = new URLSearchParams();
     formData.append("mode", "subscription");
     formData.append("line_items[0][price]", priceId);
@@ -62,40 +73,57 @@ Deno.serve(async (req) => {
       formData.append("client_reference_id", userId);
     }
 
-    console.log("Creating Stripe checkout session with price:", priceId);
+    console.log("Form data prepared:", formData.toString());
 
-    // Make direct call to Stripe API
-    const stripeResponse = await fetch(
-      "https://api.stripe.com/v1/checkout/sessions",
+    // Use the correct action ID for checkout sessions
+    const actionId = "conn_mod_def::GCmLNSLWawg::Pj6pgAmnQhuqMPzB8fquRg";
+
+    // Make call to PICA API
+    const response = await fetch(
+      "https://api.picaos.com/v1/passthrough/v1/checkout/sessions",
       {
         method: "POST",
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
-          Authorization: `Bearer ${stripeSecretKey}`,
+          "x-pica-secret": PICA_SECRET_KEY,
+          "x-pica-connection-key": PICA_STRIPE_CONNECTION_KEY,
+          "x-pica-action-id": actionId,
         },
         body: formData.toString(),
       },
     );
 
-    const responseData = await stripeResponse.json();
+    console.log("PICA API response status:", response.status);
 
-    if (!stripeResponse.ok) {
-      console.error("Stripe API error:", responseData);
+    if (!response.ok) {
+      let errorData;
+      try {
+        errorData = await response.json();
+      } catch (e) {
+        errorData = { message: await response.text() };
+      }
+      console.error("PICA API error:", {
+        status: response.status,
+        statusText: response.statusText,
+        error: errorData,
+      });
       return new Response(
         JSON.stringify({
-          error:
-            responseData.error?.message || "Failed to create checkout session",
-          details: responseData,
+          error: "Failed to create checkout session",
+          details: errorData,
+          status: response.status,
         }),
         {
-          status: stripeResponse.status,
+          status: response.status,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         },
       );
     }
 
-    console.log("Stripe checkout session created successfully");
-    return new Response(JSON.stringify({ url: responseData.url }), {
+    const sessionData = await response.json();
+    console.log("Checkout session created successfully");
+
+    return new Response(JSON.stringify({ url: sessionData.url }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (error) {
