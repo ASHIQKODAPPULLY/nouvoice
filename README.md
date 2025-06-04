@@ -12,5 +12,5 @@ PICA_SECRET_KEY
 PICA_STRIPE_CONNECTION_KEY
 ```
 
-You may also update `.env.production` with the same keys when deploying to
-production.
+The `.env.production` file contains the same placeholders for deployment.
+Replace them with your production credentials before deploying.
