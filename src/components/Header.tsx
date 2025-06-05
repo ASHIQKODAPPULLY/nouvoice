@@ -22,13 +22,16 @@ export default function Header() {
 
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 10);
+      setIsScrolled(window.scrollY > 10); // Adjust this threshold as needed
     };
 
-    // Set initial state
+    // Set initial state on mount
     handleScroll();
 
+    // Add scroll event listener
     window.addEventListener("scroll", handleScroll, { passive: true });
+
+    // Cleanup the event listener on unmount
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
