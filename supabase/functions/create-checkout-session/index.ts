@@ -71,31 +71,33 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Prepare form data for PICA API with more detailed logging
-    const formData = new URLSearchParams();
-    formData.append("mode", "subscription");
-    formData.append("line_items[0][price]", priceId);
-    formData.append("line_items[0][quantity]", "1");
-    formData.append("automatic_tax[enabled]", "true");
-
     // Set success and cancel URLs
     const successUrl = `${baseUrl}/payment-success?session_id={CHECKOUT_SESSION_ID}`;
     const cancelUrl = `${baseUrl}/pricing`;
 
-    formData.append("success_url", successUrl);
-    formData.append("cancel_url", cancelUrl);
-
-    // Add client reference ID if provided
-    if (userId) {
-      formData.append("client_reference_id", userId);
-    }
+    // Prepare JSON body for PICA API
+    const requestBody = {
+      mode: "subscription",
+      line_items: [
+        {
+          price: priceId,
+          quantity: 1,
+        },
+      ],
+      automatic_tax: {
+        enabled: true,
+      },
+      success_url: successUrl,
+      cancel_url: cancelUrl,
+      ...(userId && { client_reference_id: userId }),
+    };
 
     console.log("Request details:", {
       priceId,
       successUrl,
       cancelUrl,
       userId,
-      formDataEntries: Array.from(formData.entries()),
+      requestBody,
     });
 
     // Use the correct action ID for checkout sessions
@@ -105,7 +107,7 @@ Deno.serve(async (req) => {
     console.log("Making PICA API call:", {
       url: apiUrl,
       actionId,
-      bodyLength: formData.toString().length,
+      bodyLength: JSON.stringify(requestBody).length,
     });
 
     // Add timeout to prevent hanging
@@ -121,12 +123,12 @@ Deno.serve(async (req) => {
       response = await fetch(apiUrl, {
         method: "POST",
         headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
+          "Content-Type": "application/json",
           "x-pica-secret": PICA_SECRET_KEY,
           "x-pica-connection-key": PICA_STRIPE_CONNECTION_KEY,
           "x-pica-action-id": actionId,
         },
-        body: formData.toString(),
+        body: JSON.stringify(requestBody),
         signal: controller.signal,
       });
     } catch (fetchError) {
