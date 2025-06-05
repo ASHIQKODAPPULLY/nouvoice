@@ -1,4 +1,4 @@
-import { corsHeaders } from "../_shared/cors.ts";
+import { corsHeaders } from "@shared/cors.ts";
 
 Deno.serve(async (req) => {
   // Handle CORS preflight requests
@@ -27,33 +27,16 @@ Deno.serve(async (req) => {
       returnUrl || "https://serene-sutherland6-a496q.view-2.tempo-dev.app";
 
     if (!priceId) {
+      console.error("Missing price ID in request");
       return new Response(JSON.stringify({ error: "Price ID is required" }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    // Validate price ID format
-    if (
-      !priceId.startsWith("price_") &&
-      !priceId.includes("annual_discount") &&
-      !priceId.includes("monthly_pro") &&
-      priceId !== "free"
-    ) {
-      console.error("Invalid price ID format:", priceId);
-      return new Response(
-        JSON.stringify({ error: "Invalid price ID format" }),
-        {
-          status: 400,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        },
-      );
-    }
-
     // Handle free plan signup
     if (priceId === "free") {
-      // For free plans, we don't need to create a checkout session
-      // Just return a URL to redirect to the signup page
+      console.log("Handling free plan signup");
       return new Response(
         JSON.stringify({
           url: `${baseUrl}/auth/signup?plan=free`,
@@ -70,20 +53,25 @@ Deno.serve(async (req) => {
       "PICA_STRIPE_CONNECTION_KEY",
     );
 
+    console.log("Environment check:", {
+      hasPicaSecret: !!PICA_SECRET_KEY,
+      hasPicaConnection: !!PICA_STRIPE_CONNECTION_KEY,
+      picaSecretLength: PICA_SECRET_KEY?.length || 0,
+      picaConnectionLength: PICA_STRIPE_CONNECTION_KEY?.length || 0,
+    });
+
     if (!PICA_SECRET_KEY || !PICA_STRIPE_CONNECTION_KEY) {
-      console.error("Missing PICA environment variables");
+      console.error("Missing PICA environment variables", {
+        PICA_SECRET_KEY: !!PICA_SECRET_KEY,
+        PICA_STRIPE_CONNECTION_KEY: !!PICA_STRIPE_CONNECTION_KEY,
+      });
       return new Response(JSON.stringify({ error: "Configuration missing" }), {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    console.log("PICA keys available:", {
-      secret: !!PICA_SECRET_KEY,
-      connection: !!PICA_STRIPE_CONNECTION_KEY,
-    });
-
-    // Prepare form data for PICA API
+    // Prepare form data for PICA API with more detailed logging
     const formData = new URLSearchParams();
     formData.append("mode", "subscription");
     formData.append("line_items[0][price]", priceId);
@@ -91,30 +79,46 @@ Deno.serve(async (req) => {
     formData.append("automatic_tax[enabled]", "true");
 
     // Set success and cancel URLs
-    formData.append(
-      "success_url",
-      `${baseUrl}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
-    );
-    formData.append("cancel_url", `${baseUrl}/pricing`);
+    const successUrl = `${baseUrl}/payment-success?session_id={CHECKOUT_SESSION_ID}`;
+    const cancelUrl = `${baseUrl}/pricing`;
+
+    formData.append("success_url", successUrl);
+    formData.append("cancel_url", cancelUrl);
 
     // Add client reference ID if provided
     if (userId) {
       formData.append("client_reference_id", userId);
     }
 
-    console.log("Form data prepared:", formData.toString());
+    console.log("Request details:", {
+      priceId,
+      successUrl,
+      cancelUrl,
+      userId,
+      formDataEntries: Array.from(formData.entries()),
+    });
 
     // Use the correct action ID for checkout sessions
     const actionId = "conn_mod_def::GCmLNSLWawg::Pj6pgAmnQhuqMPzB8fquRg";
+    const apiUrl = "https://api.picaos.com/v1/passthrough/v1/checkout/sessions";
+
+    console.log("Making PICA API call:", {
+      url: apiUrl,
+      actionId,
+      bodyLength: formData.toString().length,
+    });
 
     // Add timeout to prevent hanging
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 10000); // 10 seconds
+    const timeout = setTimeout(() => {
+      console.error("Request timeout after 15 seconds");
+      controller.abort();
+    }, 15000); // 15 seconds
 
-    // Make call to PICA API
-    const response = await fetch(
-      "https://api.picaos.com/v1/passthrough/v1/checkout/sessions",
-      {
+    let response;
+    try {
+      // Make call to PICA API
+      response = await fetch(apiUrl, {
         method: "POST",
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
@@ -124,50 +128,123 @@ Deno.serve(async (req) => {
         },
         body: formData.toString(),
         signal: controller.signal,
-      },
-    );
-
-    clearTimeout(timeout);
-
-    console.log("PICA API response status:", response.status);
-
-    if (!response.ok) {
-      let errorData;
-      try {
-        errorData = await response.json();
-      } catch (e) {
-        errorData = { message: await response.text() };
-      }
-      console.error("PICA API error:", {
-        status: response.status,
-        statusText: response.statusText,
-        error: errorData,
       });
+    } catch (fetchError) {
+      clearTimeout(timeout);
+      console.error("Fetch error:", {
+        name: fetchError.name,
+        message: fetchError.message,
+        stack: fetchError.stack,
+      });
+
+      if (fetchError.name === "AbortError") {
+        return new Response(JSON.stringify({ error: "Request timeout" }), {
+          status: 408,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
       return new Response(
         JSON.stringify({
-          error: "Failed to create checkout session",
-          details: errorData,
-          status: response.status,
+          error: "Network error",
+          message: fetchError.message,
         }),
         {
-          status: response.status,
+          status: 500,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         },
       );
     }
 
-    const sessionData = await response.json();
-    console.log("Checkout session created successfully");
+    clearTimeout(timeout);
+
+    console.log("PICA API response:", {
+      status: response.status,
+      statusText: response.statusText,
+      headers: Object.fromEntries(response.headers.entries()),
+    });
+
+    if (!response.ok) {
+      let errorData;
+      let errorText;
+
+      try {
+        errorText = await response.text();
+        console.log("Raw error response:", errorText);
+
+        try {
+          errorData = JSON.parse(errorText);
+        } catch (parseError) {
+          console.error("Failed to parse error response as JSON:", parseError);
+          errorData = { message: errorText };
+        }
+      } catch (textError) {
+        console.error("Failed to read error response text:", textError);
+        errorData = { message: "Unknown error" };
+      }
+
+      console.error("PICA API error details:", {
+        status: response.status,
+        statusText: response.statusText,
+        errorData,
+        rawResponse: errorText,
+      });
+
+      return new Response(
+        JSON.stringify({
+          error: "Failed to create checkout session",
+          details: errorData,
+          status: response.status,
+          rawError: errorText,
+        }),
+        {
+          status:
+            response.status >= 400 && response.status < 500
+              ? response.status
+              : 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        },
+      );
+    }
+
+    let sessionData;
+    try {
+      const responseText = await response.text();
+      console.log("Raw success response:", responseText);
+      sessionData = JSON.parse(responseText);
+    } catch (parseError) {
+      console.error("Failed to parse success response:", parseError);
+      return new Response(
+        JSON.stringify({
+          error: "Invalid response format",
+          message: parseError.message,
+        }),
+        {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        },
+      );
+    }
+
+    console.log("Checkout session created successfully:", {
+      sessionId: sessionData.id,
+      url: sessionData.url,
+    });
 
     return new Response(JSON.stringify({ url: sessionData.url }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (error) {
-    console.error("Edge function error:", error);
+    console.error("Edge function error:", {
+      name: error.name,
+      message: error.message,
+      stack: error.stack,
+    });
     return new Response(
       JSON.stringify({
         error: "Internal server error",
         message: error.message,
+        name: error.name,
       }),
       {
         status: 500,
