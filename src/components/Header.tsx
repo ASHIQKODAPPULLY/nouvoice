@@ -22,22 +22,42 @@ export default function Header() {
     let authSubscription: any;
 
     const initAuth = async () => {
-      // Get initial session
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
-      console.log("Initial session:", !!session);
-      setIsAuthenticated(!!session);
+      try {
+        // Get initial session
+        const {
+          data: { session },
+          error,
+        } = await supabase.auth.getSession();
 
-      // Listen for auth changes
-      const {
-        data: { subscription },
-      } = supabase.auth.onAuthStateChange((event, session) => {
-        console.log("Auth state changed:", event, !!session);
-        setIsAuthenticated(!!session);
-      });
+        if (error) {
+          console.error("Error getting session:", error);
+          setIsAuthenticated(false);
+        } else {
+          console.log("Initial session:", !!session);
+          setIsAuthenticated(!!session);
+        }
 
-      authSubscription = subscription;
+        // Listen for auth changes
+        const {
+          data: { subscription },
+        } = supabase.auth.onAuthStateChange(async (event, session) => {
+          console.log("Auth state changed:", event, !!session);
+          setIsAuthenticated(!!session);
+
+          // Force a re-render by updating the client state
+          if (event === "SIGNED_IN" || event === "SIGNED_OUT") {
+            // Small delay to ensure state is properly updated
+            setTimeout(() => {
+              setIsAuthenticated(!!session);
+            }, 100);
+          }
+        });
+
+        authSubscription = subscription;
+      } catch (error) {
+        console.error("Auth initialization error:", error);
+        setIsAuthenticated(false);
+      }
     };
 
     initAuth();
@@ -83,6 +103,23 @@ export default function Header() {
   }, []);
 
   const isLandingPage = currentPath === "/";
+
+  const handleSignOut = async () => {
+    try {
+      const supabase = createClient();
+      const { error } = await supabase.auth.signOut();
+
+      if (error) {
+        console.error("Sign out error:", error);
+      } else {
+        console.log("Successfully signed out");
+        // Redirect to home page after sign out
+        window.location.href = "/";
+      }
+    } catch (error) {
+      console.error("Sign out error:", error);
+    }
+  };
 
   return (
     <header
@@ -166,13 +203,16 @@ export default function Header() {
             </div>
           )}
           {isClient && isAuthenticated && (
-            <div className="hidden md:block">
+            <div className="hidden md:flex items-center gap-2">
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => (window.location.href = "/pricing")}
               >
                 Upgrade to Pro
+              </Button>
+              <Button variant="ghost" size="sm" onClick={handleSignOut}>
+                Sign Out
               </Button>
             </div>
           )}
@@ -269,7 +309,7 @@ export default function Header() {
                 >
                   Teams
                 </Link>
-                <div className="pt-2">
+                <div className="pt-2 space-y-2">
                   <Button
                     size="sm"
                     className="w-full"
@@ -279,6 +319,17 @@ export default function Header() {
                     }}
                   >
                     Upgrade to Pro
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="w-full"
+                    onClick={() => {
+                      setMobileMenuOpen(false);
+                      handleSignOut();
+                    }}
+                  >
+                    Sign Out
                   </Button>
                 </div>
               </>
@@ -350,16 +401,29 @@ export default function Header() {
                 >
                   Support
                 </Link>
-                <Button
-                  size="sm"
-                  className="w-full"
-                  onClick={() => {
-                    setMobileMenuOpen(false);
-                    window.location.href = "/pricing";
-                  }}
-                >
-                  Upgrade to Pro
-                </Button>
+                <div className="space-y-2">
+                  <Button
+                    size="sm"
+                    className="w-full"
+                    onClick={() => {
+                      setMobileMenuOpen(false);
+                      window.location.href = "/pricing";
+                    }}
+                  >
+                    Upgrade to Pro
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="w-full"
+                    onClick={() => {
+                      setMobileMenuOpen(false);
+                      handleSignOut();
+                    }}
+                  >
+                    Sign Out
+                  </Button>
+                </div>
               </>
             )}
           </nav>
