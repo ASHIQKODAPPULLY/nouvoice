@@ -22,7 +22,15 @@ export default function Header() {
 
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 10); // Adjust this threshold as needed
+      const scrolled = window.scrollY > 10;
+      setIsScrolled(scrolled);
+
+      // Add/remove class to body for dynamic padding
+      if (scrolled) {
+        document.body.classList.add("header-scrolled");
+      } else {
+        document.body.classList.remove("header-scrolled");
+      }
     };
 
     // Set initial state on mount
@@ -32,20 +40,27 @@ export default function Header() {
     window.addEventListener("scroll", handleScroll, { passive: true });
 
     // Cleanup the event listener on unmount
-    return () => window.removeEventListener("scroll", handleScroll);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      document.body.classList.remove("header-scrolled");
+    };
   }, []);
 
   const isLandingPage = currentPath === "/";
 
   return (
     <header
-      className={`border-b fixed top-0 left-0 right-0 z-50 h-16 transition-all duration-300 ease-in-out ${
+      className={`border-b fixed top-0 left-0 right-0 z-50 transition-all duration-300 ease-in-out ${
         isScrolled
-          ? "bg-background/95 backdrop-blur-md shadow-lg border-border/50"
-          : "bg-background/80 backdrop-blur-sm shadow-none border-transparent"
+          ? "bg-background/95 backdrop-blur-md shadow-lg border-border/50 h-14"
+          : "bg-background/80 backdrop-blur-sm shadow-none border-transparent h-16"
       }`}
     >
-      <div className="container mx-auto py-4 px-4 flex justify-between items-center">
+      <div
+        className={`container mx-auto px-4 flex justify-between items-center transition-all duration-300 ease-in-out ${
+          isScrolled ? "py-2" : "py-4"
+        }`}
+      >
         <div className="flex items-center gap-4">
           <Link href="/" className="flex items-center gap-2">
             <svg

@@ -177,6 +177,11 @@
 
   /* Account for fixed header height */
   #__next {
-    padding-top: 4rem;
+    padding-top: 4rem; /* Default padding for 64px header */
+  }
+
+  /* Dynamic padding adjustment for scrolled state */
+  .header-scrolled #__next {
+    padding-top: 3.5rem; /* Reduced padding for 56px header when scrolled */
   }
 }
