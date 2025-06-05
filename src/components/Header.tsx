@@ -45,11 +45,16 @@ export default function Header() {
             <h1 className="text-xl font-bold">Nouvoice</h1>
           </Link>
 
-          {isClient && !isLandingPage && (
+          {isClient && (
             <nav className="hidden md:flex items-center space-x-4">
-              <Link href="/" className="text-sm font-medium hover:text-primary">
-                Home
-              </Link>
+              {!isLandingPage && (
+                <Link
+                  href="/"
+                  className="text-sm font-medium hover:text-primary"
+                >
+                  Home
+                </Link>
+              )}
               <Link
                 href="/about"
                 className="text-sm font-medium hover:text-primary"
@@ -74,7 +79,7 @@ export default function Header() {
 
         <div className="flex items-center gap-4">
           <ThemeSwitcher />
-          {isClient && !isLandingPage && (
+          {isClient && (
             <div className="hidden md:block">
               <Button
                 variant="outline"
@@ -88,7 +93,7 @@ export default function Header() {
                 size="sm"
                 onClick={() => (window.location.href = "/auth/signup")}
               >
-                Sign Up
+                {isLandingPage ? "Get Started" : "Sign Up"}
               </Button>
             </div>
           )}

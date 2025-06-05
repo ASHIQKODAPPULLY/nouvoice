@@ -63,36 +63,6 @@ export default function PricingPage() {
   };
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      {/* Header */}
-      <header className="border-b sticky top-0 z-10 bg-background">
-        <div className="container mx-auto py-4 px-4 flex justify-between items-center">
-          <Link href="/" className="flex items-center gap-2">
-            <div className="h-8 w-8 rounded-md bg-primary flex items-center justify-center">
-              <span className="text-primary-foreground font-bold">I</span>
-            </div>
-            <h1 className="text-xl font-bold">Nouvoice</h1>
-          </Link>
-
-          <div className="hidden md:flex items-center gap-4">
-            <Link href="/" passHref>
-              <Button variant="ghost">Home</Button>
-            </Link>
-            <Link href="/pricing" passHref>
-              <Button variant="ghost">Pricing</Button>
-            </Link>
-            <Button variant="outline">Sign In</Button>
-            <Button>Get Started</Button>
-          </div>
-
-          <div className="md:hidden flex items-center">
-            <Button variant="outline" size="sm" className="mr-2">
-              Sign In
-            </Button>
-            <Button size="sm">Get Started</Button>
-          </div>
-        </div>
-      </header>
-
       {/* Main Content */}
       <main className="flex-1 container mx-auto py-8 md:py-12 px-4">
         <div className="max-w-6xl mx-auto space-y-8 md:space-y-12">
