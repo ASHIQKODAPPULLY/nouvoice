@@ -54,6 +54,9 @@ export default function Home() {
 
   // Rotate hero text and catchphrase every 5 seconds
   useEffect(() => {
+    // Only run on client side to prevent hydration issues
+    if (typeof window === "undefined") return;
+
     // Delay the interval to prevent hydration issues
     const timeoutId = setTimeout(() => {
       const interval = setInterval(() => {
@@ -63,48 +66,57 @@ export default function Home() {
         );
       }, 5000);
       return () => clearInterval(interval);
-    }, 1000);
+    }, 2000); // Increased delay
 
     return () => clearTimeout(timeoutId);
   }, []);
 
   // Load business details from localStorage on component mount
   useEffect(() => {
-    const savedDetails = localStorage.getItem("businessDetails");
-    if (savedDetails) {
-      try {
-        const parsedDetails = JSON.parse(savedDetails);
-        setBusinessDetails(parsedDetails);
-        console.log(
-          "✅ Loaded saved business details:",
-          parsedDetails.businessName,
-        );
-      } catch (e) {
-        console.error("Error parsing saved business details", e);
-      }
-    } else {
-      console.log("ℹ️ No saved business details found");
-    }
+    // Only run on client side
+    if (typeof window === "undefined") return;
 
-    // Load saved invoices
-    const savedInvoices = localStorage.getItem("generatedInvoices");
-    if (savedInvoices) {
-      try {
-        setGeneratedInvoices(JSON.parse(savedInvoices));
-      } catch (e) {
-        console.error("Error parsing saved invoices", e);
+    const loadData = () => {
+      const savedDetails = localStorage.getItem("businessDetails");
+      if (savedDetails) {
+        try {
+          const parsedDetails = JSON.parse(savedDetails);
+          setBusinessDetails(parsedDetails);
+          console.log(
+            "✅ Loaded saved business details:",
+            parsedDetails.businessName,
+          );
+        } catch (e) {
+          console.error("Error parsing saved business details", e);
+        }
+      } else {
+        console.log("ℹ️ No saved business details found");
       }
-    }
 
-    // Load usage count
-    const savedUsageCount = localStorage.getItem("usageCount");
-    if (savedUsageCount) {
-      try {
-        setUsageCount(parseInt(savedUsageCount, 10));
-      } catch (e) {
-        console.error("Error parsing usage count", e);
+      // Load saved invoices
+      const savedInvoices = localStorage.getItem("generatedInvoices");
+      if (savedInvoices) {
+        try {
+          setGeneratedInvoices(JSON.parse(savedInvoices));
+        } catch (e) {
+          console.error("Error parsing saved invoices", e);
+        }
       }
-    }
+
+      // Load usage count
+      const savedUsageCount = localStorage.getItem("usageCount");
+      if (savedUsageCount) {
+        try {
+          setUsageCount(parseInt(savedUsageCount, 10));
+        } catch (e) {
+          console.error("Error parsing usage count", e);
+        }
+      }
+    };
+
+    // Small delay to ensure DOM is ready
+    const timer = setTimeout(loadData, 100);
+    return () => clearTimeout(timer);
   }, []);
 
   const handleGenerateInvoice = async (

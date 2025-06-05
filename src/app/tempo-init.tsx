@@ -6,13 +6,21 @@ export function TempoInit() {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
+    // Delay mounting to ensure DOM is ready
+    const mountTimer = setTimeout(() => {
+      setMounted(true);
+    }, 50);
+
+    return () => clearTimeout(mountTimer);
   }, []);
 
   useEffect(() => {
     if (!mounted) return;
 
     const init = async () => {
+      // Only initialize in browser environment
+      if (typeof window === "undefined") return;
+
       if (process.env.NEXT_PUBLIC_TEMPO) {
         try {
           const { TempoDevtools } = await import("tempo-devtools");
@@ -23,7 +31,8 @@ export function TempoInit() {
       }
     };
 
-    const timeoutId = setTimeout(init, 100);
+    // Delay initialization to prevent hydration conflicts
+    const timeoutId = setTimeout(init, 200);
     return () => clearTimeout(timeoutId);
   }, [mounted]);
 

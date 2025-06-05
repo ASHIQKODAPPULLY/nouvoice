@@ -20,15 +20,22 @@ export default function Footer() {
 
   // Handle scroll to top button visibility
   useEffect(() => {
+    // Only run on client side
+    if (typeof window === "undefined") return;
+
     const handleScroll = () => {
       setShowScrollTop(window.scrollY > 300);
     };
 
-    // Only add event listener on client side
-    if (typeof window !== "undefined") {
+    // Add small delay to prevent hydration issues
+    const timer = setTimeout(() => {
       window.addEventListener("scroll", handleScroll);
-      return () => window.removeEventListener("scroll", handleScroll);
-    }
+    }, 100);
+
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener("scroll", handleScroll);
+    };
   }, []);
 
   const scrollToTop = () => {

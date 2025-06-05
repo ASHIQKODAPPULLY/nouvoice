@@ -10,48 +10,18 @@ import { Menu as MenuIcon, X as CloseIcon } from "lucide-react";
 export default function Header() {
   const [isMobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
-  const pathname = usePathname();
+  const [pathname, setPathname] = useState("/");
+  const routerPathname = usePathname();
   const isLandingPage = pathname === "/";
 
   useEffect(() => {
+    // Set pathname from router after mount to prevent hydration issues
+    setPathname(routerPathname);
     setMounted(true);
-  }, []);
+  }, [routerPathname]);
 
-  // Prevent hydration mismatch by not rendering until mounted
-  if (!mounted) {
-    return (
-      <header className="border-b sticky top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container mx-auto py-4 px-4 flex justify-between items-center">
-          <div className="flex items-center gap-4">
-            <Link href="/" className="flex items-center gap-2">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 100 100"
-                width="32"
-                height="32"
-                className="flex-shrink-0"
-              >
-                <rect width="100" height="100" rx="20" fill="#2D2A70" />
-                <path
-                  d="M30,70 L30,30 L70,70 L70,30"
-                  stroke="#00D2FF"
-                  strokeWidth="10"
-                  fill="none"
-                  strokeLinecap="round"
-                />
-              </svg>
-              <h1 className="text-xl font-bold">Nouvoice</h1>
-            </Link>
-          </div>
-          <div className="flex items-center gap-4">
-            <div className="w-10 h-10" /> {/* Placeholder for theme switcher */}
-          </div>
-        </div>
-      </header>
-    );
-  }
-
-  return (
+  // Render consistent structure during SSR and after hydration
+  const headerContent = (
     <header className="border-b sticky top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container mx-auto py-4 px-4 flex justify-between items-center">
         <div className="flex items-center gap-4">
@@ -75,7 +45,7 @@ export default function Header() {
             <h1 className="text-xl font-bold">Nouvoice</h1>
           </Link>
 
-          {!isLandingPage && (
+          {mounted && !isLandingPage && (
             <nav className="hidden md:flex items-center space-x-4">
               <Link href="/" className="text-sm font-medium hover:text-primary">
                 Home
@@ -104,7 +74,7 @@ export default function Header() {
 
         <div className="flex items-center gap-4">
           <ThemeSwitcher />
-          {!isLandingPage && (
+          {mounted && !isLandingPage && (
             <div className="hidden md:block">
               <Button
                 variant="outline"
@@ -122,21 +92,23 @@ export default function Header() {
               </Button>
             </div>
           )}
-          <button
-            className="md:hidden"
-            onClick={() => setMobileMenuOpen(!isMobileMenuOpen)}
-          >
-            {isMobileMenuOpen ? (
-              <CloseIcon className="h-6 w-6" />
-            ) : (
-              <MenuIcon className="h-6 w-6" />
-            )}
-          </button>
+          {mounted && (
+            <button
+              className="md:hidden"
+              onClick={() => setMobileMenuOpen(!isMobileMenuOpen)}
+            >
+              {isMobileMenuOpen ? (
+                <CloseIcon className="h-6 w-6" />
+              ) : (
+                <MenuIcon className="h-6 w-6" />
+              )}
+            </button>
+          )}
         </div>
       </div>
 
       {/* Mobile Menu Panel */}
-      {isMobileMenuOpen && (
+      {mounted && isMobileMenuOpen && (
         <div className="md:hidden bg-background border-t">
           <nav className="flex flex-col px-4 py-2 space-y-2">
             {isLandingPage ? (
@@ -254,4 +226,6 @@ export default function Header() {
       )}
     </header>
   );
+
+  return headerContent;
 }

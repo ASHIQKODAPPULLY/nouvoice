@@ -18,12 +18,18 @@ const ThemeSwitcher = () => {
 
   // useEffect only runs on the client, so now we can safely show the UI
   useEffect(() => {
-    setMounted(true);
+    // Small delay to prevent hydration mismatch
+    const timer = setTimeout(() => {
+      setMounted(true);
+    }, 10);
+
+    return () => clearTimeout(timer);
   }, []);
 
+  // Always render the same structure to prevent hydration mismatch
   if (!mounted) {
     return (
-      <Button variant="ghost" size={"sm"} disabled>
+      <Button variant="ghost" size={"sm"} disabled className="w-10 h-10">
         <Sun size={16} className={"text-muted-foreground"} />
       </Button>
     );

@@ -10,6 +10,9 @@ export default function MobileAppBanner() {
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
+    // Only run on client side
+    if (typeof window === "undefined") return;
+
     // Check if user is on mobile device
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 768);
@@ -26,7 +29,7 @@ export default function MobileAppBanner() {
       if (!window.localStorage.getItem("mobileAppBannerDismissed")) {
         setIsVisible(true);
       }
-    }, 2000);
+    }, 3000); // Increased delay to prevent hydration conflicts
 
     return () => {
       window.removeEventListener("resize", checkMobile);
