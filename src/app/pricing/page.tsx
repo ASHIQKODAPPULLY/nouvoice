@@ -125,12 +125,15 @@ export default function PricingPage() {
                 <Button
                   className="w-full py-2 md:py-2.5 text-sm md:text-base"
                   variant="outline"
-                  onClick={() => {
-                    // For free plan, redirect to signup directly
-                    window.location.href = `/auth/signup?plan=free`;
-                  }}
+                  onClick={() =>
+                    handleSubscribe("price_1RPFsuBHa6CDK7TJfVmF8ld6")
+                  }
+                  disabled={loadingPriceId === "price_1RPFsuBHa6CDK7TJfVmF8ld6"}
                 >
-                  Get Started <ArrowRight className="ml-2 h-4 w-4" />
+                  {loadingPriceId === "price_1RPFsuBHa6CDK7TJfVmF8ld6"
+                    ? "Processing..."
+                    : "Get Started"}{" "}
+                  <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
               </CardFooter>
             </Card>
@@ -192,10 +195,12 @@ export default function PricingPage() {
               <CardFooter>
                 <Button
                   className="w-full bg-gradient-to-r from-gradient-pink to-gradient-purple hover:opacity-90"
-                  onClick={() => handleSubscribe("price_annual_discount_50")}
-                  disabled={loadingPriceId === "price_annual_discount_50"}
+                  onClick={() =>
+                    handleSubscribe("price_1RPG2jBHa6CDK7TJvViR7IoO")
+                  }
+                  disabled={loadingPriceId === "price_1RPG2jBHa6CDK7TJvViR7IoO"}
                 >
-                  {loadingPriceId === "price_annual_discount_50"
+                  {loadingPriceId === "price_1RPG2jBHa6CDK7TJvViR7IoO"
                     ? "Processing..."
                     : "Get Annual Access"}{" "}
                   <Sparkles className="ml-2 h-4 w-4" />
@@ -254,10 +259,12 @@ export default function PricingPage() {
                 <Button
                   className="w-full"
                   variant="outline"
-                  onClick={() => handleSubscribe("price_monthly_pro")}
-                  disabled={loadingPriceId === "price_monthly_pro"}
+                  onClick={() =>
+                    handleSubscribe("price_1RNxxsBHa6CDK7TJCN035U5R")
+                  }
+                  disabled={loadingPriceId === "price_1RNxxsBHa6CDK7TJCN035U5R"}
                 >
-                  {loadingPriceId === "price_monthly_pro"
+                  {loadingPriceId === "price_1RNxxsBHa6CDK7TJCN035U5R"
                     ? "Processing..."
                     : "Upgrade to Pro"}{" "}
                   <Sparkles className="ml-2 h-4 w-4" />
