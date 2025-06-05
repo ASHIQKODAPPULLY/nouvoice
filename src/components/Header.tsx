@@ -9,19 +9,19 @@ import { Menu as MenuIcon, X as CloseIcon } from "lucide-react";
 
 export default function Header() {
   const [isMobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [mounted, setMounted] = useState(false);
-  const [pathname, setPathname] = useState("/");
+  const [isClient, setIsClient] = useState(false);
+  const [currentPath, setCurrentPath] = useState("/");
   const routerPathname = usePathname();
-  const isLandingPage = pathname === "/";
 
   useEffect(() => {
-    // Set pathname from router after mount to prevent hydration issues
-    setPathname(routerPathname);
-    setMounted(true);
+    // Mark as client-side and set pathname after hydration
+    setIsClient(true);
+    setCurrentPath(routerPathname);
   }, [routerPathname]);
 
-  // Render consistent structure during SSR and after hydration
-  const headerContent = (
+  const isLandingPage = currentPath === "/";
+
+  return (
     <header className="border-b sticky top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container mx-auto py-4 px-4 flex justify-between items-center">
         <div className="flex items-center gap-4">
@@ -45,7 +45,7 @@ export default function Header() {
             <h1 className="text-xl font-bold">Nouvoice</h1>
           </Link>
 
-          {mounted && !isLandingPage && (
+          {isClient && !isLandingPage && (
             <nav className="hidden md:flex items-center space-x-4">
               <Link href="/" className="text-sm font-medium hover:text-primary">
                 Home
@@ -74,7 +74,7 @@ export default function Header() {
 
         <div className="flex items-center gap-4">
           <ThemeSwitcher />
-          {mounted && !isLandingPage && (
+          {isClient && !isLandingPage && (
             <div className="hidden md:block">
               <Button
                 variant="outline"
@@ -92,10 +92,11 @@ export default function Header() {
               </Button>
             </div>
           )}
-          {mounted && (
+          {isClient && (
             <button
               className="md:hidden"
               onClick={() => setMobileMenuOpen(!isMobileMenuOpen)}
+              aria-label="Toggle mobile menu"
             >
               {isMobileMenuOpen ? (
                 <CloseIcon className="h-6 w-6" />
@@ -108,7 +109,7 @@ export default function Header() {
       </div>
 
       {/* Mobile Menu Panel */}
-      {mounted && isMobileMenuOpen && (
+      {isClient && isMobileMenuOpen && (
         <div className="md:hidden bg-background border-t">
           <nav className="flex flex-col px-4 py-2 space-y-2">
             {isLandingPage ? (
@@ -226,6 +227,4 @@ export default function Header() {
       )}
     </header>
   );
-
-  return headerContent;
 }

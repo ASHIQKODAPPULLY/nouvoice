@@ -47,24 +47,29 @@ export default function BusinessSetupForm({
 }: BusinessSetupFormProps) {
   // Check localStorage for saved business details on component mount
   React.useEffect(() => {
-    const savedDetails = localStorage.getItem("businessDetails");
-    if (
-      savedDetails &&
-      Object.keys(businessDetails).every(
-        (key) => !businessDetails[key as keyof BusinessDetails],
-      )
-    ) {
+    const loadSavedDetails = () => {
       try {
-        const parsedDetails = JSON.parse(savedDetails);
-        setBusinessDetails(parsedDetails);
-        if (parsedDetails.logo) {
-          setLogoPreview(parsedDetails.logo);
+        const savedDetails = localStorage.getItem("businessDetails");
+        if (savedDetails) {
+          const parsedDetails = JSON.parse(savedDetails);
+          // Only load if current details are empty
+          const isEmpty = Object.values(businessDetails).every(
+            (value) => !value,
+          );
+          if (isEmpty) {
+            setBusinessDetails(parsedDetails);
+            if (parsedDetails.logo) {
+              setLogoPreview(parsedDetails.logo);
+            }
+            console.log("✅ Loaded business details from localStorage");
+          }
         }
-        console.log("✅ Loaded business details from localStorage");
       } catch (e) {
         console.error("Error parsing saved business details", e);
       }
-    }
+    };
+
+    loadSavedDetails();
   }, []);
   const [businessDetails, setBusinessDetails] =
     useState<BusinessDetails>(initialDetails);

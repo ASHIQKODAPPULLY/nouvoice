@@ -10,38 +10,36 @@ export default function ClientLayoutWrapper({
 }: {
   children: React.ReactNode;
 }) {
-  const [mounted, setMounted] = useState(false);
+  const [isHydrated, setIsHydrated] = useState(false);
 
   useEffect(() => {
-    // Use a small delay to ensure DOM is ready
-    const timer = setTimeout(() => {
-      setMounted(true);
-    }, 10);
-
-    return () => clearTimeout(timer);
+    // Mark as hydrated after client-side mount
+    setIsHydrated(true);
   }, []);
-
-  // Show a minimal layout during SSR to prevent hydration mismatch
-  if (!mounted) {
-    return (
-      <Providers>
-        <div className="flex flex-col min-h-screen">
-          <div className="h-16 border-b bg-background" />{" "}
-          {/* Header placeholder */}
-          <main className="flex-1">{children}</main>
-          <div className="h-32 border-t bg-background" />{" "}
-          {/* Footer placeholder */}
-        </div>
-      </Providers>
-    );
-  }
 
   return (
     <Providers>
       <div className="flex flex-col min-h-screen">
-        <Header />
+        {isHydrated ? (
+          <Header />
+        ) : (
+          <div className="h-16 border-b bg-background flex items-center px-4">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 bg-primary rounded" />
+              <div className="text-xl font-bold">Nouvoice</div>
+            </div>
+          </div>
+        )}
         <main className="flex-1">{children}</main>
-        <Footer />
+        {isHydrated ? (
+          <Footer />
+        ) : (
+          <div className="h-32 border-t bg-background flex items-center justify-center">
+            <div className="text-sm text-muted-foreground">
+              © 2024 Nouvoice. All rights reserved.
+            </div>
+          </div>
+        )}
       </div>
     </Providers>
   );

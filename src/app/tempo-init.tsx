@@ -3,23 +3,22 @@
 import { useEffect, useState } from "react";
 
 export function TempoInit() {
-  const [mounted, setMounted] = useState(false);
+  const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
-    // Delay mounting to ensure DOM is ready
-    const mountTimer = setTimeout(() => {
-      setMounted(true);
-    }, 50);
-
-    return () => clearTimeout(mountTimer);
+    // Set client flag after hydration
+    setIsClient(true);
   }, []);
 
   useEffect(() => {
-    if (!mounted) return;
+    if (!isClient) return;
 
     const init = async () => {
-      // Only initialize in browser environment
+      // Double check we're in browser environment
       if (typeof window === "undefined") return;
+
+      // Add additional delay to ensure all components are hydrated
+      await new Promise((resolve) => setTimeout(resolve, 1000));
 
       if (process.env.NEXT_PUBLIC_TEMPO) {
         try {
@@ -31,10 +30,8 @@ export function TempoInit() {
       }
     };
 
-    // Delay initialization to prevent hydration conflicts
-    const timeoutId = setTimeout(init, 200);
-    return () => clearTimeout(timeoutId);
-  }, [mounted]);
+    init();
+  }, [isClient]);
 
   return null;
 }

@@ -6,12 +6,17 @@ import { X, Smartphone } from "lucide-react";
 import Link from "next/link";
 
 export default function MobileAppBanner() {
+  const [isClient, setIsClient] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
-    // Only run on client side
-    if (typeof window === "undefined") return;
+    // Mark as client-side after hydration
+    setIsClient(true);
+  }, []);
+
+  useEffect(() => {
+    if (!isClient) return;
 
     // Check if user is on mobile device
     const checkMobile = () => {
@@ -22,32 +27,37 @@ export default function MobileAppBanner() {
     checkMobile();
 
     // Add resize listener
-    window.addEventListener("resize", checkMobile);
+    const handleResize = () => checkMobile();
+    window.addEventListener("resize", handleResize, { passive: true });
 
-    // Show banner after a delay if on desktop
+    // Show banner after a delay if on desktop and not dismissed
     const timer = setTimeout(() => {
-      if (!window.localStorage.getItem("mobileAppBannerDismissed")) {
+      const isDismissed = localStorage.getItem("mobileAppBannerDismissed");
+      if (!isDismissed && !isMobile) {
         setIsVisible(true);
       }
-    }, 3000); // Increased delay to prevent hydration conflicts
+    }, 5000); // Longer delay to ensure full hydration
 
     return () => {
-      window.removeEventListener("resize", checkMobile);
+      window.removeEventListener("resize", handleResize);
       clearTimeout(timer);
     };
-  }, []);
+  }, [isClient, isMobile]);
 
   const dismissBanner = () => {
     setIsVisible(false);
-    window.localStorage.setItem("mobileAppBannerDismissed", "true");
+    if (typeof window !== "undefined") {
+      localStorage.setItem("mobileAppBannerDismissed", "true");
+    }
   };
 
-  if (!isVisible || isMobile) return null;
+  // Don't render anything until client-side
+  if (!isClient || !isVisible || isMobile) return null;
 
   return (
     <div className="fixed bottom-4 right-4 z-50 max-w-sm bg-card border shadow-lg rounded-lg p-4 animate-fade-in">
       <div className="flex items-start gap-3">
-        <div className="bg-gradient-to-r from-gradient-blue to-gradient-purple p-2 rounded-md">
+        <div className="bg-gradient-to-r from-blue-500 to-purple-500 p-2 rounded-md">
           <Smartphone className="h-6 w-6 text-white" />
         </div>
         <div className="flex-1">

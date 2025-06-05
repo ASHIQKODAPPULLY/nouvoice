@@ -54,10 +54,7 @@ export default function Home() {
 
   // Rotate hero text and catchphrase every 5 seconds
   useEffect(() => {
-    // Only run on client side to prevent hydration issues
-    if (typeof window === "undefined") return;
-
-    // Delay the interval to prevent hydration issues
+    // Only run on client side after hydration
     const timeoutId = setTimeout(() => {
       const interval = setInterval(() => {
         setHeroTextIndex((prevIndex) => (prevIndex + 1) % heroTexts.length);
@@ -66,57 +63,43 @@ export default function Home() {
         );
       }, 5000);
       return () => clearInterval(interval);
-    }, 2000); // Increased delay
+    }, 3000); // Longer delay to ensure hydration is complete
 
     return () => clearTimeout(timeoutId);
   }, []);
 
   // Load business details from localStorage on component mount
   useEffect(() => {
-    // Only run on client side
-    if (typeof window === "undefined") return;
-
     const loadData = () => {
-      const savedDetails = localStorage.getItem("businessDetails");
-      if (savedDetails) {
-        try {
+      try {
+        const savedDetails = localStorage.getItem("businessDetails");
+        if (savedDetails) {
           const parsedDetails = JSON.parse(savedDetails);
           setBusinessDetails(parsedDetails);
           console.log(
             "✅ Loaded saved business details:",
             parsedDetails.businessName,
           );
-        } catch (e) {
-          console.error("Error parsing saved business details", e);
         }
-      } else {
-        console.log("ℹ️ No saved business details found");
-      }
 
-      // Load saved invoices
-      const savedInvoices = localStorage.getItem("generatedInvoices");
-      if (savedInvoices) {
-        try {
+        // Load saved invoices
+        const savedInvoices = localStorage.getItem("generatedInvoices");
+        if (savedInvoices) {
           setGeneratedInvoices(JSON.parse(savedInvoices));
-        } catch (e) {
-          console.error("Error parsing saved invoices", e);
         }
-      }
 
-      // Load usage count
-      const savedUsageCount = localStorage.getItem("usageCount");
-      if (savedUsageCount) {
-        try {
-          setUsageCount(parseInt(savedUsageCount, 10));
-        } catch (e) {
-          console.error("Error parsing usage count", e);
+        // Load usage count
+        const savedUsageCount = localStorage.getItem("usageCount");
+        if (savedUsageCount) {
+          setUsageCount(parseInt(savedUsageCount, 10) || 0);
         }
+      } catch (e) {
+        console.error("Error loading saved data:", e);
       }
     };
 
-    // Small delay to ensure DOM is ready
-    const timer = setTimeout(loadData, 100);
-    return () => clearTimeout(timer);
+    // Load data after hydration
+    loadData();
   }, []);
 
   const handleGenerateInvoice = async (

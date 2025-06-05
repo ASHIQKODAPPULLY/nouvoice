@@ -7,55 +7,59 @@ import { Mail, Heart, ArrowUp, X } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
-import { Suspense } from "react";
 
-// Import NewsletterSignup with no SSR to prevent hydration errors
+// Import NewsletterSignup with no SSR and proper error boundary
 const NewsletterSignup = dynamic(() => import("./NewsletterSignup"), {
   ssr: false,
   loading: () => (
-    <div className="bg-muted/30 p-6 rounded-lg h-[200px] flex items-center justify-center">
-      <div className="text-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-2"></div>
+    <div className="bg-muted/30 p-6 rounded-lg min-h-[200px] flex items-center justify-center">
+      <div className="text-center space-y-3">
+        <h3 className="text-lg font-semibold">Stay Updated</h3>
         <p className="text-sm text-muted-foreground">
-          Loading newsletter signup...
+          Subscribe to our newsletter for the latest updates, tips, and special
+          offers.
         </p>
+        <div className="flex gap-2">
+          <div className="flex-1 h-10 bg-muted rounded-md animate-pulse" />
+          <div className="w-24 h-10 bg-primary/20 rounded-md animate-pulse" />
+        </div>
       </div>
     </div>
   ),
 });
 
 export default function Footer() {
-  const currentYear = new Date().getFullYear();
+  const [isClient, setIsClient] = useState(false);
   const [showScrollTop, setShowScrollTop] = useState(false);
+  const currentYear = 2024; // Static year to prevent hydration issues
+
+  useEffect(() => {
+    // Mark as client-side after hydration
+    setIsClient(true);
+  }, []);
 
   // Handle scroll to top button visibility
   useEffect(() => {
-    // Only run on client side
-    if (typeof window === "undefined") return;
+    if (!isClient) return;
 
     const handleScroll = () => {
       setShowScrollTop(window.scrollY > 300);
     };
 
-    // Add small delay to prevent hydration issues
-    const timer = setTimeout(() => {
-      window.addEventListener("scroll", handleScroll);
-    }, 100);
-
-    return () => {
-      clearTimeout(timer);
-      window.removeEventListener("scroll", handleScroll);
-    };
-  }, []);
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [isClient]);
 
   const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    if (typeof window !== "undefined") {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
   };
 
   return (
     <footer className="border-t bg-background relative">
       {/* Scroll to top button */}
-      {showScrollTop && (
+      {isClient && showScrollTop && (
         <Button
           onClick={scrollToTop}
           size="icon"
@@ -164,9 +168,7 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="mt-8">
-          <NewsletterSignup />
-        </div>
+        <div className="mt-8">{isClient && <NewsletterSignup />}</div>
 
         <Separator className="my-6" />
 

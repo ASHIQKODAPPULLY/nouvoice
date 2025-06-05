@@ -30,12 +30,14 @@ export default function RootLayout({
       <head>
         <Script
           src="https://api.tempo.new/proxy-asset?url=https://storage.googleapis.com/tempo-public-assets/error-handling.js"
-          strategy="beforeInteractive"
+          strategy="afterInteractive"
         />
       </head>
       <body className={inter.className} suppressHydrationWarning>
-        <ClientLayoutWrapper>{children}</ClientLayoutWrapper>
-        <TempoInit />
+        <div id="__next">
+          <ClientLayoutWrapper>{children}</ClientLayoutWrapper>
+          <TempoInit />
+        </div>
       </body>
     </html>
   );
