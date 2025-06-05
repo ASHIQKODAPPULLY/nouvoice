@@ -1,9 +1,17 @@
 "use client";
 // Import the dev tools and initialize them
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 export function TempoInit() {
+  const [mounted, setMounted] = useState(false);
+
   useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!mounted) return;
+
     const init = async () => {
       if (process.env.NEXT_PUBLIC_TEMPO) {
         try {
@@ -15,8 +23,9 @@ export function TempoInit() {
       }
     };
 
-    init();
-  }, []);
+    const timeoutId = setTimeout(init, 100);
+    return () => clearTimeout(timeoutId);
+  }, [mounted]);
 
   return null;
 }

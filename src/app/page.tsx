@@ -54,11 +54,18 @@ export default function Home() {
 
   // Rotate hero text and catchphrase every 5 seconds
   useEffect(() => {
-    const interval = setInterval(() => {
-      setHeroTextIndex((prevIndex) => (prevIndex + 1) % heroTexts.length);
-      setCatchphraseIndex((prevIndex) => (prevIndex + 1) % catchphrases.length);
-    }, 5000);
-    return () => clearInterval(interval);
+    // Delay the interval to prevent hydration issues
+    const timeoutId = setTimeout(() => {
+      const interval = setInterval(() => {
+        setHeroTextIndex((prevIndex) => (prevIndex + 1) % heroTexts.length);
+        setCatchphraseIndex(
+          (prevIndex) => (prevIndex + 1) % catchphrases.length,
+        );
+      }, 5000);
+      return () => clearInterval(interval);
+    }, 1000);
+
+    return () => clearTimeout(timeoutId);
   }, []);
 
   // Load business details from localStorage on component mount

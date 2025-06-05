@@ -22,7 +22,11 @@ const ThemeSwitcher = () => {
   }, []);
 
   if (!mounted) {
-    return null;
+    return (
+      <Button variant="ghost" size={"sm"} disabled>
+        <Sun size={16} className={"text-muted-foreground"} />
+      </Button>
+    );
   }
 
   const ICON_SIZE = 16;
