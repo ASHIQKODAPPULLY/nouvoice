@@ -101,29 +101,25 @@ Deno.serve(async (req) => {
     const successUrl = `${baseUrl}/payment-success?session_id={CHECKOUT_SESSION_ID}`;
     const cancelUrl = `${baseUrl}/pricing`;
 
-    // Prepare JSON body for PICA API
-    const requestBody = {
-      mode: "subscription",
-      line_items: [
-        {
-          price: priceId,
-          quantity: 1,
-        },
-      ],
-      automatic_tax: {
-        enabled: true,
-      },
-      success_url: successUrl,
-      cancel_url: cancelUrl,
-      ...(userId && { client_reference_id: userId }),
-    };
+    // Prepare form data body for PICA API (application/x-www-form-urlencoded)
+    const formData = new URLSearchParams();
+    formData.append("mode", "subscription");
+    formData.append("line_items[0][price]", priceId);
+    formData.append("line_items[0][quantity]", "1");
+    formData.append("automatic_tax[enabled]", "true");
+    formData.append("success_url", successUrl);
+    formData.append("cancel_url", cancelUrl);
+
+    if (userId) {
+      formData.append("client_reference_id", userId);
+    }
 
     console.log("Request details:", {
       priceId,
       successUrl,
       cancelUrl,
       userId,
-      requestBody,
+      formDataEntries: Array.from(formData.entries()),
     });
 
     // Use the correct action ID for checkout sessions
@@ -135,12 +131,14 @@ Deno.serve(async (req) => {
       actionId,
       usingPicaPassthrough: true,
       directStripeCall: false,
+      contentType: "application/x-www-form-urlencoded",
     });
 
     console.log("Making PICA API call:", {
       url: apiUrl,
       actionId,
-      bodyLength: JSON.stringify(requestBody).length,
+      bodyLength: formData.toString().length,
+      bodyContent: formData.toString(),
     });
 
     // Add timeout to prevent hanging
@@ -152,16 +150,16 @@ Deno.serve(async (req) => {
 
     let response;
     try {
-      // Make call to PICA API
+      // Make call to PICA API with form-encoded data
       response = await fetch(apiUrl, {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
+          "Content-Type": "application/x-www-form-urlencoded",
           "x-pica-secret": PICA_SECRET_KEY,
           "x-pica-connection-key": PICA_STRIPE_CONNECTION_KEY,
           "x-pica-action-id": actionId,
         },
-        body: JSON.stringify(requestBody),
+        body: formData.toString(),
         signal: controller.signal,
       });
     } catch (fetchError) {
