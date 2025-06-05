@@ -139,28 +139,33 @@ export default function InvoicePromptInput({
   ];
 
   // Date suggestions - next few months
-  const dateSuggestions = [
-    {
-      label: "Today",
-      value: formatDate(new Date()),
-    },
-    {
-      label: "End of month",
-      value: formatDate(
-        new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0),
-      ),
-    },
-    {
-      label: "Next month",
-      value: formatDate(
-        new Date(new Date().getFullYear(), new Date().getMonth() + 2, 0),
-      ),
-    },
-    {
-      label: "In 30 days",
-      value: formatDate(new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)),
-    },
-  ];
+  type DateSuggestion = { label: string; value: string };
+
+  const [dateSuggestions, setDateSuggestions] = useState<DateSuggestion[]>([]);
+
+  useEffect(() => {
+    const now = new Date();
+    const suggestions: DateSuggestion[] = [
+      {
+        label: "Today",
+        value: formatDate(now),
+      },
+      {
+        label: "End of month",
+        value: formatDate(new Date(now.getFullYear(), now.getMonth() + 1, 0)),
+      },
+      {
+        label: "Next month",
+        value: formatDate(new Date(now.getFullYear(), now.getMonth() + 2, 0)),
+      },
+      {
+        label: "In 30 days",
+        value: formatDate(new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000)),
+      },
+    ];
+
+    setDateSuggestions(suggestions);
+  }, []);
 
   function formatDate(date: Date): string {
     return `${date.getDate().toString().padStart(2, "0")}/${(date.getMonth() + 1).toString().padStart(2, "0")}/${date.getFullYear()}`;
