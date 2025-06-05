@@ -1,6 +1,5 @@
 import { Metadata } from "next";
 import Link from "next/link";
-import Header from "@/components/Header";
 
 export const metadata: Metadata = {
   title: "About Us | Nouvoice",
@@ -11,7 +10,6 @@ export const metadata: Metadata = {
 export default function AboutPage() {
   return (
     <>
-      <Header />
       <div className="container px-4 py-12 mx-auto">
         <div className="max-w-3xl mx-auto">
           <h1 className="text-4xl font-bold tracking-tight mb-6">

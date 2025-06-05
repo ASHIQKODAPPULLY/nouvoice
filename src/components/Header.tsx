@@ -55,12 +55,7 @@ export default function Header() {
                   Home
                 </Link>
               )}
-              <Link
-                href="/about"
-                className="text-sm font-medium hover:text-primary"
-              >
-                About
-              </Link>
+
               <Link
                 href="/pricing"
                 className="text-sm font-medium hover:text-primary"
@@ -182,13 +177,6 @@ export default function Header() {
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   Home
-                </Link>
-                <Link
-                  href="/about"
-                  className="text-sm font-medium hover:text-primary"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  About
                 </Link>
                 <Link
                   href="/pricing"
