@@ -22,13 +22,15 @@ export default function Header() {
     setCurrentPath(routerPathname);
 
     // Check authentication status
-    const checkAuth = async () => {
-      const supabase = createClient();
+    const supabase = createClient();
+    let authSubscription: any;
 
+    const initAuth = async () => {
       // Get initial session
       const {
         data: { session },
       } = await supabase.auth.getSession();
+      console.log("Initial session:", !!session);
       setIsAuthenticated(!!session);
 
       // Listen for auth changes
@@ -39,18 +41,15 @@ export default function Header() {
         setIsAuthenticated(!!session);
       });
 
-      return subscription;
+      authSubscription = subscription;
     };
 
-    let subscription: any;
-    checkAuth().then((sub) => {
-      subscription = sub;
-    });
+    initAuth();
 
     // Cleanup function
     return () => {
-      if (subscription) {
-        subscription.unsubscribe();
+      if (authSubscription) {
+        authSubscription.unsubscribe();
       }
     };
   }, [routerPathname]);
