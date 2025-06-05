@@ -12,6 +12,16 @@ import { Suspense } from "react";
 // Import NewsletterSignup with no SSR to prevent hydration errors
 const NewsletterSignup = dynamic(() => import("./NewsletterSignup"), {
   ssr: false,
+  loading: () => (
+    <div className="bg-muted/30 p-6 rounded-lg h-[200px] flex items-center justify-center">
+      <div className="text-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-2"></div>
+        <p className="text-sm text-muted-foreground">
+          Loading newsletter signup...
+        </p>
+      </div>
+    </div>
+  ),
 });
 
 export default function Footer() {
@@ -155,15 +165,7 @@ export default function Footer() {
         </div>
 
         <div className="mt-8">
-          <Suspense
-            fallback={
-              <div className="bg-muted/30 p-6 rounded-lg h-[200px] flex items-center justify-center">
-                Loading newsletter signup...
-              </div>
-            }
-          >
-            <NewsletterSignup />
-          </Suspense>
+          <NewsletterSignup />
         </div>
 
         <Separator className="my-6" />
