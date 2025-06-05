@@ -24,6 +24,8 @@ export default function Header() {
     // Check authentication status
     const checkAuth = async () => {
       const supabase = createClient();
+
+      // Get initial session
       const {
         data: { session },
       } = await supabase.auth.getSession();
@@ -33,13 +35,24 @@ export default function Header() {
       const {
         data: { subscription },
       } = supabase.auth.onAuthStateChange((event, session) => {
+        console.log("Auth state changed:", event, !!session);
         setIsAuthenticated(!!session);
       });
 
-      return () => subscription.unsubscribe();
+      return subscription;
     };
 
-    checkAuth();
+    let subscription: any;
+    checkAuth().then((sub) => {
+      subscription = sub;
+    });
+
+    // Cleanup function
+    return () => {
+      if (subscription) {
+        subscription.unsubscribe();
+      }
+    };
   }, [routerPathname]);
 
   useEffect(() => {
