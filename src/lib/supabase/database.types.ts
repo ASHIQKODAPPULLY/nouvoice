@@ -254,6 +254,158 @@ export interface Database {
           },
         ];
       };
+      subscriptions: {
+        Row: {
+          id: string;
+          user_id: string;
+          stripe_customer_id: string;
+          stripe_subscription_id: string;
+          price_id: string;
+          status: string;
+          current_period_start: string;
+          current_period_end: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          stripe_customer_id: string;
+          stripe_subscription_id: string;
+          price_id: string;
+          status: string;
+          current_period_start: string;
+          current_period_end: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          stripe_customer_id?: string;
+          stripe_subscription_id?: string;
+          price_id?: string;
+          status?: string;
+          current_period_start?: string;
+          current_period_end?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "subscriptions_user_id_fkey";
+            columns: ["user_id"];
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      team_subscriptions: {
+        Row: {
+          id: string;
+          team_id: string;
+          subscription_tier: string;
+          max_members: number;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          team_id: string;
+          subscription_tier: string;
+          max_members: number;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          team_id?: string;
+          subscription_tier?: string;
+          max_members?: number;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "team_subscriptions_team_id_fkey";
+            columns: ["team_id"];
+            referencedRelation: "teams";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      fine_tuning_examples: {
+        Row: {
+          id: string;
+          prompt: string;
+          completion: string;
+          created_at: string;
+          used_in_training: boolean;
+          source: string;
+          quality_score: number;
+        };
+        Insert: {
+          id?: string;
+          prompt: string;
+          completion: string;
+          created_at?: string;
+          used_in_training?: boolean;
+          source?: string;
+          quality_score?: number;
+        };
+        Update: {
+          id?: string;
+          prompt?: string;
+          completion?: string;
+          created_at?: string;
+          used_in_training?: boolean;
+          source?: string;
+          quality_score?: number;
+        };
+        Relationships: [];
+      };
+      fine_tuning_jobs: {
+        Row: {
+          id: string;
+          model_name: string;
+          provider: string;
+          status: string;
+          created_at: string;
+          completed_at: string | null;
+          examples_count: number;
+          validation_loss: number | null;
+          training_loss: number | null;
+          fine_tuned_model_id: string | null;
+          metadata: Json | null;
+        };
+        Insert: {
+          id?: string;
+          model_name: string;
+          provider: string;
+          status?: string;
+          created_at?: string;
+          completed_at?: string | null;
+          examples_count?: number;
+          validation_loss?: number | null;
+          training_loss?: number | null;
+          fine_tuned_model_id?: string | null;
+          metadata?: Json | null;
+        };
+        Update: {
+          id?: string;
+          model_name?: string;
+          provider?: string;
+          status?: string;
+          created_at?: string;
+          completed_at?: string | null;
+          examples_count?: number;
+          validation_loss?: number | null;
+          training_loss?: number | null;
+          fine_tuned_model_id?: string | null;
+          metadata?: Json | null;
+        };
+        Relationships: [];
+      };
     };
     Views: {};
     Functions: {};
