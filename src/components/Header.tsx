@@ -11,6 +11,7 @@ export default function Header() {
   const [isMobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isClient, setIsClient] = useState(false);
   const [currentPath, setCurrentPath] = useState("/");
+  const [isScrolled, setIsScrolled] = useState(false);
   const routerPathname = usePathname();
 
   useEffect(() => {
@@ -19,10 +20,25 @@ export default function Header() {
     setCurrentPath(routerPathname);
   }, [routerPathname]);
 
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 10);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
   const isLandingPage = currentPath === "/";
 
   return (
-    <header className="border-b fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 h-16">
+    <header
+      className={`border-b fixed top-0 left-0 right-0 z-50 h-16 transition-all duration-200 ${
+        isScrolled
+          ? "bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 shadow-sm"
+          : "bg-background/80"
+      }`}
+    >
       <div className="container mx-auto py-4 px-4 flex justify-between items-center">
         <div className="flex items-center gap-4">
           <Link href="/" className="flex items-center gap-2">

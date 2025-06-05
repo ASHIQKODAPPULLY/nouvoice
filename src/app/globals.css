@@ -173,6 +173,10 @@
   }
   body {
     @apply bg-background text-foreground;
-    padding-top: 4rem; /* Account for fixed header height */
+  }
+
+  /* Account for fixed header height */
+  #__next {
+    padding-top: 4rem;
   }
 }
