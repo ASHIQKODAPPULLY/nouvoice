@@ -47,48 +47,15 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Get environment variables for PICA API
-    const PICA_SECRET_KEY = Deno.env.get("PICA_SECRET_KEY");
-    const PICA_STRIPE_CONNECTION_KEY = Deno.env.get(
-      "PICA_STRIPE_CONNECTION_KEY",
-    );
+    // Get Stripe secret key from environment
+    const STRIPE_SECRET_KEY = Deno.env.get("STRIPE_SECRET_KEY");
 
-    // Debug: Log all environment variables to see what's available
-    console.log("All environment variables:", Object.keys(Deno.env.toObject()));
-    console.log("Environment check:", {
-      hasPicaSecret: !!PICA_SECRET_KEY,
-      hasPicaConnection: !!PICA_STRIPE_CONNECTION_KEY,
-      picaSecretLength: PICA_SECRET_KEY?.length || 0,
-      picaConnectionLength: PICA_STRIPE_CONNECTION_KEY?.length || 0,
-      picaSecretPreview: PICA_SECRET_KEY
-        ? PICA_SECRET_KEY.substring(0, 10) + "..."
-        : "null",
-      picaConnectionPreview: PICA_STRIPE_CONNECTION_KEY
-        ? PICA_STRIPE_CONNECTION_KEY.substring(0, 10) + "..."
-        : "null",
-    });
-
-    if (!PICA_SECRET_KEY || !PICA_STRIPE_CONNECTION_KEY) {
-      console.error(
-        "Missing PICA environment variables - this will cause direct Stripe API calls",
-        {
-          PICA_SECRET_KEY: !!PICA_SECRET_KEY,
-          PICA_STRIPE_CONNECTION_KEY: !!PICA_STRIPE_CONNECTION_KEY,
-          availableEnvVars: Object.keys(Deno.env.toObject()).filter(
-            (key) => key.includes("PICA") || key.includes("STRIPE"),
-          ),
-        },
-      );
+    if (!STRIPE_SECRET_KEY) {
+      console.error("Missing Stripe secret key");
       return new Response(
         JSON.stringify({
-          error:
-            "PICA configuration missing - cannot proceed with checkout session creation",
-          details:
-            "PICA environment variables are required to avoid direct Stripe API calls",
-          missingVars: {
-            PICA_SECRET_KEY: !PICA_SECRET_KEY,
-            PICA_STRIPE_CONNECTION_KEY: !PICA_STRIPE_CONNECTION_KEY,
-          },
+          error: "Stripe configuration missing",
+          details: "STRIPE_SECRET_KEY environment variable is required",
         }),
         {
           status: 500,
@@ -101,17 +68,24 @@ Deno.serve(async (req) => {
     const successUrl = `${baseUrl}/payment-success?session_id={CHECKOUT_SESSION_ID}`;
     const cancelUrl = `${baseUrl}/pricing`;
 
-    // Prepare form data body for PICA API (application/x-www-form-urlencoded)
-    const formData = new URLSearchParams();
-    formData.append("mode", "subscription");
-    formData.append("line_items[0][price]", priceId);
-    formData.append("line_items[0][quantity]", "1");
-    formData.append("automatic_tax[enabled]", "true");
-    formData.append("success_url", successUrl);
-    formData.append("cancel_url", cancelUrl);
+    // Prepare request body for Stripe API
+    const requestBody = {
+      mode: "subscription",
+      line_items: [
+        {
+          price: priceId,
+          quantity: 1,
+        },
+      ],
+      automatic_tax: {
+        enabled: true,
+      },
+      success_url: successUrl,
+      cancel_url: cancelUrl,
+    };
 
     if (userId) {
-      formData.append("client_reference_id", userId);
+      requestBody.client_reference_id = userId;
     }
 
     console.log("Request details:", {
@@ -119,26 +93,16 @@ Deno.serve(async (req) => {
       successUrl,
       cancelUrl,
       userId,
-      formDataEntries: Array.from(formData.entries()),
+      requestBody,
     });
 
-    // Use the correct action ID for checkout sessions
-    const actionId = "conn_mod_def::GCmLNSLWawg::Pj6pgAmnQhuqMPzB8fquRg";
-    const apiUrl = "https://api.picaos.com/v1/passthrough/v1/checkout/sessions";
+    // Direct Stripe API call
+    const apiUrl = "https://api.stripe.com/v1/checkout/sessions";
 
-    console.log("PICA API Configuration:", {
+    console.log("Stripe API Configuration:", {
       apiUrl,
-      actionId,
-      usingPicaPassthrough: true,
-      directStripeCall: false,
-      contentType: "application/x-www-form-urlencoded",
-    });
-
-    console.log("Making PICA API call:", {
-      url: apiUrl,
-      actionId,
-      bodyLength: formData.toString().length,
-      bodyContent: formData.toString(),
+      usingDirectStripe: true,
+      contentType: "application/json",
     });
 
     // Add timeout to prevent hanging
@@ -150,16 +114,14 @@ Deno.serve(async (req) => {
 
     let response;
     try {
-      // Make call to PICA API with form-encoded data
+      // Make direct call to Stripe API
       response = await fetch(apiUrl, {
         method: "POST",
         headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-          "x-pica-secret": PICA_SECRET_KEY,
-          "x-pica-connection-key": PICA_STRIPE_CONNECTION_KEY,
-          "x-pica-action-id": actionId,
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${STRIPE_SECRET_KEY}`,
         },
-        body: formData.toString(),
+        body: JSON.stringify(requestBody),
         signal: controller.signal,
       });
     } catch (fetchError) {
@@ -191,7 +153,7 @@ Deno.serve(async (req) => {
 
     clearTimeout(timeout);
 
-    console.log("PICA API response:", {
+    console.log("Stripe API response:", {
       status: response.status,
       statusText: response.statusText,
       headers: Object.fromEntries(response.headers.entries()),
@@ -216,7 +178,7 @@ Deno.serve(async (req) => {
         errorData = { message: "Unknown error" };
       }
 
-      console.error("PICA API error details:", {
+      console.error("Stripe API error details:", {
         status: response.status,
         statusText: response.statusText,
         errorData: JSON.stringify(errorData, null, 2),
