@@ -14,7 +14,6 @@ import { ThemeSwitcher } from "@/components/theme-switcher";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 import MobileAppBanner from "@/components/MobileAppBanner";
-import Header from "@/components/Header";
 import {
   generateInvoiceFromPrompt,
   GeneratedInvoice,
@@ -265,8 +264,6 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <MobileAppBanner />
-      {/* Header - Using the responsive Header component */}
-      <Header />
 
       {/* Hero Section */}
       <div className="bg-gradient-to-r from-blue-500/10 to-purple-500/10 py-8 md:py-12">
