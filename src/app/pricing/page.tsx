@@ -155,15 +155,12 @@ export default function PricingPage() {
                 <Button
                   className="w-full py-2 md:py-2.5 text-sm md:text-base"
                   variant="outline"
-                  onClick={() =>
-                    handleSubscribe("price_1RPFsuBHa6CDK7TJfVmF8ld6")
-                  }
-                  disabled={loadingPriceId === "price_1RPFsuBHa6CDK7TJfVmF8ld6"}
+                  onClick={() => {
+                    // For free plan, redirect to signup directly
+                    window.location.href = `/auth/signup?plan=free`;
+                  }}
                 >
-                  {loadingPriceId === "price_1RPFsuBHa6CDK7TJfVmF8ld6"
-                    ? "Processing..."
-                    : "Get Started"}{" "}
-                  <ArrowRight className="ml-2 h-4 w-4" />
+                  Get Started <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
               </CardFooter>
             </Card>

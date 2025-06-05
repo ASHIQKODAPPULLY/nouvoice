@@ -21,13 +21,28 @@ Deno.serve(async (req) => {
     if (
       !priceId.startsWith("price_") &&
       !priceId.includes("annual_discount") &&
-      !priceId.includes("monthly_pro")
+      !priceId.includes("monthly_pro") &&
+      priceId !== "free"
     ) {
       console.error("Invalid price ID format:", priceId);
       return new Response(
         JSON.stringify({ error: "Invalid price ID format" }),
         {
           status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        },
+      );
+    }
+
+    // Handle free plan signup
+    if (priceId === "free") {
+      // For free plans, we don't need to create a checkout session
+      // Just return a URL to redirect to the signup page
+      return new Response(
+        JSON.stringify({
+          url: `${baseUrl || "https://serene-sutherland6-a496q.view-2.tempo-dev.app"}/auth/signup?plan=free`,
+        }),
+        {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         },
       );
