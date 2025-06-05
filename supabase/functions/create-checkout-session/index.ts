@@ -53,22 +53,48 @@ Deno.serve(async (req) => {
       "PICA_STRIPE_CONNECTION_KEY",
     );
 
+    // Debug: Log all environment variables to see what's available
+    console.log("All environment variables:", Object.keys(Deno.env.toObject()));
     console.log("Environment check:", {
       hasPicaSecret: !!PICA_SECRET_KEY,
       hasPicaConnection: !!PICA_STRIPE_CONNECTION_KEY,
       picaSecretLength: PICA_SECRET_KEY?.length || 0,
       picaConnectionLength: PICA_STRIPE_CONNECTION_KEY?.length || 0,
+      picaSecretPreview: PICA_SECRET_KEY
+        ? PICA_SECRET_KEY.substring(0, 10) + "..."
+        : "null",
+      picaConnectionPreview: PICA_STRIPE_CONNECTION_KEY
+        ? PICA_STRIPE_CONNECTION_KEY.substring(0, 10) + "..."
+        : "null",
     });
 
     if (!PICA_SECRET_KEY || !PICA_STRIPE_CONNECTION_KEY) {
-      console.error("Missing PICA environment variables", {
-        PICA_SECRET_KEY: !!PICA_SECRET_KEY,
-        PICA_STRIPE_CONNECTION_KEY: !!PICA_STRIPE_CONNECTION_KEY,
-      });
-      return new Response(JSON.stringify({ error: "Configuration missing" }), {
-        status: 500,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+      console.error(
+        "Missing PICA environment variables - this will cause direct Stripe API calls",
+        {
+          PICA_SECRET_KEY: !!PICA_SECRET_KEY,
+          PICA_STRIPE_CONNECTION_KEY: !!PICA_STRIPE_CONNECTION_KEY,
+          availableEnvVars: Object.keys(Deno.env.toObject()).filter(
+            (key) => key.includes("PICA") || key.includes("STRIPE"),
+          ),
+        },
+      );
+      return new Response(
+        JSON.stringify({
+          error:
+            "PICA configuration missing - cannot proceed with checkout session creation",
+          details:
+            "PICA environment variables are required to avoid direct Stripe API calls",
+          missingVars: {
+            PICA_SECRET_KEY: !PICA_SECRET_KEY,
+            PICA_STRIPE_CONNECTION_KEY: !PICA_STRIPE_CONNECTION_KEY,
+          },
+        }),
+        {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        },
+      );
     }
 
     // Set success and cancel URLs
@@ -103,6 +129,13 @@ Deno.serve(async (req) => {
     // Use the correct action ID for checkout sessions
     const actionId = "conn_mod_def::GCmLNSLWawg::Pj6pgAmnQhuqMPzB8fquRg";
     const apiUrl = "https://api.picaos.com/v1/passthrough/v1/checkout/sessions";
+
+    console.log("PICA API Configuration:", {
+      apiUrl,
+      actionId,
+      usingPicaPassthrough: true,
+      directStripeCall: false,
+    });
 
     console.log("Making PICA API call:", {
       url: apiUrl,
