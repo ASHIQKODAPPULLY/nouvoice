@@ -25,7 +25,10 @@ export default function Header() {
       setIsScrolled(window.scrollY > 10);
     };
 
-    window.addEventListener("scroll", handleScroll);
+    // Set initial state
+    handleScroll();
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
@@ -33,10 +36,10 @@ export default function Header() {
 
   return (
     <header
-      className={`border-b fixed top-0 left-0 right-0 z-50 h-16 transition-all duration-200 ${
+      className={`border-b fixed top-0 left-0 right-0 z-50 h-16 transition-all duration-300 ease-in-out ${
         isScrolled
-          ? "bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 shadow-sm"
-          : "bg-background/80"
+          ? "bg-background/95 backdrop-blur-md shadow-lg border-border/50"
+          : "bg-background/80 backdrop-blur-sm shadow-none border-transparent"
       }`}
     >
       <div className="container mx-auto py-4 px-4 flex justify-between items-center">
