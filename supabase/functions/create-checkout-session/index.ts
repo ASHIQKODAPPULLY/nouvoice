@@ -1,4 +1,4 @@
-import { corsHeaders } from "@shared/cors.ts";
+import { corsHeaders } from "../_shared/cors.ts";
 
 Deno.serve(async (req) => {
   // Handle CORS preflight requests
@@ -7,8 +7,24 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { priceId, returnUrl, userId } = await req.json();
+    // Parse JSON with error handling
+    let body;
+    try {
+      body = await req.json();
+    } catch (e) {
+      console.error("Invalid JSON input:", e);
+      return new Response(JSON.stringify({ error: "Invalid JSON input" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const { priceId, returnUrl, userId } = body;
     console.log("Received request:", { priceId, returnUrl, userId });
+
+    // Declare baseUrl at the top before any usage
+    const baseUrl =
+      returnUrl || "https://serene-sutherland6-a496q.view-2.tempo-dev.app";
 
     if (!priceId) {
       return new Response(JSON.stringify({ error: "Price ID is required" }), {
@@ -40,7 +56,7 @@ Deno.serve(async (req) => {
       // Just return a URL to redirect to the signup page
       return new Response(
         JSON.stringify({
-          url: `${baseUrl || "https://serene-sutherland6-a496q.view-2.tempo-dev.app"}/auth/signup?plan=free`,
+          url: `${baseUrl}/auth/signup?plan=free`,
         }),
         {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -75,8 +91,6 @@ Deno.serve(async (req) => {
     formData.append("automatic_tax[enabled]", "true");
 
     // Set success and cancel URLs
-    const baseUrl =
-      returnUrl || "https://serene-sutherland6-a496q.view-2.tempo-dev.app";
     formData.append(
       "success_url",
       `${baseUrl}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
@@ -93,6 +107,10 @@ Deno.serve(async (req) => {
     // Use the correct action ID for checkout sessions
     const actionId = "conn_mod_def::GCmLNSLWawg::Pj6pgAmnQhuqMPzB8fquRg";
 
+    // Add timeout to prevent hanging
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 10000); // 10 seconds
+
     // Make call to PICA API
     const response = await fetch(
       "https://api.picaos.com/v1/passthrough/v1/checkout/sessions",
@@ -105,8 +123,11 @@ Deno.serve(async (req) => {
           "x-pica-action-id": actionId,
         },
         body: formData.toString(),
+        signal: controller.signal,
       },
     );
+
+    clearTimeout(timeout);
 
     console.log("PICA API response status:", response.status);
 
