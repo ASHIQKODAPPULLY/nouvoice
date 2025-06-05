@@ -173,5 +173,6 @@
   }
   body {
     @apply bg-background text-foreground;
+    padding-top: 4rem; /* Account for fixed header height */
   }
 }
