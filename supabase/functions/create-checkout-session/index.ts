@@ -186,25 +186,27 @@ Deno.serve(async (req) => {
       console.error("PICA API error details:", {
         status: response.status,
         statusText: response.statusText,
-        errorData,
+        errorData: JSON.stringify(errorData, null, 2),
         rawResponse: errorText,
       });
 
-      return new Response(
-        JSON.stringify({
-          error: "Failed to create checkout session",
-          details: errorData,
-          status: response.status,
-          rawError: errorText,
-        }),
-        {
-          status:
-            response.status >= 400 && response.status < 500
-              ? response.status
-              : 500,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        },
-      );
+      // Create a detailed error message
+      const detailedError = {
+        error: "Failed to create checkout session",
+        status: response.status,
+        statusText: response.statusText,
+        details: errorData,
+        rawError: errorText,
+        timestamp: new Date().toISOString(),
+      };
+
+      return new Response(JSON.stringify(detailedError), {
+        status:
+          response.status >= 400 && response.status < 500
+            ? response.status
+            : 500,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
     let sessionData;
@@ -235,16 +237,23 @@ Deno.serve(async (req) => {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (error) {
-    console.error("Edge function error:", {
-      name: error.name,
-      message: error.message,
-      stack: error.stack,
-    });
+    // Improved error logging with full error details
+    const errorDetails = {
+      name: error?.name || "Unknown",
+      message: error?.message || "Unknown error",
+      stack: error?.stack || "No stack trace",
+      fullError: JSON.stringify(error, Object.getOwnPropertyNames(error), 2),
+    };
+
+    console.error("Edge function error details:", errorDetails);
+
     return new Response(
       JSON.stringify({
         error: "Internal server error",
-        message: error.message,
-        name: error.name,
+        message: error?.message || "Unknown error occurred",
+        name: error?.name || "Unknown",
+        timestamp: new Date().toISOString(),
+        details: errorDetails,
       }),
       {
         status: 500,
