@@ -6,18 +6,40 @@ import { usePathname } from "next/navigation";
 import { Button } from "./ui/button";
 import { ThemeSwitcher } from "./theme-switcher";
 import { Menu as MenuIcon, X as CloseIcon } from "lucide-react";
+import { createClient } from "@/lib/supabase/client";
 
 export default function Header() {
   const [isMobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isClient, setIsClient] = useState(false);
   const [currentPath, setCurrentPath] = useState("/");
   const [isScrolled, setIsScrolled] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const routerPathname = usePathname();
 
   useEffect(() => {
     // Mark as client-side and set pathname after hydration
     setIsClient(true);
     setCurrentPath(routerPathname);
+
+    // Check authentication status
+    const checkAuth = async () => {
+      const supabase = createClient();
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      setIsAuthenticated(!!session);
+
+      // Listen for auth changes
+      const {
+        data: { subscription },
+      } = supabase.auth.onAuthStateChange((event, session) => {
+        setIsAuthenticated(!!session);
+      });
+
+      return () => subscription.unsubscribe();
+    };
+
+    checkAuth();
   }, [routerPathname]);
 
   useEffect(() => {
@@ -111,7 +133,7 @@ export default function Header() {
 
         <div className="flex items-center gap-4">
           <ThemeSwitcher />
-          {isClient && (
+          {isClient && !isAuthenticated && (
             <div className="hidden md:block">
               <Button
                 variant="outline"
@@ -126,6 +148,17 @@ export default function Header() {
                 onClick={() => (window.location.href = "/auth/signup")}
               >
                 {isLandingPage ? "Get Started" : "Sign Up"}
+              </Button>
+            </div>
+          )}
+          {isClient && isAuthenticated && (
+            <div className="hidden md:block">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => (window.location.href = "/pricing")}
+              >
+                Upgrade to Pro
               </Button>
             </div>
           )}
@@ -149,7 +182,7 @@ export default function Header() {
       {isClient && isMobileMenuOpen && (
         <div className="md:hidden bg-background border-t">
           <nav className="flex flex-col px-4 py-2 space-y-2">
-            {isLandingPage ? (
+            {isLandingPage && !isAuthenticated ? (
               <>
                 <Link
                   href="/pricing"
@@ -206,7 +239,36 @@ export default function Header() {
                   </Button>
                 </div>
               </>
-            ) : (
+            ) : isLandingPage && isAuthenticated ? (
+              <>
+                <Link
+                  href="/pricing"
+                  className="text-sm font-medium hover:text-primary"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Pricing
+                </Link>
+                <Link
+                  href="/team"
+                  className="text-sm font-medium hover:text-primary"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Teams
+                </Link>
+                <div className="pt-2">
+                  <Button
+                    size="sm"
+                    className="w-full"
+                    onClick={() => {
+                      setMobileMenuOpen(false);
+                      window.location.href = "/pricing";
+                    }}
+                  >
+                    Upgrade to Pro
+                  </Button>
+                </div>
+              </>
+            ) : !isAuthenticated ? (
               <>
                 <Link
                   href="/"
@@ -249,6 +311,40 @@ export default function Header() {
                   }}
                 >
                   Sign Up
+                </Button>
+              </>
+            ) : (
+              <>
+                <Link
+                  href="/"
+                  className="text-sm font-medium hover:text-primary"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Home
+                </Link>
+                <Link
+                  href="/pricing"
+                  className="text-sm font-medium hover:text-primary"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Pricing
+                </Link>
+                <Link
+                  href="/support"
+                  className="text-sm font-medium hover:text-primary"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Support
+                </Link>
+                <Button
+                  size="sm"
+                  className="w-full"
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    window.location.href = "/pricing";
+                  }}
+                >
+                  Upgrade to Pro
                 </Button>
               </>
             )}
