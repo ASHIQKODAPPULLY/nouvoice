@@ -16,12 +16,8 @@ export default function Header() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const routerPathname = usePathname();
 
+  // Separate useEffect for authentication
   useEffect(() => {
-    // Mark as client-side and set pathname after hydration
-    setIsClient(true);
-    setCurrentPath(routerPathname);
-
-    // Check authentication status
     const supabase = createClient();
     let authSubscription: any;
 
@@ -52,6 +48,12 @@ export default function Header() {
         authSubscription.unsubscribe();
       }
     };
+  }, []);
+
+  // Separate useEffect for client-side setup
+  useEffect(() => {
+    setIsClient(true);
+    setCurrentPath(routerPathname);
   }, [routerPathname]);
 
   useEffect(() => {
