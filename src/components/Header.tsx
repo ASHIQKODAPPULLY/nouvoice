@@ -14,6 +14,7 @@ export default function Header() {
   const [currentPath, setCurrentPath] = useState("/");
   const [isScrolled, setIsScrolled] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [userName, setUserName] = useState<string | null>(null);
   const routerPathname = usePathname();
 
   // Separate useEffect for authentication
@@ -35,9 +36,22 @@ export default function Header() {
         if (error) {
           console.error("Error getting session:", error);
           setIsAuthenticated(false);
+          setUserName(null);
         } else {
           console.log("Initial session:", !!session);
           setIsAuthenticated(!!session);
+
+          if (session?.user) {
+            // Try to get user name from user metadata or email
+            const displayName =
+              session.user.user_metadata?.name ||
+              session.user.user_metadata?.full_name ||
+              session.user.email?.split("@")[0] ||
+              "User";
+            setUserName(displayName);
+          } else {
+            setUserName(null);
+          }
         }
 
         // Listen for auth changes
@@ -52,8 +66,16 @@ export default function Header() {
           // Handle specific auth events
           if (event === "SIGNED_OUT") {
             setIsAuthenticated(false);
+            setUserName(null);
           } else if (event === "SIGNED_IN" && session) {
             setIsAuthenticated(true);
+            // Get user name from session
+            const displayName =
+              session.user.user_metadata?.name ||
+              session.user.user_metadata?.full_name ||
+              session.user.email?.split("@")[0] ||
+              "User";
+            setUserName(displayName);
           }
         });
 
@@ -210,7 +232,15 @@ export default function Header() {
             </div>
           )}
           {isClient && isAuthenticated && (
-            <div className="hidden md:flex items-center gap-2">
+            <div className="hidden md:flex items-center gap-3">
+              {userName && (
+                <span className="text-sm text-muted-foreground">
+                  Welcome,{" "}
+                  <span className="font-medium text-foreground">
+                    {userName}
+                  </span>
+                </span>
+              )}
               <Button
                 variant="outline"
                 size="sm"
@@ -408,6 +438,16 @@ export default function Header() {
                 >
                   Support
                 </Link>
+                {userName && (
+                  <div className="py-2 px-3 bg-muted/50 rounded-md">
+                    <span className="text-sm text-muted-foreground">
+                      Welcome,{" "}
+                      <span className="font-medium text-foreground">
+                        {userName}
+                      </span>
+                    </span>
+                  </div>
+                )}
                 <div className="space-y-2">
                   <Button
                     size="sm"
