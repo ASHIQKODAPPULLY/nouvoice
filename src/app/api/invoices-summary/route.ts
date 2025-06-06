@@ -18,21 +18,6 @@ export async function GET() {
       return Response.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // Check if user has premium subscription
-    const { data: subscription, error: subError } = await supabase
-      .from("subscriptions")
-      .select("*")
-      .eq("user_id", user.id)
-      .eq("status", "active")
-      .single();
-
-    if (subError || !subscription || !subscription.is_premium) {
-      return Response.json(
-        { error: "Premium subscription required" },
-        { status: 403 },
-      );
-    }
-
     // Get invoices data
     const { data: invoices, error: invoicesError } = await supabase
       .from("invoices")

@@ -63,10 +63,8 @@ export default function DashboardSummary({
   const [apiData, setApiData] = useState<ApiSummaryData | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Fetch data from API for premium users
+  // Fetch data from API for all users
   useEffect(() => {
-    if (!isPremium) return;
-
     const fetchSummaryData = async () => {
       setIsLoading(true);
       try {
@@ -137,7 +135,7 @@ export default function DashboardSummary({
     };
 
     fetchSummaryData();
-  }, [invoices, isPremium]);
+  }, [invoices]);
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat("en-US", {
@@ -245,28 +243,6 @@ export default function DashboardSummary({
     link.click();
     document.body.removeChild(link);
   };
-
-  if (!isPremium) {
-    return (
-      <Card className="border-dashed border-2 bg-muted/30">
-        <CardContent className="pt-6 flex flex-col items-center justify-center min-h-[200px]">
-          <div className="text-center space-y-3">
-            <Badge variant="outline" className="mb-2">
-              Premium Feature
-            </Badge>
-            <h3 className="text-xl font-medium">Dashboard Analytics</h3>
-            <p className="text-muted-foreground max-w-md">
-              Unlock detailed invoice analytics, payment tracking, and business
-              insights with our Premium plan.
-            </p>
-            <Button className="mt-4 bg-gradient-to-r from-blue-500 to-purple-500 text-white hover:opacity-90">
-              Upgrade to Premium
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
 
   return (
     <div className="space-y-6">
