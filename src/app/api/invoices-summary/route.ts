@@ -115,6 +115,16 @@ export async function GET() {
       }
     }
 
+    // Get recent invoices for detailed view
+    const recentInvoices = invoices.slice(0, 10).map((inv) => ({
+      invoiceNumber: inv.invoice_number,
+      clientName: inv.client_name,
+      amount: inv.amount,
+      date: inv.created_at,
+      dueDate: inv.due_date,
+      status: inv.status,
+    }));
+
     return Response.json({
       totalInvoices,
       totalAmount,
@@ -124,6 +134,15 @@ export async function GET() {
       overdueInvoices,
       topClients,
       teamData,
+      recentInvoices,
+      summary: {
+        totalRevenue: paidAmount,
+        pendingRevenue: unpaidAmount + overdueAmount,
+        collectionRate:
+          totalAmount > 0 ? Math.round((paidAmount / totalAmount) * 100) : 0,
+        averageInvoiceValue:
+          totalInvoices > 0 ? Math.round(totalAmount / totalInvoices) : 0,
+      },
     });
   } catch (error) {
     console.error("Error in invoices-summary API:", error);
