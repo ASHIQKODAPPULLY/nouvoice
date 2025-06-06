@@ -20,6 +20,7 @@ export default function Header() {
   useEffect(() => {
     const supabase = createClient();
     let authSubscription: any;
+    let mounted = true;
 
     const initAuth = async () => {
       try {
@@ -28,6 +29,8 @@ export default function Header() {
           data: { session },
           error,
         } = await supabase.auth.getSession();
+
+        if (!mounted) return;
 
         if (error) {
           console.error("Error getting session:", error);
@@ -41,22 +44,25 @@ export default function Header() {
         const {
           data: { subscription },
         } = supabase.auth.onAuthStateChange(async (event, session) => {
+          if (!mounted) return;
+
           console.log("Auth state changed:", event, !!session);
           setIsAuthenticated(!!session);
 
-          // Force a re-render by updating the client state
-          if (event === "SIGNED_IN" || event === "SIGNED_OUT") {
-            // Small delay to ensure state is properly updated
-            setTimeout(() => {
-              setIsAuthenticated(!!session);
-            }, 100);
+          // Handle specific auth events
+          if (event === "SIGNED_OUT") {
+            setIsAuthenticated(false);
+          } else if (event === "SIGNED_IN" && session) {
+            setIsAuthenticated(true);
           }
         });
 
         authSubscription = subscription;
       } catch (error) {
         console.error("Auth initialization error:", error);
-        setIsAuthenticated(false);
+        if (mounted) {
+          setIsAuthenticated(false);
+        }
       }
     };
 
@@ -64,6 +70,7 @@ export default function Header() {
 
     // Cleanup function
     return () => {
+      mounted = false;
       if (authSubscription) {
         authSubscription.unsubscribe();
       }

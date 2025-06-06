@@ -11,6 +11,9 @@ export const metadata: Metadata = {
   title: "Nouvoice - AI-Powered Invoice Generator",
   description:
     "Generate professional invoices from natural language descriptions",
+  icons: {
+    icon: "/favicon.png",
+  },
 };
 
 export const viewport = {
