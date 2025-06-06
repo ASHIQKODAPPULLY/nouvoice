@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Card,
   CardContent,
@@ -12,9 +12,23 @@ import { Button } from "@/components/ui/button";
 import { Check, ArrowRight, Sparkles, Users } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
+import { createClient } from "@/lib/supabase/client";
 
 export default function PricingPage() {
   const [loadingPriceId, setLoadingPriceId] = useState<string | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      const supabase = createClient();
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      setIsAuthenticated(!!session);
+    };
+
+    checkAuth();
+  }, []);
 
   const handleSubscribe = async (priceId: string) => {
     try {
@@ -122,19 +136,23 @@ export default function PricingPage() {
                 </ul>
               </CardContent>
               <CardFooter className="pt-2 md:pt-4">
-                <Button
-                  className="w-full py-2 md:py-2.5 text-sm md:text-base"
-                  variant="outline"
-                  onClick={() =>
-                    handleSubscribe("price_1RPFsuBHa6CDK7TJfVmF8ld6")
-                  }
-                  disabled={loadingPriceId === "price_1RPFsuBHa6CDK7TJfVmF8ld6"}
-                >
-                  {loadingPriceId === "price_1RPFsuBHa6CDK7TJfVmF8ld6"
-                    ? "Processing..."
-                    : "Get Started"}{" "}
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
+                {!isAuthenticated && (
+                  <Button
+                    className="w-full py-2 md:py-2.5 text-sm md:text-base"
+                    variant="outline"
+                    onClick={() =>
+                      handleSubscribe("price_1RPFsuBHa6CDK7TJfVmF8ld6")
+                    }
+                    disabled={
+                      loadingPriceId === "price_1RPFsuBHa6CDK7TJfVmF8ld6"
+                    }
+                  >
+                    {loadingPriceId === "price_1RPFsuBHa6CDK7TJfVmF8ld6"
+                      ? "Processing..."
+                      : "Get Started"}{" "}
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
+                )}
               </CardFooter>
             </Card>
 
