@@ -148,7 +148,7 @@ export default function InvoicePromptInput({
           // You can replace this with your actual admin email
           const adminEmails = [
             "admin@nouvoice.com",
-            "your-admin-email@example.com", // Replace with your actual admin email
+            "admin@example.com", // Replace with your actual admin email
           ];
 
           const userEmail = session.user.email;
