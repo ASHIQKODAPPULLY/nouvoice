@@ -46,6 +46,7 @@ import {
   CommandList,
   CommandSeparator,
 } from "./ui/command";
+import { createClient } from "@/lib/supabase/client";
 
 interface InvoicePromptInputProps {
   onGenerateInvoice?: (
@@ -116,6 +117,10 @@ export default function InvoicePromptInput({
     Array<{ name: string; price: number }>
   >([]);
 
+  // Admin access control
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [isCheckingAdmin, setIsCheckingAdmin] = useState(true);
+
   // Load saved products from localStorage on component mount
   useEffect(() => {
     const savedProducts = localStorage.getItem("savedProducts");
@@ -126,6 +131,43 @@ export default function InvoicePromptInput({
         console.error("Error parsing saved products", e);
       }
     }
+  }, []);
+
+  // Check if current user is admin
+  useEffect(() => {
+    const checkAdminStatus = async () => {
+      try {
+        setIsCheckingAdmin(true);
+        const supabase = createClient();
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
+
+        if (session?.user) {
+          // Check if user email matches admin email
+          // You can replace this with your actual admin email
+          const adminEmails = [
+            "admin@nouvoice.com",
+            "your-admin-email@example.com", // Replace with your actual admin email
+          ];
+
+          const userEmail = session.user.email;
+          const isUserAdmin = adminEmails.includes(userEmail || "");
+
+          setIsAdmin(isUserAdmin);
+          console.log("Admin check:", { userEmail, isAdmin: isUserAdmin });
+        } else {
+          setIsAdmin(false);
+        }
+      } catch (error) {
+        console.error("Error checking admin status:", error);
+        setIsAdmin(false);
+      } finally {
+        setIsCheckingAdmin(false);
+      }
+    };
+
+    checkAdminStatus();
   }, []);
 
   const taxRateSuggestions = ["5%", "8%", "10%", "15%", "20%"];
@@ -1032,16 +1074,18 @@ export default function InvoicePromptInput({
                           </PopoverContent>
                         </Popover>
 
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="flex items-center gap-1"
-                          onClick={() =>
-                            window.open("/admin/fine-tuning", "_blank")
-                          }
-                        >
-                          <Database className="h-3 w-3" /> Fine-Tuning
-                        </Button>
+                        {isAdmin && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="flex items-center gap-1"
+                            onClick={() =>
+                              window.open("/admin/fine-tuning", "_blank")
+                            }
+                          >
+                            <Database className="h-3 w-3" /> Fine-Tuning
+                          </Button>
+                        )}
                       </div>
 
                       <div className="relative">
