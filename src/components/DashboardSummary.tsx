@@ -17,7 +17,7 @@ import { Invoice } from "./InvoiceTracker";
 
 interface DashboardSummaryProps {
   invoices: Invoice[];
-  isPremium: boolean;
+  isPremium?: boolean;
 }
 
 interface SummaryStats {
@@ -49,7 +49,7 @@ interface ApiSummaryData {
 
 export default function DashboardSummary({
   invoices,
-  isPremium,
+  isPremium = true,
 }: DashboardSummaryProps) {
   const [stats, setStats] = useState<SummaryStats>({
     totalInvoices: 0,

@@ -361,7 +361,7 @@ export default function Home() {
                   status: invoice.status || "unpaid",
                   reminderSent: invoice.reminderSent || false,
                 }))}
-                isPremium={isPremium}
+                isPremium={true}
               />
             </TabsContent>
 
