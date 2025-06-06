@@ -285,7 +285,7 @@ export default function Header() {
                         <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path>
                         <circle cx="12" cy="7" r="4"></circle>
                       </svg>
-                      <span>Account</span>
+                      <span>Sign In</span>
                     </span>
                   </Button>
                   <Button
@@ -293,10 +293,10 @@ export default function Header() {
                     className="w-full"
                     onClick={() => {
                       setMobileMenuOpen(false);
-                      window.location.href = "/pricing";
+                      window.location.href = "/auth/signup";
                     }}
                   >
-                    Upgrade to Pro
+                    Get Started
                   </Button>
                 </div>
               </>

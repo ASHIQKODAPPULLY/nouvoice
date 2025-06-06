@@ -51,6 +51,8 @@ export default function Home() {
   const [activeMainTab, setActiveMainTab] = useState("dashboard");
   const [heroTextIndex, setHeroTextIndex] = useState(0);
   const [catchphraseIndex, setCatchphraseIndex] = useState(0);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isClient, setIsClient] = useState(false);
 
   // Rotate hero text and catchphrase every 5 seconds
   useEffect(() => {
@@ -66,6 +68,36 @@ export default function Home() {
     }, 3000); // Longer delay to ensure hydration is complete
 
     return () => clearTimeout(timeoutId);
+  }, []);
+
+  // Check authentication status
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const { createClient } = await import("@/lib/supabase/client");
+        const supabase = createClient();
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
+
+        setIsAuthenticated(!!session);
+        setIsClient(true);
+
+        // Listen for auth changes
+        const {
+          data: { subscription },
+        } = supabase.auth.onAuthStateChange((event, session) => {
+          setIsAuthenticated(!!session);
+        });
+
+        return () => subscription.unsubscribe();
+      } catch (error) {
+        console.error("Error checking authentication:", error);
+        setIsClient(true);
+      }
+    };
+
+    checkAuth();
   }, []);
 
   // Load business details from localStorage on component mount
@@ -280,21 +312,23 @@ export default function Home() {
             <p className="text-lg md:text-xl text-muted-foreground">
               {catchphrases[catchphraseIndex]}
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
-              <Button
-                size="lg"
-                className="w-full sm:w-auto bg-gradient-to-r from-blue-500 to-purple-500 hover:opacity-90 relative overflow-hidden group"
-                onClick={() => {
-                  window.location.href = "/auth/signup";
-                }}
-              >
-                <span className="relative z-10 flex items-center justify-center transition-transform duration-300 group-hover:translate-x-2">
-                  Get Started{" "}
-                  <ArrowRight className="ml-2 h-5 w-5 transition-transform duration-300 group-hover:translate-x-1" />
-                </span>
-                <span className="absolute inset-0 bg-white/20 transform -translate-x-full group-hover:translate-x-0 transition-transform duration-300"></span>
-              </Button>
-            </div>
+            {isClient && !isAuthenticated && (
+              <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
+                <Button
+                  size="lg"
+                  className="w-full sm:w-auto bg-gradient-to-r from-blue-500 to-purple-500 hover:opacity-90 relative overflow-hidden group"
+                  onClick={() => {
+                    window.location.href = "/auth/signup";
+                  }}
+                >
+                  <span className="relative z-10 flex items-center justify-center transition-transform duration-300 group-hover:translate-x-2">
+                    Get Started{" "}
+                    <ArrowRight className="ml-2 h-5 w-5 transition-transform duration-300 group-hover:translate-x-1" />
+                  </span>
+                  <span className="absolute inset-0 bg-white/20 transform -translate-x-full group-hover:translate-x-0 transition-transform duration-300"></span>
+                </Button>
+              </div>
+            )}
           </div>
         </div>
       </div>
