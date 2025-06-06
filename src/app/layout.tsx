@@ -13,6 +13,8 @@ export const metadata: Metadata = {
     "Generate professional invoices from natural language descriptions",
   icons: {
     icon: "/favicon.png",
+    shortcut: "/favicon.png",
+    apple: "/favicon.png",
   },
 };
 
