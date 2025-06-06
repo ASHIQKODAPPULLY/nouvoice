@@ -105,7 +105,7 @@ export default function PricingPage() {
                 <ul className="space-y-3">
                   <li className="flex items-start gap-2">
                     <Check className="h-5 w-5 text-green-500 shrink-0 mt-0.5" />
-                    <span>Up to 50 invoices per month</span>
+                    <span>Up to 10 invoices per month</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <Check className="h-5 w-5 text-green-500 shrink-0 mt-0.5" />

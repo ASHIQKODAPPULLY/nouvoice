@@ -156,7 +156,7 @@ export default function Home() {
       setInvoiceData(null);
 
       // Check if user has reached free usage limit
-      if (usageCount >= 50 && !isPremium) {
+      if (usageCount >= 10 && !isPremium) {
         alert(
           "You've reached your free usage limit. Please upgrade to premium to continue using all features.",
         );
@@ -248,7 +248,7 @@ export default function Home() {
 
   const handleExport = (format: "pdf" | "csv" | "image") => {
     // Check if user has reached free usage limit
-    if (usageCount >= 50 && !isPremium) {
+    if (usageCount >= 10 && !isPremium) {
       alert(
         "You've reached your free usage limit. Please upgrade to premium to continue using all features.",
       );
@@ -380,7 +380,7 @@ export default function Home() {
               {/* Invoice Preview */}
               <InvoicePreview
                 invoiceData={invoiceData || undefined}
-                isPremium={isPremium || usageCount < 50}
+                isPremium={isPremium || usageCount < 10}
               />
 
               {/* Export Options */}
@@ -395,9 +395,9 @@ export default function Home() {
                   {!isPremium && usageCount > 0 && (
                     <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-md">
                       <p className="text-sm text-amber-800">
-                        {usageCount >= 50
+                        {usageCount >= 10
                           ? "You've reached your free usage limit. Please upgrade to premium to continue using all features."
-                          : `You have used ${usageCount} of 50 free generations. Upgrade to premium for unlimited usage.`}
+                          : `You have used ${usageCount} of 10 free generations. Upgrade to premium for unlimited usage.`}
                       </p>
                     </div>
                   )}
