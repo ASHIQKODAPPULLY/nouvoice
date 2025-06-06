@@ -8,7 +8,7 @@ import InvoicePromptInput from "@/components/InvoicePromptInput";
 import InvoicePreview from "@/components/InvoicePreview";
 import InvoiceExportOptions from "@/components/InvoiceExportOptions";
 import InvoiceTracker from "@/components/InvoiceTracker";
-import DashboardSummary from "@/components/DashboardSummary";
+
 import { UserIcon, Sparkles, ArrowRight } from "lucide-react";
 import { ThemeSwitcher } from "@/components/theme-switcher";
 import { Badge } from "@/components/ui/badge";
@@ -48,7 +48,7 @@ export default function Home() {
   const [generatedInvoices, setGeneratedInvoices] = useState<
     GeneratedInvoice[]
   >([]);
-  const [activeMainTab, setActiveMainTab] = useState("dashboard");
+  const [activeMainTab, setActiveMainTab] = useState("create");
   const [heroTextIndex, setHeroTextIndex] = useState(0);
   const [catchphraseIndex, setCatchphraseIndex] = useState(0);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -342,27 +342,27 @@ export default function Home() {
             onValueChange={setActiveMainTab}
             className="w-full"
           >
-            <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 mb-4 md:mb-8 overflow-x-auto">
-              <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
+            <TabsList className="grid w-full grid-cols-1 md:grid-cols-3 mb-4 md:mb-8 overflow-x-auto">
               <TabsTrigger value="create">Create Invoice</TabsTrigger>
               <TabsTrigger value="tracker">Invoice Tracker</TabsTrigger>
               <TabsTrigger value="history">Invoice History</TabsTrigger>
             </TabsList>
 
             <TabsContent value="dashboard" className="space-y-8">
-              <DashboardSummary
-                invoices={generatedInvoices.map((invoice) => ({
-                  id: invoice.invoiceNumber || "",
-                  invoiceNumber: invoice.invoiceNumber || "",
-                  clientName: invoice.clientName || "",
-                  amount: invoice.total || 0,
-                  date: invoice.date || "",
-                  dueDate: invoice.dueDate || "",
-                  status: invoice.status || "unpaid",
-                  reminderSent: invoice.reminderSent || false,
-                }))}
-                isPremium={true}
-              />
+              <div className="text-center py-12">
+                <h3 className="text-2xl font-bold mb-4">Dashboard Overview</h3>
+                <p className="text-muted-foreground mb-6">
+                  Get detailed insights about your invoices and business
+                  performance
+                </p>
+                <Button
+                  size="lg"
+                  onClick={() => (window.location.href = "/dashboard")}
+                  className="bg-gradient-to-r from-blue-500 to-purple-500 hover:opacity-90"
+                >
+                  Go to Dashboard
+                </Button>
+              </div>
             </TabsContent>
 
             <TabsContent value="create" className="space-y-8">

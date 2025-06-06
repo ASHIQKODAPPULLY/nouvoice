@@ -194,7 +194,12 @@ export default function Header() {
                   Home
                 </Link>
               )}
-
+              <Link
+                href="/dashboard"
+                className="text-sm font-medium hover:text-primary"
+              >
+                Dashboard
+              </Link>
               <Link
                 href="/pricing"
                 className="text-sm font-medium hover:text-primary"
@@ -276,6 +281,13 @@ export default function Header() {
             {isLandingPage && !isAuthenticated ? (
               <>
                 <Link
+                  href="/dashboard"
+                  className="text-sm font-medium hover:text-primary"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Dashboard
+                </Link>
+                <Link
                   href="/pricing"
                   className="text-sm font-medium hover:text-primary"
                   onClick={() => setMobileMenuOpen(false)}
@@ -333,6 +345,13 @@ export default function Header() {
             ) : isLandingPage && isAuthenticated ? (
               <>
                 <Link
+                  href="/dashboard"
+                  className="text-sm font-medium hover:text-primary"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Dashboard
+                </Link>
+                <Link
                   href="/pricing"
                   className="text-sm font-medium hover:text-primary"
                   onClick={() => setMobileMenuOpen(false)}
@@ -380,6 +399,13 @@ export default function Header() {
                   Home
                 </Link>
                 <Link
+                  href="/dashboard"
+                  className="text-sm font-medium hover:text-primary"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Dashboard
+                </Link>
+                <Link
                   href="/pricing"
                   className="text-sm font-medium hover:text-primary"
                   onClick={() => setMobileMenuOpen(false)}
@@ -423,6 +449,13 @@ export default function Header() {
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   Home
+                </Link>
+                <Link
+                  href="/dashboard"
+                  className="text-sm font-medium hover:text-primary"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Dashboard
                 </Link>
                 <Link
                   href="/pricing"
