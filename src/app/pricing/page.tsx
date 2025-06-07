@@ -39,12 +39,6 @@ export default function PricingPage() {
     requiresEmail: boolean = false,
   ) => {
     try {
-      // For free plan, show email input first
-      if (requiresEmail && !customerEmail) {
-        setShowEmailInput(true);
-        return;
-      }
-
       setLoadingPriceId(priceId);
 
       const { createClient } = await import("@/lib/supabase/client");
@@ -52,6 +46,13 @@ export default function PricingPage() {
       const {
         data: { session },
       } = await supabase.auth.getSession();
+
+      // For free plan and user is not authenticated, show email input
+      if (requiresEmail && !session && !customerEmail) {
+        setShowEmailInput(true);
+        setLoadingPriceId(null);
+        return;
+      }
 
       // For paid plans, require authentication
       if (!requiresEmail && !session) {
@@ -83,6 +84,7 @@ export default function PricingPage() {
       // For free plan, just show success message
       if (priceId === "free") {
         alert(`Successfully subscribed to ${planName} plan! Welcome aboard!`);
+        setLoadingPriceId(null);
         return;
       }
 
@@ -202,7 +204,7 @@ export default function PricingPage() {
               </CardContent>
               <CardFooter className="pt-2 md:pt-4">
                 <div className="w-full space-y-3">
-                  {showEmailInput ? (
+                  {showEmailInput && !isAuthenticated ? (
                     <>
                       <div className="space-y-2">
                         <Label htmlFor="email" className="text-sm font-medium">
@@ -247,12 +249,14 @@ export default function PricingPage() {
                   ) : (
                     <Button
                       className="w-full py-2 md:py-2.5 text-sm md:text-base bg-gradient-to-r from-gradient-blue to-gradient-purple hover:opacity-90"
-                      onClick={() => handleSubscribe("free", true)}
+                      onClick={() => handleSubscribe("free", !isAuthenticated)}
                       disabled={loadingPriceId === "free"}
                     >
                       {loadingPriceId === "free"
                         ? "Processing..."
-                        : "Subscribe"}
+                        : isAuthenticated
+                          ? "Get Free Plan"
+                          : "Subscribe"}
                       <ArrowRight className="ml-2 h-4 w-4" />
                     </Button>
                   )}
