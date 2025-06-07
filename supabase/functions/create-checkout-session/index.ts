@@ -1,5 +1,81 @@
 import { corsHeaders } from "@shared/cors.ts";
 
+// Helper function to get plan name from price ID
+function getPlanName(priceId: string): string {
+  const planMap: { [key: string]: string } = {
+    price_1RPG2jBHa6CDK7TJvViR7IoO: "Annual Access",
+    price_1RNxxsBHa6CDK7TJCN035U5R: "Pro",
+    price_1RPG53BHa6CDK7TJGyBiQwM2: "Team",
+  };
+  return planMap[priceId] || "Premium";
+}
+
+// Helper function to get plan amount from price ID
+function getPlanAmount(priceId: string): string {
+  const amountMap: { [key: string]: string } = {
+    price_1RPG2jBHa6CDK7TJvViR7IoO: "$50/year",
+    price_1RNxxsBHa6CDK7TJCN035U5R: "$19/month",
+    price_1RPG53BHa6CDK7TJGyBiQwM2: "$49/month",
+  };
+  return amountMap[priceId] || "Custom";
+}
+
+// Function to send email notification via Resend
+async function sendEmailNotification({
+  customerEmail,
+  plan,
+  amount,
+}: {
+  customerEmail: string;
+  plan: string;
+  amount: string;
+}) {
+  const PICA_SECRET_KEY = Deno.env.get("PICA_SECRET_KEY");
+  const PICA_RESEND_CONNECTION_KEY = Deno.env.get("PICA_RESEND_CONNECTION_KEY");
+
+  if (!PICA_SECRET_KEY || !PICA_RESEND_CONNECTION_KEY) {
+    console.error("PICA credentials not found in environment variables");
+    throw new Error("PICA credentials not configured");
+  }
+
+  const emailPayload = {
+    from: "no-reply@nouvoice.com.au",
+    to: ["contact@nouvoice.com.au"],
+    subject: `New ${plan} Plan Subscription - ${customerEmail}`,
+    html: `
+      <h2>New Subscription Alert</h2>
+      <p><strong>Plan:</strong> ${plan}</p>
+      <p><strong>Amount:</strong> ${amount}</p>
+      <p><strong>Customer Email:</strong> ${customerEmail}</p>
+      <p><strong>Timestamp:</strong> ${new Date().toISOString()}</p>
+      <hr>
+      <p><em>This is an automated notification from your Nouvoice invoice generator.</em></p>
+    `,
+  };
+
+  const response = await fetch("https://pica.new/passthrough/resend/emails", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${PICA_SECRET_KEY}`,
+      "X-Connection-Key": PICA_RESEND_CONNECTION_KEY,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(emailPayload),
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error("Resend API error:", {
+      status: response.status,
+      statusText: response.statusText,
+      error: errorText,
+    });
+    throw new Error(`Resend API error: ${response.status} - ${errorText}`);
+  }
+
+  console.log("Email sent successfully via Resend");
+}
+
 Deno.serve(async (req) => {
   console.log("=== CHECKOUT SESSION EDGE FUNCTION STARTED ===");
   console.log("Request method:", req.method);
@@ -28,8 +104,13 @@ Deno.serve(async (req) => {
       });
     }
 
-    const { priceId, returnUrl, userId } = body;
-    console.log("Extracted parameters:", { priceId, returnUrl, userId });
+    const { priceId, returnUrl, userId, customerEmail } = body;
+    console.log("Extracted parameters:", {
+      priceId,
+      returnUrl,
+      userId,
+      customerEmail,
+    });
 
     // Declare baseUrl at the top before any usage
     const baseUrl =
@@ -46,8 +127,27 @@ Deno.serve(async (req) => {
 
     // Handle free plan signup
     if (priceId === "free") {
-      console.log("Handling free plan signup");
-      const freeUrl = `${baseUrl}/auth/signup?plan=free`;
+      console.log("Handling free plan signup with email:", customerEmail);
+
+      // Send email notification to contact@nouvoice.com.au
+      if (customerEmail) {
+        try {
+          console.log("Sending email notification for free plan signup");
+          await sendEmailNotification({
+            customerEmail,
+            plan: "Free",
+            amount: "$0",
+          });
+          console.log(
+            `Email notification sent for new free plan subscriber: ${customerEmail}`,
+          );
+        } catch (emailError) {
+          console.error("Failed to send email notification:", emailError);
+          // Don't fail the whole process if email fails
+        }
+      }
+
+      const freeUrl = `${baseUrl}/auth/signup?plan=free&email=${encodeURIComponent(customerEmail || "")}`;
       console.log("Redirecting to free signup:", freeUrl);
       return new Response(JSON.stringify({ url: freeUrl }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -114,6 +214,29 @@ Deno.serve(async (req) => {
     if (userId) {
       formData.append("client_reference_id", userId);
       console.log("Added client reference ID:", userId);
+    }
+
+    if (customerEmail) {
+      formData.append("customer_email", customerEmail);
+      console.log("Added customer email:", customerEmail);
+
+      // Send email notification to contact@nouvoice.com.au
+      try {
+        console.log("Sending email notification for paid plan subscription");
+        const planName = getPlanName(priceId);
+        const planAmount = getPlanAmount(priceId);
+        await sendEmailNotification({
+          customerEmail,
+          plan: planName,
+          amount: planAmount,
+        });
+        console.log(
+          `Email notification sent for new ${planName} subscriber: ${customerEmail}`,
+        );
+      } catch (emailError) {
+        console.error("Failed to send email notification:", emailError);
+        // Don't fail the whole process if email fails
+      }
     }
 
     console.log("Form data prepared:", formData.toString());

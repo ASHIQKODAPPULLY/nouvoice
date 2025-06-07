@@ -9,7 +9,9 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Check, ArrowRight, Sparkles, Users } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Check, ArrowRight, Sparkles, Users, Mail } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
@@ -17,6 +19,8 @@ import { createClient } from "@/lib/supabase/client";
 export default function PricingPage() {
   const [loadingPriceId, setLoadingPriceId] = useState<string | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [customerEmail, setCustomerEmail] = useState("");
+  const [showEmailInput, setShowEmailInput] = useState(false);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -30,8 +34,17 @@ export default function PricingPage() {
     checkAuth();
   }, []);
 
-  const handleSubscribe = async (priceId: string) => {
+  const handleSubscribe = async (
+    priceId: string,
+    requiresEmail: boolean = false,
+  ) => {
     try {
+      // For free plan, show email input first
+      if (requiresEmail && !customerEmail) {
+        setShowEmailInput(true);
+        return;
+      }
+
       setLoadingPriceId(priceId);
 
       const { createClient } = await import("@/lib/supabase/client");
@@ -40,19 +53,48 @@ export default function PricingPage() {
         data: { session },
       } = await supabase.auth.getSession();
 
-      if (!session) {
+      // For paid plans, require authentication
+      if (!requiresEmail && !session) {
         window.location.href = `/auth/signin?redirect=${encodeURIComponent("/pricing")}`;
         return;
       }
 
-      // Call the Supabase Edge Function
+      const userEmail = customerEmail || session?.user?.email;
+      const planName = getPlanName(priceId);
+
+      // Send email notification
+      try {
+        await fetch("/api/send-email", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            customerEmail: userEmail,
+            planName,
+            priceId,
+          }),
+        });
+      } catch (emailError) {
+        console.error("Failed to send email notification:", emailError);
+        // Continue with subscription even if email fails
+      }
+
+      // For free plan, just show success message
+      if (priceId === "free") {
+        alert(`Successfully subscribed to ${planName} plan! Welcome aboard!`);
+        return;
+      }
+
+      // Call the Supabase Edge Function for paid plans
       const { data, error } = await supabase.functions.invoke(
         "supabase-functions-create-checkout-session",
         {
           body: {
             priceId,
             returnUrl: window.location.origin,
-            userId: session.user.id,
+            userId: session?.user?.id,
+            customerEmail: userEmail,
           },
         },
       );
@@ -74,6 +116,29 @@ export default function PricingPage() {
     } finally {
       setLoadingPriceId(null);
     }
+  };
+
+  const getPlanName = (priceId: string) => {
+    switch (priceId) {
+      case "free":
+        return "Free";
+      case "price_1RPG2jBHa6CDK7TJvViR7IoO":
+        return "Annual Access";
+      case "price_1RNxxsBHa6CDK7TJCN035U5R":
+        return "Pro";
+      case "price_1RPG53BHa6CDK7TJGyBiQwM2":
+        return "Team";
+      default:
+        return "Enterprise";
+    }
+  };
+
+  const handleEmailSubmit = (priceId: string) => {
+    if (!customerEmail || !customerEmail.includes("@")) {
+      alert("Please enter a valid email address");
+      return;
+    }
+    handleSubscribe(priceId, true);
   };
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -136,23 +201,62 @@ export default function PricingPage() {
                 </ul>
               </CardContent>
               <CardFooter className="pt-2 md:pt-4">
-                {!isAuthenticated && (
-                  <Button
-                    className="w-full py-2 md:py-2.5 text-sm md:text-base"
-                    variant="outline"
-                    onClick={() =>
-                      handleSubscribe("price_1RPFsuBHa6CDK7TJfVmF8ld6")
-                    }
-                    disabled={
-                      loadingPriceId === "price_1RPFsuBHa6CDK7TJfVmF8ld6"
-                    }
-                  >
-                    {loadingPriceId === "price_1RPFsuBHa6CDK7TJfVmF8ld6"
-                      ? "Processing..."
-                      : "Get Started"}{" "}
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </Button>
-                )}
+                <div className="w-full space-y-3">
+                  {showEmailInput ? (
+                    <>
+                      <div className="space-y-2">
+                        <Label htmlFor="email" className="text-sm font-medium">
+                          Enter your email to subscribe
+                        </Label>
+                        <div className="flex gap-2">
+                          <Mail className="h-4 w-4 mt-3 text-muted-foreground" />
+                          <Input
+                            id="email"
+                            type="email"
+                            placeholder="your@email.com"
+                            value={customerEmail}
+                            onChange={(e) => setCustomerEmail(e.target.value)}
+                            className="flex-1"
+                          />
+                        </div>
+                      </div>
+                      <div className="flex gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            setShowEmailInput(false);
+                            setCustomerEmail("");
+                          }}
+                          className="flex-1"
+                        >
+                          Cancel
+                        </Button>
+                        <Button
+                          onClick={() => handleEmailSubmit("free")}
+                          disabled={loadingPriceId === "free"}
+                          className="flex-1 bg-gradient-to-r from-gradient-blue to-gradient-purple hover:opacity-90"
+                        >
+                          {loadingPriceId === "free"
+                            ? "Processing..."
+                            : "Subscribe"}
+                          <ArrowRight className="ml-2 h-4 w-4" />
+                        </Button>
+                      </div>
+                    </>
+                  ) : (
+                    <Button
+                      className="w-full py-2 md:py-2.5 text-sm md:text-base bg-gradient-to-r from-gradient-blue to-gradient-purple hover:opacity-90"
+                      onClick={() => handleSubscribe("free", true)}
+                      disabled={loadingPriceId === "free"}
+                    >
+                      {loadingPriceId === "free"
+                        ? "Processing..."
+                        : "Subscribe"}
+                      <ArrowRight className="ml-2 h-4 w-4" />
+                    </Button>
+                  )}
+                </div>
               </CardFooter>
             </Card>
 
