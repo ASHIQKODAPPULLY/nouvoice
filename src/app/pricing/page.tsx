@@ -21,6 +21,8 @@ export default function PricingPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [customerEmail, setCustomerEmail] = useState("");
   const [showEmailInput, setShowEmailInput] = useState(false);
+  const [hasActiveFreePlan, setHasActiveFreePlan] = useState(false);
+  const [checkingSubscription, setCheckingSubscription] = useState(false);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -29,10 +31,39 @@ export default function PricingPage() {
         data: { session },
       } = await supabase.auth.getSession();
       setIsAuthenticated(!!session);
+
+      // If user is authenticated, check their subscription status
+      if (session?.user?.email) {
+        await checkSubscriptionStatus(session.user.email);
+      }
     };
 
     checkAuth();
   }, []);
+
+  const checkSubscriptionStatus = async (email: string) => {
+    try {
+      setCheckingSubscription(true);
+      const supabase = createClient();
+      const { data, error } = await supabase.functions.invoke(
+        "supabase-functions-check-subscription-status",
+        {
+          body: { email },
+        },
+      );
+
+      if (error) {
+        console.error("Error checking subscription status:", error);
+        return;
+      }
+
+      setHasActiveFreePlan(data?.hasActiveFreePlan || false);
+    } catch (error) {
+      console.error("Failed to check subscription status:", error);
+    } finally {
+      setCheckingSubscription(false);
+    }
+  };
 
   const handleSubscribe = async (
     priceId: string,
@@ -84,6 +115,7 @@ export default function PricingPage() {
       // For free plan, just show success message
       if (priceId === "free") {
         alert(`Successfully subscribed to ${planName} plan! Welcome aboard!`);
+        setHasActiveFreePlan(true); // Update state to prevent duplicate subscriptions
         setLoadingPriceId(null);
         return;
       }
@@ -250,14 +282,23 @@ export default function PricingPage() {
                     <Button
                       className="w-full py-2 md:py-2.5 text-sm md:text-base bg-gradient-to-r from-gradient-blue to-gradient-purple hover:opacity-90"
                       onClick={() => handleSubscribe("free", !isAuthenticated)}
-                      disabled={loadingPriceId === "free"}
+                      disabled={
+                        loadingPriceId === "free" ||
+                        (isAuthenticated && hasActiveFreePlan)
+                      }
                     >
-                      {loadingPriceId === "free"
-                        ? "Processing..."
-                        : isAuthenticated
-                          ? "Get Free Plan"
-                          : "Subscribe"}
-                      <ArrowRight className="ml-2 h-4 w-4" />
+                      {checkingSubscription
+                        ? "Checking..."
+                        : loadingPriceId === "free"
+                          ? "Processing..."
+                          : isAuthenticated && hasActiveFreePlan
+                            ? "Already Subscribed"
+                            : isAuthenticated
+                              ? "Get Free Plan"
+                              : "Subscribe"}
+                      {!checkingSubscription && !hasActiveFreePlan && (
+                        <ArrowRight className="ml-2 h-4 w-4" />
+                      )}
                     </Button>
                   )}
                 </div>
